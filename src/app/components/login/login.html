@@ -1,0 +1,96 @@
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-lg rounded-4 border-0" style="max-width: 450px; width: 100%;">
+    <div class="card-body p-5">
+
+      <div class="mb-4 text-center">
+        <h2 class="fw-bold text-dark mb-1">Sign In</h2>
+        <p class="text-muted">
+          Please enter your credentials to access your account.
+        </p>
+      </div>
+
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            email
+            required
+            [(ngModel)]="loginUserModel.email"
+            #email="ngModel"
+            class="form-control form-control-lg"
+            placeholder="name@example.com"
+            [ngClass]="{
+              'is-invalid': loginForm.submitted && email.invalid
+            }"
+          >
+
+          <div
+            class="invalid-feedback"
+            *ngIf="loginForm.submitted && email.invalid">
+
+            <span *ngIf="email.errors?.['required']">
+              Email is required.
+            </span>
+
+            <span *ngIf="email.errors?.['email']">
+              Enter a valid email address.
+            </span>
+
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label for="password" class="form-label fw-semibold">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="6"
+            [(ngModel)]="loginUserModel.password"
+            #password="ngModel"
+            class="form-control form-control-lg"
+            placeholder="••••••••"
+            [ngClass]="{
+              'is-invalid': loginForm.submitted && password.invalid
+            }"
+          >
+
+          <div
+            class="invalid-feedback"
+            *ngIf="loginForm.submitted && password.invalid">
+
+            <span *ngIf="password.errors?.['required']">
+              Password is required.
+            </span>
+
+            <span *ngIf="password.errors?.['minlength']">
+              Password must be at least 6 characters.
+            </span>
+
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 btn-lg">
+          Sign In
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
