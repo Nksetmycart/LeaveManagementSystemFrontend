@@ -1,0 +1,97 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Master Rounding Avatar Configuration */
+.avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Row Styling & Hover Engines */
+.request-row {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.request-row:hover {
+  background-color: #f8fafc;
+}
+
+/* Selected Active Focus Border Setup */
+.active-card {
+  border: 2px solid #000000 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Meta Param Data Labels */
+.meta-label {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* Base Utility Classes Configuration */
+.fs-7 {
+  font-size: 0.8rem !important;
+}
+
+.min-h-card {
+  min-height: 520px;
+}
+
+.resize-none {
+  resize: none;
+}
+
+.py-2\.5 {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
+.px-2\.5 {
+  padding-left: 0.65rem !important;
+  padding-right: 0.65rem !important;
+}
+
+.py-1\.5 {
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.35rem !important;
+}
+
+/* Action Buttons Custom Colors Matching Screenshot Layout */
+.btn-success-custom {
+  background-color: #00875a;
+  color: #ffffff;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-success-custom:hover {
+  background-color: #006644;
+  color: #ffffff;
+}
+
+.btn-danger-custom {
+  background-color: #de350b;
+  color: #ffffff;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-danger-custom:hover {
+  background-color: #bf2600;
+  color: #ffffff;
+}
+
+/* Soft Subdued Background for App Custom Components */
+.bg-light {
+  background-color: #f4f5f7 !important;
+}

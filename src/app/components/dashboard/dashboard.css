@@ -1,0 +1,26 @@
+/* Floating Action Button (FAB) Positioning Rules */
+.fab-calendar-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  z-index: 1050; /* Sits cleanly above main body text wrappers */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Interaction Hover Pop State */
+.fab-calendar-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  background-color: #1d4ed8 !important; /* Slightly deeper active corporate blue */
+}
+
+/* Modal sizing adjustments to fit a big calendar comfortably */
+@media (min-width: 1200px) {
+  .modal-xl {
+    --bs-modal-width: 85vw; /* Sets wider desktop layout aspect ratios */
+  }
+}

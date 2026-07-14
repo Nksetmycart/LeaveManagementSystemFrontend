@@ -1,0 +1,136 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Time Off</span>
+    <h1 class="fw-bold text-dark h2 mb-1">Apply for Leave</h1>
+    <p class="text-secondary mb-0 fs-6">Plan ahead — check your team calendar and pick optimal dates.</p>
+  </div>
+
+  <div class="row g-4">
+    
+    <!-- LEFT COLUMN: Leave Application Form -->
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <form (ngSubmit)="submitLeaveRequest()">
+          
+          <!-- Leave Type Selection -->
+          <div class="mb-3">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Leave Type</label>
+            <select class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6">
+              <option value="" disabled selected>Select a leave type</option>
+              <option value="earned">Earned Leave</option>
+              <option value="casual">Casual Leave</option>
+              <option value="sick">Sick Leave</option>
+            </select>
+          </div>
+
+          <!-- Selected Dates Inputs (Populated by Calendar Clicks) -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Start Date</label>
+              <div class="form-control border bg-light text-secondary rounded-3 py-2.5 text-center fs-7 text-truncate">
+                {{ startDate ? (startDate | date:'yyyy-MM-dd') : 'Pick from calendar' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">End Date</label>
+              <div class="form-control border bg-light text-secondary rounded-3 py-2.5 text-center fs-7 text-truncate">
+                {{ endDate ? (endDate | date:'yyyy-MM-dd') : 'Pick from calendar' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Day Type Select -->
+          <div class="mb-3">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Day Type</label>
+            <select class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6">
+              <option value="full" selected>Full Day</option>
+              <option value="half-first">First Half</option>
+              <option value="half-second">Second Half</option>
+            </select>
+          </div>
+
+          <!-- Reason Textarea -->
+          <div class="mb-3">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Reason</label>
+            <textarea 
+              class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 px-3 fs-6 resize-none" 
+              rows="3" 
+              placeholder="Share context so your manager can approve quickly."></textarea>
+          </div>
+
+          <!-- Emergency Contact Input -->
+          <div class="mb-3">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Emergency Contact (Optional)</label>
+            <div class="position-relative">
+              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+              <input 
+                type="text" 
+                class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 ps-5 fs-6" 
+                placeholder="+91 98xxxx...">
+            </div>
+          </div>
+
+          <!-- Mock Attachment Block -->
+          <div class="mb-4 border border-dashed rounded-3 p-2.5 text-muted bg-light-subtle d-flex align-items-center fs-7">
+            <i class="bi bi-paperclip me-2 fs-6"></i>
+            <span>Attachments coming soon (v2)</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none text-white fs-6">
+            <i class="bi bi-send me-2 fs-7"></i> Submit request
+          </button>
+          
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Pick Dates Interactive Selection Calendar -->
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        
+        <!-- Calendar Controls Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="fw-bold text-dark mb-0 fs-5">Pick your dates</h3>
+            <span class="text-muted fs-7">Select a leave type to see balance</span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <button (click)="previousMonth()" class="btn btn-light btn-sm rounded-circle border shadow-none"><i class="bi bi-chevron-left"></i></button>
+            <span class="fw-bold text-dark fs-6" style="min-width: 90px; text-align: center;">{{ currentMonthName }} {{ currentYear }}</span>
+            <button (click)="nextMonth()" class="btn btn-light btn-sm rounded-circle border shadow-none"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Grid Layout -->
+        <div class="calendar-container">
+          <div class="calendar-grid-header mb-1">
+            <div class="text-muted text-center fw-semibold text-uppercase py-1" *ngFor="let day of weekDays">{{ day }}</div>
+          </div>
+
+          <div class="calendar-grid-body">
+            <div 
+              *ngFor="let cell of calendarCells" 
+              class="calendar-day-cell position-relative"
+              [ngClass]="{
+                'bg-light-muted': !cell.isCurrentMonth,
+                'selected-range-start': isRangeStart(cell.date),
+                'selected-range-end': isRangeEnd(cell.date),
+                'selected-range-mid': isInsideRange(cell.date)
+              }"
+              (click)="onDateSelect(cell.date)">
+              
+              <span class="day-number" [ngClass]="{ 'text-muted-cell': !cell.isCurrentMonth, 'fw-bold': cell.isCurrentMonth }">
+                {{ cell.date.getDate() }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand bg-white border-bottom px-4 py-3 align-items-center w-100">
+  <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
+    
+    <!-- Left: Search Bar Box -->
+    <div class="search-container position-relative" style="width: 420px;">
+      <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+      <input 
+        type="text" 
+        class="form-control border-0 py-2.5 ps-5 rounded-pill bg-light text-secondary shadow-none search-input" 
+        placeholder="Search employees, leaves, holidays...">
+    </div>
+
+    <!-- Right: Actions & Profile Section -->
+    <div class="d-flex align-items-center gap-4">
+      
+      <!-- Theme Switcher Button -->
+      <button type="button" class="btn border-0 p-1 text-secondary icon-btn shadow-none">
+        <i class="bi bi-moon fs-4"></i>
+      </button>
+
+      <!-- Notification Bell with Notification Badge -->
+      <button type="button" class="btn border-0 p-1 text-secondary position-relative icon-btn shadow-none">
+        <i class="bi bi-bell fs-4"></i>
+        <span class="position-absolute top-0 start-100 translate-middle p-1.5 bg-danger border border-light rounded-circle badge-dot">
+          <span class="visually-hidden">New alerts</span>
+        </span>
+      </button>
+
+      <!-- Vertical Divider Line -->
+      <div class="vr text-black-50 opacity-25" style="height: 40px;"></div>
+
+      <!-- User Profile Dropdown / Info -->
+      <div class="d-flex align-items-center text-end user-profile-clickable" role="button">
+        <div class="me-3">
+          <span class="d-block fw-bold text-dark lh-sm fs-6">Priya Sharma</span>
+          <span class="text-muted text-uppercase fw-semibold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.05em;">HR Admin</span>
+        </div>
+        <!-- Profile Avatar Ring/Image -->
+        <img 
+          src="assets/avatar.jpg" 
+          alt="Priya Sharma" 
+          class="rounded-circle border" 
+          style="width: 44px; height: 44px; object-fit: cover;">
+      </div>
+
+    </div>
+
+  </div>
+</nav>

@@ -1,0 +1,90 @@
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Header row layout styling */
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8fafc;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #e2e8f0;
+}
+
+.calendar-grid-header div {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+/* Body Matrix Design */
+.calendar-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #e2e8f0;
+  gap: 1px; /* Emulates fine interior separator lines */
+}
+
+/* Individual Grid Blocks */
+.calendar-day-cell {
+  background-color: #ffffff;
+  min-height: 120px;
+  height: 120px; /* Locked standard size */
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+/* Highlight today's date slot */
+.calendar-day-cell.is-today {
+  background-color: #f0f7ff;
+}
+
+.day-number {
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.small-today-badge {
+  font-size: 0.65rem;
+  padding: 3px 6px;
+}
+
+/* Grayed-out rendering style adjustments */
+.bg-light-muted {
+  background-color: #f8fafc !important;
+}
+
+.bg-light-muted .day-number {
+  color: #cbd5e1;
+}
+
+/* Status Strips UI Blocks */
+.leave-status-list {
+  width: 100%;
+  max-height: 80px;
+}
+
+.status-strip {
+  font-size: 0.78rem;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: block;
+}
+
+.fs-8 {
+  font-size: 0.7rem;
+}
+
+.fs-7 {
+  font-size: 0.8rem;
+}

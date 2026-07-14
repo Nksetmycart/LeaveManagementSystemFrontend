@@ -1,1 +1,37 @@
-<p>dashboard works!</p>
+<div class="d-flex vw-100 vh-100 overflow-hidden bg-light-subtle position-relative">
+  
+  <!-- Sidebar Component -->
+  <app-sidebar/>
+
+  <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+    
+    <app-navbar/>
+
+    <main class="flex-grow-1 overflow-y-auto p-4 dashboard-main">
+        <router-outlet/>
+    </main>
+  </div>
+  
+<!-- Floating Button triggers toggle method -->
+<button (click)="toggleModal(true)" type="button" class="btn btn-primary rounded-circle shadow-lg fab-calendar-btn">
+  <i class="bi bi-calendar3-event fs-4"></i>
+</button>
+
+<!-- Modal controlled programmatically -->
+<div class="modal fade" [class.show]="isModalOpen" [style.display]="isModalOpen ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow">
+      <div class="modal-header border-0 pb-0 pe-4 pt-4">
+        <button (click)="toggleModal(false)" type="button" class="btn-close shadow-none"></button>
+      </div>
+      <div class="modal-body p-4 pt-0">
+        <app-calandar></app-calandar>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop shadow overlay -->
+<div *ngIf="isModalOpen" class="modal-backdrop fade show"></div>
+
+</div>

@@ -1,0 +1,58 @@
+<div class="card border-0 p-3 rounded-4 bg-white w-100 main-calendar-card">
+  <!-- Calendar Header Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold text-dark mb-1 h4">{{ currentMonthName }} {{ currentYear }}</h3>
+      <span class="text-muted fs-7">Team Leave & Attendance Overview</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button (click)="previousMonth()" class="btn btn-outline-secondary btn-sm rounded-circle shadow-none border-0 bg-light">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button (click)="goToToday()" class="btn btn-light btn-sm fw-medium px-3 rounded-pill shadow-none border">
+        Today
+      </button>
+      <button (click)="nextMonth()" class="btn btn-outline-secondary btn-sm rounded-circle shadow-none border-0 bg-light">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Calendar View Box -->
+  <div class="calendar-container">
+    <!-- Day Names Grid Headers -->
+    <div class="calendar-grid-header">
+      <div class="text-muted text-center fw-bold text-uppercase py-2" *ngFor="let day of weekDays">{{ day }}</div>
+    </div>
+
+    <!-- Calendar Month Matrix -->
+    <div class="calendar-grid-body">
+      <div 
+        *ngFor="let cell of calendarCells" 
+        class="calendar-day-cell"
+        [ngClass]="{ 'bg-light-muted': !cell.isCurrentMonth, 'is-today': cell.isToday }">
+        
+        <!-- Day Number -->
+        <div class="d-flex justify-content-between align-items-center mb-1.5 w-100 px-1">
+          <span class="day-number" [ngClass]="{ 'text-muted-cell': !cell.isCurrentMonth, 'fw-bold': cell.isCurrentMonth }">
+            {{ cell.date.getDate() }}
+          </span>
+          <span *ngIf="cell.isToday" class="badge bg-primary rounded-pill small-today-badge">Today</span>
+        </div>
+
+        <!-- Leave Status Badge Strip Container -->
+        <div class="leave-status-list w-100 d-flex flex-column gap-1 overflow-y-auto">
+          <div 
+            *ngFor="let status of cell.statuses" 
+            class="status-strip px-2 py-0.5 rounded text-truncate"
+            [ngClass]="getStatusClass(status.type)"
+            [title]="status.employee + ' (' + status.reason + ')'">
+            <span class="fw-bold fs-8 me-1">•</span>
+            <span class="fw-semibold text-capitalize status-emp-name">{{ status.employee }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

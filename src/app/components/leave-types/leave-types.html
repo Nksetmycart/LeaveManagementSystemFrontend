@@ -1,0 +1,74 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title Section with Primary Action Button -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Configuration</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Leave Types</h1>
+    </div>
+    <!-- Action: Create a new leave type configuration -->
+    <button (click)="navigateToAddLeaveType()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+      <i class="bi bi-sliders2 me-2 fs-5"></i> Add leave type
+    </button>
+  </div>
+
+  <!-- Responsive 3-Column Grid Layout -->
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-4" *ngFor="let type of leaveTypesList">
+      <div class="card h-100 border-0 shadow-sm rounded-4 p-3 type-card d-flex flex-column justify-content-between">
+        
+        <!-- Top Metadata & Context Info -->
+        <div class="w-100 mb-3">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="d-flex align-items-center overflow-hidden">
+              <!-- Colored Accent Icon Badge -->
+              <div class="icon-badge rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                   [style.backgroundColor]="type.colorAccent + '15'" 
+                   [style.color]="type.colorAccent">
+                <i class="bi bi-calendar-check fs-5"></i>
+              </div>
+
+              <!-- Leave Type Header Info -->
+              <div class="overflow-hidden">
+                <h3 class="fw-bold text-dark mb-0 fs-6 text-truncate">{{ type.name }}</h3>
+                <span class="text-muted font-monospace text-uppercase fw-bold tracking-wider fs-8">{{ type.code }}</span>
+              </div>
+            </div>
+
+            <!-- Right: Delete Action Trash Button -->
+            <button (click)="deleteLeaveType(type); $event.stopPropagation()" class="btn btn-link text-muted p-2 rounded-circle border-0 action-trash shadow-none flex-shrink-0">
+              <i class="bi bi-trash3 fs-6"></i>
+            </button>
+          </div>
+
+          <!-- Leave Configuration Parameters Block -->
+          <div class="mt-3 row g-2">
+            <div class="col-6">
+              <span class="text-muted text-uppercase fw-bold d-block meta-label">Annual Allocation</span>
+              <span class="text-dark fw-semibold fs-7">{{ type.annualDays }} Days</span>
+            </div>
+            <div class="col-6">
+              <span class="text-muted text-uppercase fw-bold d-block meta-label">Carry Forward</span>
+              <span class="badge px-2 py-1 rounded-2 fs-8 fw-semibold" 
+                    [ngClass]="type.isCarryForward ? 'bg-success-subtle text-success' : 'bg-light text-secondary border'">
+                {{ type.isCarryForward ? 'Allowed' : 'No' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Actions Panel Controls -->
+        <div class="d-flex gap-2 border-top pt-2 mt-auto">
+          <button (click)="viewLeaveTypeDetails(type)" class="btn btn-light btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-view shadow-none border">
+            <i class="bi bi-eye me-1.5"></i> View Details
+          </button>
+          <button (click)="updateLeaveType(type)" class="btn btn-outline-primary btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-update shadow-none">
+            <i class="bi bi-pencil me-1.5"></i> Update
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

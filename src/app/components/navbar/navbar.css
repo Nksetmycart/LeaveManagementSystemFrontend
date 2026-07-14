@@ -1,0 +1,42 @@
+/* Base text style to match modern UI fonts like Inter */
+nav {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Custom soft light background for the search container */
+.search-input {
+  background-color: #f0f4f8 !important; /* Soft grey-blue tone */
+  font-size: 0.95rem;
+  color: #718096 !important;
+}
+
+.search-input::placeholder {
+  color: #a0aec0;
+}
+
+/* Padding scale custom helper */
+.py-2\.5 {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
+/* Actions Icon hovering state */
+.icon-btn {
+  color: #4a5568 !important;
+  transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: #1a202c !important;
+}
+
+/* Notification red dot sizing */
+.badge-dot {
+  margin-top: 4px;
+  margin-left: -6px;
+}
+
+/* User Profile Block hover utility */
+.user-profile-clickable {
+  cursor: pointer;
+}

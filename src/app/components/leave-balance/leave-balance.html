@@ -1,0 +1,83 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title Section with Primary Action Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Allocations</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Leave Balance</h1>
+    </div>
+    <!-- Action: Open manual adjustment override context -->
+    <button (click)="openBulkAllocation()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+      <i class="bi bi-plus-circle me-2 fs-5"></i> Assign Balance
+    </button>
+  </div>
+
+  <!-- Main Table Container Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle custom-table">
+        
+        <!-- Table Header Column Titles -->
+        <thead>
+          <tr>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Employee</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Casual Leave</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Sick Leave</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Earned Leave</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Loss of Pay</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell text-end">Actions</th>
+          </tr>
+        </thead>
+
+        <!-- Table Body Matrix -->
+        <tbody>
+          <tr *ngFor="let record of balancesList">
+            <!-- Employee Column with Avatar -->
+            <td class="py-3 px-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-2.5">
+                  {{ record.initials }}
+                </div>
+                <div>
+                  <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">{{ record.employeeName }}</span>
+                  <small class="text-muted" style="font-size: 0.78rem;">{{ record.role }}</small>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Dynamic Leave Type Columns -->
+            <td class="px-4">
+              <span class="fw-bold text-dark">{{ record.cl.remaining }}</span><span class="text-muted fs-8"> /{{ record.cl.total }}d</span>
+            </td>
+            <td class="px-4">
+              <span class="fw-bold text-dark">{{ record.sl.remaining }}</span><span class="text-muted fs-8"> /{{ record.sl.total }}d</span>
+            </td>
+            <td class="px-4">
+              <span class="fw-bold text-dark">{{ record.el.remaining }}</span><span class="text-muted fs-8"> /{{ record.el.total }}d</span>
+            </td>
+            <td class="px-4">
+              <span class="fw-bold text-dark">{{ record.lop.remaining }}</span><span class="text-muted fs-8"> /{{ record.lop.total }}d</span>
+            </td>
+
+            <!-- Inline Operational CRUD Actions -->
+            <td class="px-4 text-end">
+              <div class="d-flex justify-content-end gap-1">
+                <button (click)="viewBalanceDetails(record)" class="btn btn-link text-secondary p-2 rounded-circle border-0 action-btn shadow-none" title="View Logs">
+                  <i class="bi bi-eye fs-6"></i>
+                </button>
+                <button (click)="adjustBalance(record)" class="btn btn-link text-primary p-2 rounded-circle border-0 action-btn shadow-none" title="Adjust Balance">
+                  <i class="bi bi-pencil fs-6"></i>
+                </button>
+                <button (click)="resetBalance(record)" class="btn btn-link text-muted p-2 rounded-circle border-0 action-btn shadow-none" title="Reset/Delete">
+                  <i class="bi bi-arrow-counterclockwise fs-6"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>

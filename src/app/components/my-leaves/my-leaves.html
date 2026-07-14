@@ -1,0 +1,56 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Section -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">History</span>
+    <h1 class="fw-bold text-dark h2 mb-0">My leave requests</h1>
+  </div>
+
+  <!-- Main Table Container Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle custom-table">
+        
+        <!-- Table Header Column Titles -->
+        <thead>
+          <tr>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Type</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">From</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">To</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Days</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Reason</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Applied</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Status</th>
+          </tr>
+        </thead>
+
+        <!-- Table Body Matrix -->
+        <tbody>
+          <!-- Dynamic Data Rows Display -->
+          <tr *ngFor="let leave of leaveHistory">
+            <td class="fw-semibold text-dark text-nowrap py-3 px-4">{{ leave.type }}</td>
+            <td class="text-secondary text-nowrap px-4">{{ leave.from }}</td>
+            <td class="text-secondary text-nowrap px-4">{{ leave.to }}</td>
+            <td class="text-dark fw-medium px-4">{{ leave.days }}</td>
+            <td class="text-secondary text-truncate max-w-reason px-4" [title]="leave.reason">{{ leave.reason }}</td>
+            <td class="text-muted text-nowrap px-4">{{ leave.applied }}</td>
+            <td class="px-4">
+              <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold" [ngClass]="getStatusClass(leave.status)">
+                {{ leave.status }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Fallback Visual Component Block (Shows only when array is empty) -->
+          <tr *ngIf="leaveHistory.length === 0">
+            <td colspan="7" class="text-center py-5">
+              <span class="text-muted fs-6 d-block my-2">No leaves yet.</span>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>

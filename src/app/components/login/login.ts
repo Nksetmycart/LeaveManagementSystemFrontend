@@ -19,7 +19,7 @@ export class Login {
       next: (response: UserResponse) => {
         const employeeId  = response.data.employeeId;
         console.log("Login Successful:", response)
-        this.router.navigate([`Dashboard/${employeeId}`])
+        this.router.navigate([`dashboard/${employeeId}`])
       },
       error: (err: any) => {
         console.log("Error Login User: ", err.message);

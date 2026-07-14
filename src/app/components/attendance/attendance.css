@@ -1,0 +1,109 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Metric Label Header weights formatting */
+.metrics-label {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.06em;
+  color: #718096;
+}
+
+.text-indigo {
+  color: #553c9a;
+}
+
+/* Toggle Selection Selector Classes */
+.btn-white {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-transparent {
+  background-color: transparent !important;
+}
+
+.me-1\.5 {
+  margin-right: 0.4rem !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Big Scale Dynamic Calendar Grid Structure Rules                            */
+/* -------------------------------------------------------------------------- */
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-grid-header div {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #a0aec0;
+}
+
+.calendar-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px; /* Large scale uniform box gap spacing rules */
+}
+
+.calendar-day-cell {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  min-height: 140px; /* Big aspect grid height matching visual layout */
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  transition: all 0.15s ease-in-out;
+}
+
+.calendar-day-cell:hover {
+  border-color: #a0aec0;
+}
+
+.day-number {
+  font-size: 0.95rem;
+  color: #1a202c;
+}
+
+.bg-light-muted {
+  background-color: #f8fafc !important;
+  border-color: #edf2f7;
+}
+
+.text-muted-cell {
+  color: #cbd5e1 !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Interactive Highlight Mechanics Rendering Rules                           */
+/* -------------------------------------------------------------------------- */
+.is-selected-cell, 
+.is-range-cap {
+  border: 2px solid #2b6cb0 !important;
+  background-color: #f7fafc !important;
+}
+
+.is-range-mid {
+  background-color: #ebf8ff !important;
+  border-color: #bee3f8 !important;
+}
+
+/* Interior Custom Log Status Badges */
+.status-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.bg-present { background-color: #e6f6f0; color: #00875a; }
+.bg-wfh     { background-color: #faf5ff; color: #553c9a; }
+.bg-half    { background-color: #fffaf0; color: #dd6b20; }

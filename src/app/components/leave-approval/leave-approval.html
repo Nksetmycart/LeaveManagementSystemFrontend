@@ -1,0 +1,190 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title Block -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Approvals</span>
+    <h1 class="fw-bold text-dark h2 mb-1">Leave requests</h1>
+    <p class="text-secondary mb-0 fs-6">Review, approve, or reject leave requests with context.</p>
+  </div>
+
+  <!-- Two-Column Master-Detail Split Layout -->
+  <div class="row g-4">
+    
+    <!-- LEFT SIDE: Request Master Lists -->
+    <div class="col-12 col-xl-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white min-h-card">
+        
+        <!-- Pending Section -->
+        <div class="mb-4">
+          <h3 class="fw-bold text-dark mb-0 fs-5">Pending (2)</h3>
+          <span class="text-muted fs-7">Awaiting your decision</span>
+        </div>
+
+        <div class="d-flex flex-column gap-2 mb-4">
+          <!-- Active Selected Item Wrapper (Ava Rodriguez) -->
+          <div class="request-row active-card d-flex align-items-center justify-content-between p-3 rounded-3" role="button">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3">AV</div>
+              <div>
+                <div class="d-flex align-items-baseline gap-2">
+                  <span class="fw-bold text-dark fs-6">Ava Rodriguez</span>
+                  <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.65rem; letter-spacing: 0.05em;">Design</span>
+                </div>
+                <small class="text-secondary">Earned Leave • 2026-07-26 → 2026-07-28 • 3 day(s)</small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 rounded-pill fw-semibold">Pending</span>
+              <i class="bi bi-chevron-right text-muted fs-7"></i>
+            </div>
+          </div>
+
+          <!-- Pending Item 2 (Emma Watson) -->
+          <div class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3" role="button">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3">EM</div>
+              <div>
+                <div class="d-flex align-items-baseline gap-2">
+                  <span class="fw-bold text-dark fs-6">Emma Watson</span>
+                  <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.65rem; letter-spacing: 0.05em;">Engineering</span>
+                </div>
+                <small class="text-secondary">Casual Leave • 2026-07-19 → 2026-07-20 • 2 day(s)</small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 rounded-pill fw-semibold">Pending</span>
+              <i class="bi bi-chevron-right text-muted fs-7"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recently Decided Section -->
+        <div class="mb-3 pt-2">
+          <h4 class="fw-bold text-secondary mb-0 fs-6">Recently decided</h4>
+        </div>
+
+        <div class="d-flex flex-column border-top">
+          <!-- History Row 1 (Liam Chen - Rejected) -->
+          <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-light border text-muted fw-semibold me-3" style="width: 36px; height: 36px; font-size: 0.8rem;">LI</div>
+              <div>
+                <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">Liam Chen • Casual Leave</span>
+                <small class="text-muted" style="font-size: 0.8rem;">2026-07-04 → 2026-07-04</small>
+              </div>
+            </div>
+            <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5 rounded-pill fw-semibold">Rejected</span>
+          </div>
+
+          <!-- History Row 2 (Emma Watson - Approved) -->
+          <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-light border text-muted fw-semibold me-3" style="width: 36px; height: 36px; font-size: 0.8rem;">EM</div>
+              <div>
+                <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">Emma Watson • Earned Leave</span>
+                <small class="text-muted" style="font-size: 0.8rem;">2026-06-24 → 2026-06-26</small>
+              </div>
+            </div>
+            <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold">Approved</span>
+          </div>
+
+          <!-- History Row 3 (Liam Chen - Approved) -->
+          <div class="d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-light border text-muted fw-semibold me-3" style="width: 36px; height: 36px; font-size: 0.8rem;">LI</div>
+              <div>
+                <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">Liam Chen • Sick Leave</span>
+                <small class="text-muted" style="font-size: 0.8rem;">2026-07-11 → 2026-07-11</small>
+              </div>
+            </div>
+            <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold">Approved</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: Focused Context Detail View -->
+    <div class="col-12 col-xl-5">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        
+        <!-- Individual Info Header -->
+        <div class="d-flex align-items-center mb-4">
+          <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3" style="width: 52px; height: 52px; font-size: 1.2rem;">AV</div>
+          <div>
+            <h3 class="fw-bold text-dark fs-5 mb-0">Ava Rodriguez</h3>
+            <span class="text-muted" style="font-size: 0.85rem;">Design</span>
+          </div>
+        </div>
+
+        <!-- Metric Param Grid -->
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Leave Type</label>
+            <span class="fw-semibold text-dark">Earned Leave</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Days</label>
+            <span class="fw-semibold text-dark">3</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Start</label>
+            <span class="fw-semibold text-dark">2026-07-26</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">End</label>
+            <span class="fw-semibold text-dark">2026-07-28</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Applied</label>
+            <span class="fw-semibold text-dark">12/07/2026</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Day Type</label>
+            <span class="fw-semibold text-dark">Full</span>
+          </div>
+        </div>
+
+        <!-- Reason Container Box -->
+        <div class="mb-4">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Reason</label>
+          <div class="bg-light rounded-3 p-3 text-dark fs-6">
+            Vacation with family
+          </div>
+        </div>
+
+        <!-- Emergency Contact Section -->
+        <div class="mb-4">
+          <span class="text-secondary fs-7">Emergency: <span class="fw-medium text-dark">+91 98xxxx1234</span></span>
+        </div>
+
+        <!-- Decision Commentary Form Box -->
+        <div class="mb-4">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">
+            <i class="bi bi-chat-left-text me-1"></i> Decision Comment
+          </label>
+          <textarea 
+            class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 px-3 fs-6 resize-none" 
+            rows="3" 
+            placeholder="Optional note to the employee"></textarea>
+        </div>
+
+        <!-- Action Processing Operation Blocks -->
+        <div class="row g-3 mt-auto">
+          <div class="col-6">
+            <button class="btn btn-success-custom w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none">
+              <i class="bi bi-check2 me-2"></i> Approve
+            </button>
+          </div>
+          <div class="col-6">
+            <button class="btn btn-danger-custom w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none">
+              <i class="bi bi-x me-1"></i> Reject
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

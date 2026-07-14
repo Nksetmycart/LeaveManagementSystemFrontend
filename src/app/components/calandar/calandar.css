@@ -1,0 +1,96 @@
+.main-calendar-card {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Header structural spacing */
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8fafc;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #e2e8f0;
+}
+
+.calendar-grid-header div {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+/* Grid Matrix Boundaries */
+.calendar-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #e2e8f0;
+  gap: 1px;
+}
+
+/* Core grid layout cells dimensions */
+.calendar-day-cell {
+  background-color: #ffffff;
+  min-height: 105px;
+  height: 105px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.calendar-day-cell.is-today {
+  background-color: #f0f7ff;
+}
+
+.day-number {
+  font-size: 0.88rem;
+  color: #334155;
+}
+
+.small-today-badge {
+  font-size: 0.6rem;
+  padding: 2px 5px;
+}
+
+.bg-light-muted {
+  background-color: #f8fafc !important;
+}
+
+.text-muted-cell {
+  color: #cbd5e1 !important;
+}
+
+/* Status Strip Tags Layout */
+.leave-status-list {
+  width: 100%;
+  max-height: 70px;
+}
+
+.status-strip {
+  font-size: 0.74rem;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: block;
+}
+
+.status-emp-name {
+  font-size: 0.72rem;
+}
+
+/* Status Badge Color Schemes */
+.bg-approved { background-color: #e6f6f0; color: #00875a; border: 1px solid #e6f6f0; }
+.bg-pending  { background-color: #fffaf0; color: #dd6b20; border: 1px solid #fffaf0; }
+.bg-sick     { background-color: #fff5f5; color: #e53e3e; border: 1px solid #fff5f5; }
+.bg-holiday  { background-color: #f3ebff; color: #8b5cf6; border: 1px solid #f3ebff; }
+
+.fs-7 { font-size: 0.8rem !important; }
+.fs-8 { font-size: 0.65rem !important; }
+.mb-1\.5 { margin-bottom: 0.38rem !important; }
