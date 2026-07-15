@@ -1,47 +1,68 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LeaveService, GetLeaveTypesList } from '../../services/leave-service';
+
+// Interface matching the explicit data model array layout returned from your backend API
+export interface LeaveTypeRecord {
+  id: string;
+  name: string;
+  description: string;
+  isPaid: string; // Keeping 'string' as defined in your GetLeaveTypesList structure
+  requiresAttachments: boolean;
+  isActive: boolean;
+}
 
 @Component({
   selector: 'app-leave-types',
+  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './leave-types.html',
   styleUrl: './leave-types.css',
 })
-export class LeaveTypes {
-// Pre-configured list matching your exact system structures
-  leaveTypesList: LeaveType[] = [
-    { id: 1, name: 'Casual Leave', code: 'C L', annualDays: 12, isCarryForward: false, colorAccent: '#2b6cb0' },
-    { id: 2, name: 'Sick Leave', code: 'S L', annualDays: 10, isCarryForward: false, colorAccent: '#38a169' },
-    { id: 3, name: 'Earned Leave', code: 'E L', annualDays: 15, isCarryForward: true, colorAccent: '#dd6b20' },
-    { id: 4, name: 'Loss of Pay', code: 'L O P', annualDays: 30, isCarryForward: false, colorAccent: '#e53e3e' }
-  ];
+export class LeaveTypes implements OnInit {
+  
+  leaveTypesList: LeaveTypeRecord[] = [];
+  apiResponse!: GetLeaveTypesList;
 
-  navigateToAddLeaveType(): void {
-    console.log('Opening layout dashboard form to configure a new operational leave policy...');
+  constructor(private leaveService: LeaveService) {}
+
+  ngOnInit(): void {
+    this.loadLeaveTypes();
   }
 
-  viewLeaveTypeDetails(type: LeaveType): void {
-    console.log(`Loading precise configuration constraints and historic usage indices for leave type: ${type.name}`);
+  loadLeaveTypes(): void {
+    this.leaveService.GetLeaveTypes().subscribe({
+      next: (response) => {
+        this.apiResponse = response;
+        this.leaveTypesList = response.data;
+        console.log("Leave Types Loaded successfully: ", this.leaveTypesList);
+      },
+      error: (error) => {
+        console.error("Error Fetching Leave Types List from server:", error);
+      }
+    });
   }
 
-  updateLeaveType(type: LeaveType): void {
+  viewLeaveTypeDetails(type: LeaveTypeRecord): void {
+    console.log(`Loading precise configuration constraints for leave type: ${type.name}`);
+  }
+
+  updateLeaveType(type: LeaveTypeRecord): void {
     console.log(`Launching contextual editor metadata settings for: ${type.name}`);
   }
 
-  deleteLeaveType(type: LeaveType): void {
+  deleteLeaveType(type: LeaveTypeRecord): void {
     console.log(`Initiating leave type deletion routine check blocks for: ${type.name}`);
-    if (confirm(`Are you sure you want to delete the leave configuration rules for ${type.name}?`)) {
+    if (confirm(`Are you sure you want to delete the leave configuration rules for "${type.name}"?`)) {
+      // Logic placeholder for your live API service pipeline hook:
+      // this.leaveService.DeleteLeaveType(type.id).subscribe({
+      //   next: () => this.loadLeaveTypes(),
+      //   error: (err) => console.error("Error deleting record", err)
+      // });
+      
+      // Temporary optimistic offline local filter array cleanup fallback
       this.leaveTypesList = this.leaveTypesList.filter(t => t.id !== type.id);
     }
   }
-}
-
-interface LeaveType {
-  id: number;
-  name: string;
-  code: string;
-  annualDays: number;
-  isCarryForward: boolean;
-  colorAccent: string;
 }

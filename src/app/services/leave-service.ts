@@ -21,10 +21,29 @@ export interface CreateLeaveTypeResponse {
   providedIn: 'root',
 })
 export class LeaveService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   CreateLeaveType(data: LeaveTypeDto): Observable<CreateLeaveTypeResponse> {
     console.log("Submitting Leave Type DTO:", data);
     return this.http.post<CreateLeaveTypeResponse>('https://localhost:7241/api/v0/LeaveType', data);
   }
+
+  GetLeaveTypes(): Observable<GetLeaveTypesList> {
+    return this.http.get<GetLeaveTypesList>(
+      'https://localhost:7241/api/v0/LeaveType'
+    )
+  }
+}
+
+export class GetLeaveTypesList {
+  message!: string;
+  success!: boolean;
+  data!: Array<{
+    id: string;
+    name: string;
+    description: string;
+    isPaid: string;
+    requiresAttachments: boolean;
+    isActive: boolean;
+  }>
 }

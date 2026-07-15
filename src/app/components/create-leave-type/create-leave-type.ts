@@ -6,7 +6,7 @@ import { LeaveService, LeaveTypeDto } from '../../services/leave-service';
 
 @Component({
   selector: 'app-create-leave-type',
-  standalone: true, // Ensured explicit standalone structure flag is set
+  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './create-leave-type.html',
   styleUrl: './create-leave-type.css',
@@ -14,7 +14,13 @@ import { LeaveService, LeaveTypeDto } from '../../services/leave-service';
 export class CreateLeaveType {
   isSubmitting = false;
 
-  // Uses the shared layout structure imported directly from the service
+  // Track operational notifications locally rather than triggering native popups
+  notification: { show: boolean; type: 'success' | 'danger'; message: string } = {
+    show: false,
+    type: 'success',
+    message: ''
+  };
+
   leaveData: LeaveTypeDto = {
     name: '',
     description: '',
@@ -37,19 +43,35 @@ export class CreateLeaveType {
     }
 
     this.isSubmitting = true;
+    this.closeNotification();
 
-    // Direct subscription hook into your real HTTP post pipeline
     this.leaveService.CreateLeaveType(this.leaveData).subscribe({
       next: (res) => {
         this.isSubmitting = false;
-        alert(res.message || 'Leave policy created successfully!');
-        this.router.navigate(['/dashboard/leaves']);
+        
+        // Trigger a successful state notification layout block
+        this.showNotification('success', res.message || 'Leave policy created successfully!');
+        
+        // Wait briefly so the user can see the green status banner before routing away
+        setTimeout(() => {
+          this.router.navigate(['/dashboard/leave-types']);
+        }, 1500);
       },
       error: (err) => {
         this.isSubmitting = false;
         console.error('Backend submission failure:', err);
-        alert('Failed to create the leave type. Please verify parameters.');
+        
+        // Trigger an error state notification layout block
+        this.showNotification('danger', 'Failed to create the leave type. Please verify parameters.');
       }
     });
+  }
+
+  showNotification(type: 'success' | 'danger', message: string): void {
+    this.notification = { show: true, type, message };
+  }
+
+  closeNotification(): void {
+    this.notification.show = false;
   }
 }

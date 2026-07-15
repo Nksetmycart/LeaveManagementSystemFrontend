@@ -15,6 +15,7 @@ import { LeaveBalance } from './components/leave-balance/leave-balance';
 import { AddEmployee } from './components/add-employee/add-employee';
 import { AddDepartment } from './components/add-department/add-department';
 import { CreateLeaveType } from './components/create-leave-type/create-leave-type';
+import { AddRole } from './components/add-role/add-role';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -34,7 +35,10 @@ export const routes: Routes = [
         {path: 'apply-leave', component: ApplyLeave},
         {path: 'my-leaves', component: MyLeaves},
         {path: 'attendance', component: Attendance},
-        {path: 'roles', component: Roles},
+        {path: 'roles', children: [
+            {path: '', component: Roles},
+            {path: 'add', component: AddRole}
+        ]},
         {path: 'leave-types', children: [
             {path: '', component: LeaveTypes},
             {path: 'add', component: CreateLeaveType}

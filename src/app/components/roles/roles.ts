@@ -1,58 +1,66 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from "@angular/router";
+import { RoleService, GetRolesList } from '../../services/role-service';
+
+// Interface matching the array elements returned inside GetRolesList.data
+export interface BackendRoleRecord {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
 
 @Component({
   selector: 'app-roles',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
-export class Roles {
-  // Dynamic Array containing structured sample data for access roles
-  roleList: Role[] = [
-    { 
-      id: 1, 
-      name: 'HR Admin', 
-      userCount: 1, 
-      permissions: ['All Operations', 'Manage Employees', 'Approve Leaves', 'System Configurations'] 
-    },
-    { 
-      id: 2, 
-      name: 'Manager', 
-      userCount: 1, 
-      permissions: ['Team Overview', 'Approve Leaves', 'View Department Profiles'] 
-    },
-    { 
-      id: 3, 
-      name: 'Employee', 
-      userCount: 3, 
-      permissions: ['Apply Leaves', 'View Personal Balance', 'Log Attendance'] 
-    }
-  ];
+export class Roles implements OnInit {
+  
+  // Real database-driven array reference state
+  roleList: BackendRoleRecord[] = [];
+  apiResponse!: GetRolesList;
 
-  navigateToAddRole(): void {
-    console.log('Opening workflow builder to instantiate a new access role...');
+  constructor(private roleService: RoleService) {}
+
+  ngOnInit(): void {
+    this.loadAllRoles();
   }
 
-  viewRoleDetails(role: Role): void {
-    console.log(`Loading precise permissions matrices and assigned active employee roster for role: ${role.name}`);
+  loadAllRoles(): void {
+    this.roleService.GetRoles().subscribe({
+      next: (response) => {
+        this.apiResponse = response;
+        this.roleList = response.data;
+        console.log("Roles fetched successfully from API stream:", this.roleList);
+      },
+      error: (error) => {
+        console.error("Error retrieving custom security profiles list:", error);
+      }
+    });
   }
 
-  updateRole(role: Role): void {
+  viewRoleDetails(role: BackendRoleRecord): void {
+    console.log(`Loading metrics overview for role identifier: ${role.name}`);
+  }
+
+  updateRole(role: BackendRoleRecord): void {
     console.log(`Launching inline administrative metadata policy modifier for: ${role.name}`);
   }
 
-  deleteRole(role: Role): void {
-    console.log(`Initiating role deletion sequence or safety prompt checks for: ${role.name}`);
-    if (confirm(`Are you sure you want to delete the ${role.name} role?`)) {
+  deleteRole(role: BackendRoleRecord): void {
+    console.log(`Initiating role deletion verification check block sequence for: ${role.name}`);
+    if (confirm(`Are you sure you want to delete the security role "${role.name}"?`)) {
+      // Logic binding placeholder for the DELETE request matching your service schema setup:
+      // this.roleService.DeleteRole(role.id).subscribe({
+      //   next: () => this.loadAllRoles(),
+      //   error: (err) => console.error("Could not drop data record row:", err)
+      // });
+
+      // Local optimistic ui updates fallback filtering criteria
       this.roleList = this.roleList.filter(r => r.id !== role.id);
     }
   }
-}
-
-interface Role {
-  id: number;
-  name: string;
-  userCount: number;
-  permissions: string[];
 }
