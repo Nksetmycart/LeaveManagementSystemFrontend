@@ -16,25 +16,25 @@
   <!-- Main Navigation Links (Tightened Gaps) -->
   <ul class="nav nav-pills flex-column mb-auto gap-1">
     <li class="nav-item">
-      <a [routerLink]="['/dashboard', employeeId]" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-grid-1x2 me-3 fs-5-custom"></i>
         <span class="fw-medium">Dashboard</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'approval']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'approval']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-check2-square me-3 fs-5-custom"></i>
         <span class="fw-medium">Approvals</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'employees']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'employees']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-people me-3 fs-5-custom"></i>
         <span class="fw-medium">Employees</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'departments']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'departments']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-building me-3 fs-5-custom"></i>
         <span class="fw-medium">Departments</span>
       </a>
@@ -42,7 +42,7 @@
     
     <!-- NEW: Roles Management -->
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'roles']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'roles']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-shield-lock me-3 fs-5-custom"></i>
         <span class="fw-medium">Roles</span>
       </a>
@@ -50,7 +50,7 @@
 
     <!-- NEW: Leave Types CRUD -->
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'leave-types']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'leave-types']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-sliders me-3 fs-5-custom"></i>
         <span class="fw-medium">Leave Types</span>
       </a>
@@ -58,38 +58,38 @@
 
     <!-- NEW: Leave Balance CRUD -->
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'leave-balance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'leave-balance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-wallet2 me-3 fs-5-custom"></i>
         <span class="fw-medium">Leave Balance</span>
       </a>
     </li>
 
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'holidays']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'holidays']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-tree me-3 fs-5-custom"></i>
         <span class="fw-medium">Holidays</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'apply-leave']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'apply-leave']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-clipboard-plus me-3 fs-5-custom"></i>
         <span class="fw-medium">Apply Leave</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'my-leaves']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'my-leaves']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-list-check me-3 fs-5-custom"></i>
         <span class="fw-medium">My Leaves</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'attendance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'attendance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-calendar3 me-3 fs-5-custom"></i>
         <span class="fw-medium">Attendance</span>
       </a>
     </li>
     <li>
-      <a [routerLink]="['/dashboard', employeeId, 'profile']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
+      <a [routerLink]="['/dashboard',  'profile']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-person-circle me-3 fs-5-custom"></i>
         <span class="fw-medium">Profile</span>
       </a>

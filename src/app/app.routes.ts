@@ -12,21 +12,33 @@ import { Attendance } from './components/attendance/attendance';
 import { Roles } from './components/roles/roles';
 import { LeaveTypes } from './components/leave-types/leave-types';
 import { LeaveBalance } from './components/leave-balance/leave-balance';
+import { AddEmployee } from './components/add-employee/add-employee';
+import { AddDepartment } from './components/add-department/add-department';
+import { CreateLeaveType } from './components/create-leave-type/create-leave-type';
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full'},
     {path: 'login', component: Login},
-    {path: 'dashboard/:id', component: Dashboard, children: [
+    {path: 'dashboard', component: Dashboard, children: [
         {path: '', component: HomeComponent},
         {path: 'approval', component: LeaveApproval},
-        {path: 'employees', component: Employees},
-        {path: 'departments', component: Departmens},
+        {path: 'employees', children: [
+            {path: '', component: Employees},
+            {path: 'add', component: AddEmployee}
+        ]},
+        {path: 'departments', children: [
+            {path: '', component: Departmens}, 
+            {path: 'add', component: AddDepartment}
+        ]},
         {path: 'holidays', component: Holidays},
         {path: 'apply-leave', component: ApplyLeave},
         {path: 'my-leaves', component: MyLeaves},
         {path: 'attendance', component: Attendance},
         {path: 'roles', component: Roles},
-        {path: 'leave-types', component: LeaveTypes},
+        {path: 'leave-types', children: [
+            {path: '', component: LeaveTypes},
+            {path: 'add', component: CreateLeaveType}
+        ]},
         {path: 'leave-balance', component: LeaveBalance},
     ]}
 ];

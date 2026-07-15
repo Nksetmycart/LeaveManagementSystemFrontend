@@ -1,0 +1,148 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">People Ops</span>
+    <h1 class="fw-bold text-dark h2 mb-1">Onboard New Employee</h1>
+    <p class="text-secondary mb-0 fs-6">Fill in the profile operational parameters to issue system credentials.</p>
+  </div>
+
+  <!-- Form Wrapper Context referencing template #empForm -->
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white max-w-form">
+    <form #empForm="ngForm" (ngSubmit)="onSubmit(empForm)" novalidate>
+      
+      <div class="row g-3">
+        <!-- Full Name -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Full Name</label>
+          <input 
+            type="text" 
+            name="name"
+            #nameModel="ngModel"
+            [(ngModel)]="employeeData.name"
+            required
+            minlength="2"
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': nameModel.touched && nameModel.invalid}"
+            placeholder="e.g. Liam Chen">
+        </div>
+
+        <!-- Email Address -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Email Address</label>
+          <input 
+            type="email" 
+            name="email"
+            #emailModel="ngModel"
+            [(ngModel)]="employeeData.email"
+            required
+            email
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': emailModel.touched && emailModel.invalid}"
+            placeholder="liam@leaveflow.io">
+        </div>
+
+        <!-- Password -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Temporary Password</label>
+          <input 
+            type="password" 
+            name="password"
+            #passwordModel="ngModel"
+            [(ngModel)]="employeeData.password"
+            required
+            minlength="6"
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': passwordModel.touched && passwordModel.invalid}"
+            placeholder="••••••••">
+        </div>
+
+        <!-- Phone Number -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Phone Number</label>
+          <input 
+            type="text" 
+            name="phoneNumber"
+            #phoneModel="ngModel"
+            [(ngModel)]="employeeData.phoneNumber"
+            required
+            pattern="^[0-9]{10}$"
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': phoneModel.touched && phoneModel.invalid}"
+            placeholder="e.g. 9876543210">
+        </div>
+
+        <!-- Department Dropdown -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Department Assignment</label>
+          <select 
+            name="departmentId"
+            #deptModel="ngModel"
+            [(ngModel)]="employeeData.departmentId"
+            required
+            class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': deptModel.touched && deptModel.invalid}">
+            <option value="" disabled>Select Department</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
+          </select>
+        </div>
+
+        <!-- Role Dropdown -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Access Role Policy</label>
+          <select 
+            name="roleId"
+            #roleModel="ngModel"
+            [(ngModel)]="employeeData.roleId"
+            required
+            class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': roleModel.touched && roleModel.invalid}">
+            <option value="" disabled>Select Security Role</option>
+            <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+          </select>
+        </div>
+
+        <!-- Joining Date & Time Picker -->
+        <div class="col-12 col-md-6">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Joining Date & Time</label>
+          <input 
+            type="datetime-local" 
+            name="joiningDate"
+            #dateModel="ngModel"
+            [(ngModel)]="employeeData.joiningDate"
+            required
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
+            [ngClass]="{'is-invalid': dateModel.touched && dateModel.invalid}">
+        </div>
+
+        <!-- Complete Address Block -->
+        <div class="col-12">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Residential Address</label>
+          <textarea 
+            name="address"
+            #addressModel="ngModel"
+            [(ngModel)]="employeeData.address"
+            required
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 resize-none"
+            [ngClass]="{'is-invalid': addressModel.touched && addressModel.invalid}"
+            rows="3"
+            placeholder="Enter physical address particulars..."></textarea>
+        </div>
+      </div>
+
+      <!-- Action Button Panel -->
+      <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+        <button type="button" (click)="empForm.resetForm()" class="btn btn-light rounded-3 px-4 py-2.5 fw-semibold border shadow-none">Clear Form</button>
+        <button 
+          type="submit" 
+          [disabled]="isSubmitting"
+          class="btn btn-primary rounded-3 px-4 py-2.5 fw-semibold shadow-none text-white d-flex align-items-center">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isSubmitting" class="bi bi-cloud-arrow-up me-2"></i> Submit Request
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

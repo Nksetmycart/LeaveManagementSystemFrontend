@@ -6,35 +6,33 @@
       <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Organization</span>
       <h1 class="fw-bold text-dark h2 mb-0">Departments</h1>
     </div>
-    <!-- Action: Open workflow to insert a new corporate department tracking group -->
-    <button (click)="navigateToAddDepartment()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+    <button [routerLink]="['/dashboard', 'departments', 'add']" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
       <i class="bi bi-plus-square me-2 fs-5"></i> Add department
     </button>
   </div>
 
   <!-- Responsive 3-Column Grid Layout -->
   <div class="row g-3">
-    <div class="col-12 col-md-6 col-xl-4" *ngFor="let dept of departments">
+    <div class="col-12 col-md-6 col-xl-4" *ngFor="let dept of departmentsList">
       <div class="card h-100 border-0 shadow-sm rounded-4 p-3 dept-card d-flex flex-column justify-content-between">
         
         <!-- Top Metadata Row View -->
         <div class="d-flex align-items-center mb-3">
-          <!-- Soft Green Building Icon Badge -->
           <div class="icon-badge rounded-3 bg-success-subtle text-success d-flex align-items-center justify-content-center me-3 flex-shrink-0">
             <i class="bi bi-building fs-5"></i>
           </div>
 
-          <!-- Department Info Context -->
           <div class="overflow-hidden">
             <h3 class="fw-bold text-dark mb-0 fs-6 text-truncate">{{ dept.name }}</h3>
-            <span class="text-secondary d-block fs-7">{{ dept.memberCount }} {{ dept.memberCount === 1 ? 'member' : 'members' }}</span>
+            <span class="text-secondary d-block fs-7 text-truncate">{{ dept.description }}</span>
           </div>
         </div>
 
         <!-- Bottom Actions Panel Controls -->
         <div class="d-flex gap-2 border-top pt-2 mt-auto">
-          <button (click)="viewDepartmentDetails(dept)" class="btn btn-light btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-view shadow-none border">
-            <i class="bi bi-eye me-1.5"></i> View Details
+          <!-- Replaced View Details with Danger/Delete Button Variant -->
+          <button (click)="deleteDepartment(dept)" class="btn btn-outline-danger btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-delete shadow-none">
+            <i class="bi bi-trash3 me-1.5"></i> Delete
           </button>
           <button (click)="updateDepartment(dept)" class="btn btn-outline-primary btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-update shadow-none">
             <i class="bi bi-pencil me-1.5"></i> Update

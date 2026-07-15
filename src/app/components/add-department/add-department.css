@@ -1,0 +1,61 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  position: relative;
+}
+
+/* Compact dashboard container optimization */
+.max-w-form {
+  max-width: 680px;
+}
+
+.bg-light {
+  background-color: #f8fafc !important;
+}
+
+/* Metadata formatting typography */
+.meta-label {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.06em;
+  color: #718096;
+}
+
+.resize-none {
+  resize: none;
+}
+
+/* Padding Scale Custom Utility Helpers */
+.py-2\.5 {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
+.fs-7 { font-size: 0.82rem !important; }
+.fs-8 { font-size: 0.72rem !important; }
+
+/* Dynamic invalid border transitions override */
+.form-control.is-invalid {
+  border-color: #e53e3e !important;
+  background-image: none;
+}
+
+/* Toast Floating Configuration */
+.custom-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1060;
+  min-width: 320px;
+  max-width: 450px;
+  animation: slideIn 0.25s ease-out forward;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

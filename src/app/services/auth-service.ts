@@ -11,6 +11,34 @@ export class AuthService {
   loginUser(data: LoginUser): Observable<UserResponse>{
     return this.http.post<UserResponse>('https://localhost:7241/api/v0/Auth/login',data);
   }
+
+  getUser() {
+    return JSON.parse(localStorage.getItem('user')!);
+  }
+
+  getEmployeeId(): string | null {
+    return this.getUser()!.emloyeeId;
+  }
+
+  getCompanyId(): string | null {
+    return this.getUser()!.companyId;
+  }
+
+  getRole() {
+    return this.getUser()!.role;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem("token");
+  }
+
+  isLoggedIn() {
+    return !!localStorage.getItem("token");
+  }
+
+  logout() {
+    localStorage.clear();
+  }
 }
 
 export class LoginUser {
@@ -23,11 +51,12 @@ export class UserResponse{
     employeeId: string,
     name: string;
     email: string;
+    companyId: string;
     phoneNumber: number;
     role: string;
     token: string;
     userId: string;
   }
-  response!: string;
+  message!: string;
   success!: boolean;
 }

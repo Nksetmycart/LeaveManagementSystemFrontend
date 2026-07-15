@@ -13,11 +13,6 @@
     <!-- Right: Actions & Profile Section -->
     <div class="d-flex align-items-center gap-4">
       
-      <!-- Theme Switcher Button -->
-      <button type="button" class="btn border-0 p-1 text-secondary icon-btn shadow-none">
-        <i class="bi bi-moon fs-4"></i>
-      </button>
-
       <!-- Notification Bell with Notification Badge -->
       <button type="button" class="btn border-0 p-1 text-secondary position-relative icon-btn shadow-none">
         <i class="bi bi-bell fs-4"></i>
@@ -32,15 +27,14 @@
       <!-- User Profile Dropdown / Info -->
       <div class="d-flex align-items-center text-end user-profile-clickable" role="button">
         <div class="me-3">
-          <span class="d-block fw-bold text-dark lh-sm fs-6">Priya Sharma</span>
-          <span class="text-muted text-uppercase fw-semibold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.05em;">HR Admin</span>
+          <span class="d-block fw-bold text-dark lh-sm fs-6">{{userModel.name}}</span>
+          <span class="text-muted text-uppercase fw-semibold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.05em;">{{userModel.role}}</span>
         </div>
-        <!-- Profile Avatar Ring/Image -->
-        <img 
-          src="assets/avatar.jpg" 
-          alt="Priya Sharma" 
-          class="rounded-circle border" 
-          style="width: 44px; height: 44px; object-fit: cover;">
+        
+        <!-- Profile Initials Circle (Replacing the Img element) -->
+        <div class="avatar-initials-circle rounded-circle fw-bold d-flex align-items-center justify-content-center">
+          {{ getInitials(userModel.name) }}
+        </div>
       </div>
 
     </div>

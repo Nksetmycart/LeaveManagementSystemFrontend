@@ -7,7 +7,7 @@
       <h1 class="fw-bold text-dark h2 mb-0">Employees</h1>
     </div>
     <!-- Action: Navigate to Add Employee Page -->
-    <button (click)="navigateToAddEmployee()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+    <button [routerLink]="['/dashboard', 'employees', 'add']"  class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
       <i class="bi bi-person-plus me-2 fs-5"></i> Add employee
     </button>
   </div>

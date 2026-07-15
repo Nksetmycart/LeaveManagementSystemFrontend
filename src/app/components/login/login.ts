@@ -17,9 +17,14 @@ export class Login {
   onSubmit() {
     this.service.loginUser(this.loginUserModel).subscribe({
       next: (response: UserResponse) => {
-        const employeeId  = response.data.employeeId;
         console.log("Login Successful:", response)
-        this.router.navigate([`dashboard/${employeeId}`])
+         localStorage.setItem("token", response.data.token);
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(response.data)
+          );
+        this.router.navigate([`dashboard`])
       },
       error: (err: any) => {
         console.log("Error Login User: ", err.message);

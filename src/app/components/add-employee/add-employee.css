@@ -1,0 +1,37 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.max-w-form {
+  max-width: 840px;
+}
+
+.bg-light {
+  background-color: #f8fafc !important;
+}
+
+.meta-label {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.06em;
+  color: #718096;
+}
+
+.resize-none {
+  resize: none;
+}
+
+.py-2\.5 {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
+.fs-7 {
+  font-size: 0.82rem !important;
+}
+
+/* Angular Template Form custom error wrapper overrides */
+.form-control.is-invalid, 
+.form-select.is-invalid {
+  border-color: #e53e3e !important;
+  background-image: none;
+}

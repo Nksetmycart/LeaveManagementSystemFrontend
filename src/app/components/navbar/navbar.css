@@ -40,3 +40,17 @@ nav {
 .user-profile-clickable {
   cursor: pointer;
 }
+
+/* Profile Initials Blue Ring Custom Avatar Box */
+.avatar-initials-circle {
+  width: 44px;
+  height: 44px;
+  background-color: #e0eeff !important; /* Soft sky-blue layout background */
+  color: #007bff !important;            /* Vibrant corporate blue typography color */
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.user-profile-clickable {
+  cursor: pointer;
+}

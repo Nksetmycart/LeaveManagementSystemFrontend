@@ -1,0 +1,123 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title Grid Control Section -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button [routerLink]="['/dashboard', 'leave-types']" class="btn btn-light rounded-3 shadow-none border p-2 d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Configuration</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Create Leave Type</h1>
+    </div>
+  </div>
+
+  <!-- Form Configuration Container Card -->
+  <div class="card border-0 shadow-sm rounded-4 p-4 max-width-form">
+    <!-- Template-driven form variable binding declaration reference (#leaveForm) -->
+    <form #leaveForm="ngForm" (ngSubmit)="onSubmit(leaveForm)" novalidate>
+      
+      <!-- Input: Leave Name -->
+      <div class="mb-3">
+        <label for="name" class="form-label fw-semibold text-dark fs-7">Leave Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name"
+          #nameCtrl="ngModel"
+          [(ngModel)]="leaveData.name"
+          required
+          minlength="2"
+          class="form-control rounded-3 shadow-none" 
+          placeholder="e.g., Annual Leave, Sick Leave"
+          [ngClass]="{ 'is-invalid': nameCtrl.touched && nameCtrl.errors }"
+        />
+        <div *ngIf="nameCtrl.touched && nameCtrl.errors" class="invalid-feedback">
+          <span *ngIf="nameCtrl.errors['required']">Leave name is strictly required.</span>
+          <span *ngIf="nameCtrl.errors['minlength']">Must be at least 2 characters long.</span>
+        </div>
+      </div>
+
+      <!-- Input: Leave Description -->
+      <div class="mb-4">
+        <label for="description" class="form-label fw-semibold text-dark fs-7">Description / Directives</label>
+        <textarea 
+          id="description" 
+          name="description"
+          #descCtrl="ngModel"
+          [(ngModel)]="leaveData.description"
+          required
+          rows="3"
+          class="form-control rounded-3 shadow-none" 
+          placeholder="Provide explicit operational parameters or validation scope for this leave rule..."
+          [ngClass]="{ 'is-invalid': descCtrl.touched && descCtrl.errors }"
+        ></textarea>
+        <div *ngIf="descCtrl.touched && descCtrl.errors" class="invalid-feedback">
+          <span *ngIf="descCtrl.errors['required']">A short descriptive summary is required.</span>
+        </div>
+      </div>
+
+      <!-- Settings Block: Switches / Checkboxes -->
+      <div class="bg-light rounded-4 p-3 mb-4">
+        <h6 class="fw-bold text-secondary text-uppercase fs-7 mb-3 tracking-wider" style="font-size: 0.65rem;">Policy Flags</h6>
+        
+        <!-- Checkbox: Paid Leave Status -->
+        <div class="form-check form-switch mb-3">
+          <input 
+            class="form-check-input shadow-none" 
+            type="checkbox" 
+            role="switch" 
+            id="isPaid" 
+            name="isPaid" 
+            [(ngModel)]="leaveData.isPaid"
+          >
+          <label class="form-check-label fw-medium text-dark ms-2 fs-7" role="button" for="isPaid">
+            Paid Leave Type <span class="text-muted fw-normal d-block fs-8">Calculates salary coverage deductions dynamically.</span>
+          </label>
+        </div>
+
+        <!-- Checkbox: Activation State -->
+        <div class="form-check form-switch mb-3">
+          <input 
+            class="form-check-input shadow-none" 
+            type="checkbox" 
+            role="switch" 
+            id="isActive" 
+            name="isActive" 
+            [(ngModel)]="leaveData.isActive"
+          >
+          <label class="form-check-label fw-medium text-dark ms-2 fs-7" role="button" for="isActive">
+            Active System Rule <span class="text-muted fw-normal d-block fs-8">Determines if employees can view and select this option.</span>
+          </label>
+        </div>
+
+        <!-- Checkbox: Requires Document Attachment -->
+        <div class="form-check form-switch mb-0">
+          <input 
+            class="form-check-input shadow-none" 
+            type="checkbox" 
+            role="switch" 
+            id="reqiresAttachment" 
+            name="reqiresAttachment" 
+            [(ngModel)]="leaveData.reqiresAttachment"
+          >
+          <label class="form-check-label fw-medium text-dark ms-2 fs-7" role="button" for="reqiresAttachment">
+            Requires Medical/Legal Attachment <span class="text-muted fw-normal d-block fs-8">Forces document upload constraints during submission workflow.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Form Actions Interface Row -->
+      <div class="d-flex justify-content-end gap-2 border-top pt-3">
+        <button type="button" [routerLink]="['/dashboard/leaves']" class="btn btn-light rounded-3 px-4 py-2 fw-semibold fs-7 border shadow-none">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="isSubmitting" class="btn btn-primary rounded-3 px-4 py-2 fw-semibold fs-7 shadow-none text-white d-flex align-items-center">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ isSubmitting ? 'Saving...' : 'Create Policy' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

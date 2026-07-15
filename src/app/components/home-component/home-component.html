@@ -1,61 +1,113 @@
-<div class="card border-0 shadow-sm p-4 rounded-4 bg-white w-100">
-  <!-- Calendar Header Actions -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h3 class="fw-bold text-dark mb-1 fs-4">{{ currentMonthName }} {{ currentYear }}</h3>
-      <span class="text-muted fs-7">Team Leave & Attendance Overview</span>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-      <button (click)="previousMonth()" class="btn btn-outline-secondary btn-sm rounded-circle shadow-none border-0 bg-light">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button (click)="goToToday()" class="btn btn-light btn-sm fw-medium px-3 rounded-pill shadow-none border">
-        Today
-      </button>
-      <button (click)="nextMonth()" class="btn btn-outline-secondary btn-sm rounded-circle shadow-none border-0 bg-light">
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Top Greeting Banner Header -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">HR Admin • Workspace</span>
+    <h1 class="fw-bold text-dark display-6 mb-1">Hi Priya, welcome back</h1>
+    <p class="text-secondary mb-0">Here's your high-level overview tracker for today.</p>
   </div>
 
-  <!-- Main Calendar View -->
-  <div class="calendar-container">
-    <!-- Day Names Grid Headers -->
-    <div class="calendar-grid-header">
-      <div class="text-muted text-center fw-bold text-uppercase py-2" *ngFor="let day of weekDays">{{ day }}</div>
-    </div>
+  <!-- Row Panel: Quick Action Operational Buttons -->
+  <div class="d-flex gap-3 mb-4 flex-wrap">
+    <button [routerLink]="['/dashboard', employeeId, 'apply-leave']" (click)="navigateToApplyLeave()" class="btn btn-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none text-white fs-6">
+      <i class="bi bi-clipboard-plus me-2 fs-5"></i> Apply for Leave
+    </button>
+    <button [routerLink]="['/dashboard', employeeId, 'attendance']" (click)="navigateToMarkAttendance()" class="btn btn-outline-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none bg-white fs-6">
+      <i class="bi bi-calendar-check me-2 fs-5"></i> Mark Attendance
+    </button>
+  </div>
 
-    <!-- Calendar Month Matrix -->
-    <div class="calendar-grid-body">
-      <div 
-        *ngFor="let cell of calendarCells" 
-        class="calendar-day-cell"
-        [ngClass]="{ 'bg-light-muted': !cell.isCurrentMonth, 'is-today': cell.isToday }">
-        
-        <!-- Day Number -->
-        <div class="d-flex justify-content-between align-items-center mb-2 w-100 px-1">
-          <span class="day-number" [ngClass]="{ 'text-muted': !cell.isCurrentMonth, 'fw-bold': cell.isCurrentMonth }">
-            {{ cell.date.getDate() }}
-          </span>
-          <span *ngIf="cell.isToday" class="badge bg-primary rounded-pill small-today-badge">Today</span>
-        </div>
-
-        <!-- Scrollable Container for Daily Leave Status Strips -->
-        <div class="leave-status-list w-100 d-flex flex-column gap-1 overflow-y-auto">
-          <div 
-            *ngFor="let status of cell.statuses" 
-            class="status-strip px-2 py-1 rounded-2 text-truncate"
-            [ngClass]="getStatusClass(status.type)"
-            [title]="status.employee + ' (' + status.reason + ')'">
-            <span class="fw-bold fs-8 me-1">•</span>
-            <span class="fw-semibold text-capitalize">{{ status.employee }}</span>
-            <span class="d-none d-md-inline text-opacity-75 font-monospace ms-1" style="font-size: 0.7rem;">
-              ({{ status.type }})
-            </span>
+  <!-- Metric Overview Stats Cards Grid -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Total Leave Balance Summary Info -->
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted text-uppercase fw-bold metrics-label">Total Leave Balance</span>
+          <div class="rounded-3 p-2 bg-primary-subtle text-primary icon-box">
+            <i class="bi bi-wallet2 fs-5"></i>
           </div>
         </div>
+        <h2 class="fw-bold text-dark mb-1 display-6">37 <span class="fs-6 text-muted fw-normal">days left</span></h2>
+        <small class="text-secondary">Across Casual, Sick, and Earned balances</small>
+      </div>
+    </div>
 
+    <!-- Card 2: Total Leave Requests Status Monitoring -->
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted text-uppercase fw-bold metrics-label">Total Leave Requests</span>
+          <div class="rounded-3 p-2 bg-warning-subtle text-warning-emphasis icon-box">
+            <i class="bi bi-clock-history fs-5"></i>
+          </div>
+        </div>
+        <h2 class="fw-bold text-dark mb-1 display-6">2 <span class="fs-6 text-muted fw-normal">pending</span></h2>
+        <small class="text-secondary">Awaiting immediate managerial context review</small>
+      </div>
+    </div>
+
+    <!-- Card 3: Upcoming Holidays Reference Block -->
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted text-uppercase fw-bold metrics-label">Upcoming Holidays</span>
+          <div class="rounded-3 p-2 bg-purple-subtle text-purple icon-box">
+            <i class="bi bi-tree fs-5"></i>
+          </div>
+        </div>
+        <!-- Display nearest holiday inline details -->
+        <h2 class="fw-bold text-dark mb-1 fs-3 text-truncate">Independence Day</h2>
+        <small class="text-purple fw-semibold">Next: Saturday, Aug 15</small>
       </div>
     </div>
   </div>
+
+  <!-- Lower Details Secondary Row Grid Matrix -->
+  <div class="row g-4">
+    <!-- Detailed Balance Sub-Breakdowns Panel -->
+    <div class="col-12 col-xl-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="mb-4">
+          <h3 class="fw-bold text-dark fs-5 mb-1">Your Leave Categories</h3>
+          <span class="text-muted fs-7">Real-time breakdown allocation limits</span>
+        </div>
+        
+        <div class="d-flex flex-column gap-3">
+          <div *ngFor="let leave of quickBalances">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-semibold text-dark fs-6">{{ leave.name }}</span>
+              <span class="text-secondary fs-7 fw-medium">{{ leave.remaining }} / {{ leave.total }} Days left</span>
+            </div>
+            <div class="progress rounded-pill bg-light" style="height: 6px;">
+              <div class="progress-bar rounded-pill" [style.width.%]="(leave.remaining/leave.total)*100" [style.backgroundColor]="leave.color"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini Reference Holiday Timeline List Wrapper -->
+    <div class="col-12 col-xl-5">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold text-dark fs-5 mb-0">Holiday Roster</h3>
+          <span class="text-muted text-uppercase fw-bold fs-8" style="letter-spacing: 0.05em;">2026 Timeline</span>
+        </div>
+        
+        <div class="d-flex flex-column gap-3">
+          <div *ngFor="let holiday of miniHolidays" class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center overflow-hidden">
+              <div class="mini-purple-badge rounded-2 me-2.5 flex-shrink-0 d-flex align-items-center justify-content-center">
+                <i class="bi bi-calendar-event"></i>
+              </div>
+              <span class="fw-semibold text-dark text-truncate fs-6">{{ holiday.name }}</span>
+            </div>
+            <span class="text-secondary fw-medium fs-7 text-nowrap ms-2">{{ holiday.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

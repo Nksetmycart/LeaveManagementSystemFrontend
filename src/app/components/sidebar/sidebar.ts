@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,5 +9,4 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-employeeId!: string;
 }

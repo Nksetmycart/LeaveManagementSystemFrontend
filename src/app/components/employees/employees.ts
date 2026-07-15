@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-employees',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './employees.html',
   styleUrl: './employees.css',
 })
 export class Employees {
  constructor(private router: Router) {}
 
+ employeeId!: string;
   employeeList: Employee[] = [
     {
       id: 1,
@@ -54,10 +55,6 @@ export class Employees {
     }
   ];
 
-  navigateToAddEmployee(): void {
-    console.log('Navigating to Add Employee workflow form page...');
-    // this.router.navigate(['/employees/add']);
-  }
 
   viewDetails(employee: Employee): void {
     console.log('Opening target contextual details view profile for:', employee.name);

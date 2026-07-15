@@ -1,0 +1,79 @@
+<div class="container-fluid p-0 page-container animate-fade-in relative-position">
+  
+  <!-- Dynamic Popup Notification Toast -->
+  <div *ngIf="toast.show" 
+       class="custom-toast alert alert-dismissible fade show shadow border-0 rounded-3 d-flex align-items-center"
+       [ngClass]="toast.type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'" 
+       role="alert">
+    <span class="me-2 fs-5">
+      <i [ngClass]="toast.type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'"></i>
+    </span>
+    <div>{{ toast.message }}</div>
+    <button type="button" class="btn-close btn-close-white ms-auto shadow-none" (click)="toast.show = false" aria-label="Close"></button>
+  </div>
+  
+  <!-- Header Title -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Organization</span>
+    <h1 class="fw-bold text-dark h2 mb-1">Create New Department</h1>
+    <p class="text-secondary mb-0 fs-6">Add a structural organizational department unit linked to your current company.</p>
+  </div>
+
+  <!-- Form Card Container Wrapper -->
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white max-w-form">
+    <form #deptForm="ngForm" (ngSubmit)="onSubmit(deptForm)" novalidate>
+      
+      <div class="row g-3">
+        <!-- Department Name -->
+        <div class="col-12">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Department Name</label>
+          <input 
+            type="text" 
+            name="name"
+            #nameModel="ngModel"
+            [(ngModel)]="departmentData.name"
+            required
+            minlength="2"
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+            [ngClass]="{'is-invalid': nameModel.touched && nameModel.invalid}"
+            placeholder="e.g. Quality Assurance">
+        </div>
+
+        <!-- Department Description -->
+        <div class="col-12">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Description</label>
+          <textarea 
+            name="description"
+            #descModel="ngModel"
+            [(ngModel)]="departmentData.description"
+            required
+            minlength="5"
+            class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 resize-none fs-6"
+            [ngClass]="{'is-invalid': descModel.touched && descModel.invalid}"
+            rows="4"
+            placeholder="Provide context on department operational responsibilities..."></textarea>
+        </div>
+      </div>
+
+      <!-- Action Button Panel -->
+      <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+        <button 
+          type="button" 
+          [disabled]="isSubmitting" 
+          (click)="deptForm.resetForm()" 
+          class="btn btn-light rounded-3 px-4 py-2.5 fw-semibold border shadow-none">
+          Clear
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="isSubmitting"
+          class="btn btn-primary rounded-3 px-4 py-2.5 fw-semibold shadow-none text-white d-flex align-items-center">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isSubmitting" class="bi bi-cloud-arrow-up me-2"></i> 
+          {{ isSubmitting ? 'Saving...' : 'Save Department' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

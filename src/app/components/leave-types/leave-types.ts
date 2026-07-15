@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-leave-types',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './leave-types.html',
   styleUrl: './leave-types.css',
 })
