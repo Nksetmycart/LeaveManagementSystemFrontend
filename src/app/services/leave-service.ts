@@ -11,10 +11,23 @@ export interface LeaveTypeDto {
   reqiresAttachment: boolean; // Aligned spelling to match what you use in the template/backend
 }
 
-export interface CreateLeaveTypeResponse {
+export interface LeaveTypeResponse {
   message: string;
   success: boolean;
   data: string;
+}
+
+export interface UpdateLeaveTypeDto {
+  name: string,
+  description: string,
+  isPaid: boolean,
+  isActive: boolean,
+  reqiresAttachment: boolean
+}
+
+export interface DeleteLeaveTypeResponse {
+  message: string;
+  success: boolean;
 }
 
 @Injectable({
@@ -23,9 +36,9 @@ export interface CreateLeaveTypeResponse {
 export class LeaveService {
   constructor(private http: HttpClient) { }
 
-  CreateLeaveType(data: LeaveTypeDto): Observable<CreateLeaveTypeResponse> {
+  CreateLeaveType(data: LeaveTypeDto): Observable<LeaveTypeResponse> {
     console.log("Submitting Leave Type DTO:", data);
-    return this.http.post<CreateLeaveTypeResponse>('https://localhost:7241/api/v0/LeaveType', data);
+    return this.http.post<LeaveTypeResponse>('https://localhost:7241/api/v0/LeaveType', data);
   }
 
   GetLeaveTypes(): Observable<GetLeaveTypesList> {
@@ -33,6 +46,14 @@ export class LeaveService {
       'https://localhost:7241/api/v0/LeaveType'
     )
   }
+
+  UpdateLeaveTypeById(leaveTypeId: string, data: UpdateLeaveTypeDto): Observable<LeaveTypeResponse> {
+    return this.http.put<LeaveTypeResponse>(` https://localhost:7241/api/v0/LeaveType/${leaveTypeId}`, data)
+  } 
+
+  DeleteLeaveTypeById(leaveTypeId: string): Observable<DeleteLeaveTypeResponse> {
+    return this.http.delete<DeleteLeaveTypeResponse>(` https://localhost:7241/api/v0/LeaveType/${leaveTypeId}`)
+  } 
 }
 
 export class GetLeaveTypesList {

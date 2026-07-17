@@ -1,5 +1,6 @@
 <div class="container-fluid p-0 page-container animate-fade-in">
   
+  <!-- Header Title Section with Primary Action Button -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
       <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Organization Calendar</span>
@@ -27,7 +28,8 @@
             <div class="d-flex align-items-center overflow-hidden">
               <!-- Visual Accent decoration shifting based on type field values -->
               <div class="icon-badge rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0"
-                   [ngClass]="holiday.type === 'Public' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning'">
+                   [ngClass]="holiday.type === 'Public' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning'"
+                   style="width: 48px; height: 48px;">
                 <i class="bi bi-gift fs-5"></i>
               </div>
 
@@ -39,10 +41,6 @@
                 </span>
               </div>
             </div>
-
-            <button (click)="deleteHoliday(holiday); $event.stopPropagation()" class="btn btn-link text-muted p-2 rounded-circle border-0 action-trash shadow-none flex-shrink-0">
-              <i class="bi bi-trash3 fs-6"></i>
-            </button>
           </div>
 
           <div class="mt-3">
@@ -53,6 +51,123 @@
           </div>
         </div>
 
+        <!-- Bottom Actions Panel Controls (FIXED: Update button on bottom left, Trash icon button on bottom right) -->
+        <div class="d-flex gap-2 border-top pt-2 mt-4 align-items-center">
+          <button (click)="openUpdateModal(holiday)" class="btn btn-outline-primary btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-update shadow-none">
+            <i class="bi bi-pencil me-1.5"></i> Update
+          </button>
+          <button (click)="openDeleteConfirmation(holiday); $event.stopPropagation()" class="btn btn-link text-muted p-2 rounded-circle border-0 action-trash shadow-none flex-shrink-0">
+            <i class="bi bi-trash3 fs-6"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. TRUE FLOATING CONFIRMATION POPUP MODAL OVERLAY -->
+  <div *ngIf="showConfirmationModal && holidayToDelete" class="custom-modal-overlay animate-fade-in">
+    <div class="custom-modal-card border-start border-danger border-4 shadow-lg p-4 rounded-4 bg-white text-center">
+      <div class="d-flex flex-column align-items-center gap-3">
+        <div class="rounded-circle bg-danger-subtle p-3 d-flex align-items-center justify-content-center text-danger" style="width: 60px; height: 60px;">
+          <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold text-dark h5 mb-2">Confirm Delete</h4>
+          <p class="text-secondary fs-7 mb-0 text-wrap-pretty px-2">
+            Are you sure you want to delete the holiday configuration rules for <strong>{{ holidayToDelete.name }}</strong>?
+          </p>
+        </div>
+        <div class="d-flex gap-2 w-100 mt-2">
+          <button type="button" (click)="closeDeleteConfirmation()" class="btn btn-light btn-sm flex-grow-1 rounded-3 py-2 fw-semibold border shadow-none">
+            Cancel
+          </button>
+          <button type="button" (click)="confirmDelete()" class="btn btn-danger btn-sm flex-grow-1 rounded-3 py-2 fw-semibold shadow-none text-white border-0 transition-all">
+            Confirm Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TRUE FLOATING UPDATE HOLIDAY POPUP CARD MODAL OVERLAY -->
+  <div *ngIf="showUpdateModal && editHolidayData" class="custom-modal-overlay animate-fade-in">
+    <div class="custom-modal-card border-start border-primary border-4 shadow-lg p-4 rounded-4 bg-white">
+      <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
+        <i class="bi bi-pencil-square text-primary fs-4"></i>
+        <h4 class="fw-bold text-dark h5 mb-0">Update Holiday Details</h4>
+      </div>
+      
+      <form #updateForm="ngForm" (ngSubmit)="confirmUpdate(updateForm)" novalidate>
+        <!-- Name Input -->
+        <div class="mb-3">
+          <label for="editHolidayName" class="form-label fw-semibold text-secondary fs-7 small mb-1">Holiday Title</label>
+          <input 
+            type="text" 
+            id="editHolidayName" 
+            name="name" 
+            class="form-control rounded-3 shadow-none fs-7" 
+            [(ngModel)]="editHolidayData.name" 
+            required
+            #nameModel="ngModel"
+            [ngClass]="{'is-invalid': updateForm.submitted && nameModel.invalid}">
+          <div class="invalid-feedback fs-8">Holiday title reference text is required.</div>
+        </div>
+
+        <!-- Type Category Selection Dropdown -->
+        <div class="mb-3">
+          <label for="editHolidayType" class="form-label fw-semibold text-secondary fs-7 small mb-1">Category Classification</label>
+          <select id="editHolidayType" name="type" class="form-select rounded-3 shadow-none fs-7" [(ngModel)]="editHolidayData.type" required>
+            <option value="Public">Public Holiday</option>
+            <option value="Company">Company / Restricted Holiday</option>
+          </select>
+        </div>
+
+        <!-- Date Picker Input -->
+        <div class="mb-3">
+          <label for="editHolidayDate" class="form-label fw-semibold text-secondary fs-7 small mb-1">Calendar Allocation Date</label>
+          <input 
+            type="date" 
+            id="editHolidayDate" 
+            name="date" 
+            class="form-control rounded-3 shadow-none fs-7" 
+            [(ngModel)]="editHolidayData.date" 
+            required
+            #dateModel="ngModel"
+            [ngClass]="{'is-invalid': updateForm.submitted && dateModel.invalid}">
+          <div class="invalid-feedback fs-8">Valid timeline calendar date is required.</div>
+        </div>
+
+        <!-- Popups Control Action Footers Panel -->
+        <div class="d-flex gap-2 w-100 mt-4 border-top pt-3">
+          <button type="button" (click)="closeUpdateModal()" class="btn btn-light btn-sm flex-grow-1 rounded-3 py-2 fw-semibold border shadow-none">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="isSubmitting" class="btn btn-primary btn-sm flex-grow-1 rounded-3 py-2 fw-semibold shadow-none text-white border-0 transition-all d-flex align-items-center justify-content-center gap-2">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Save Configurations
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. TRUE FLOATING ERROR POPUP MODAL OVERLAY -->
+  <div *ngIf="showErrorModal && apiErrorMessage" class="custom-modal-overlay animate-fade-in">
+    <div class="custom-modal-card border-start border-danger border-4 shadow-lg p-4 rounded-4 bg-white text-center">
+      <div class="d-flex flex-column align-items-center gap-3">
+        <div class="rounded-circle bg-danger-subtle p-3 d-flex align-items-center justify-content-center text-danger" style="width: 60px; height: 60px;">
+          <i class="bi bi-exclamation-octagon-fill fs-3"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold text-dark h5 mb-2">Operation Failure</h4>
+          <p class="text-secondary fs-7 mb-0 text-wrap-pretty px-2">{{ apiErrorMessage }}</p>
+        </div>
+        <div class="w-100 mt-2">
+          <button type="button" (click)="closeErrorPopup()" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-semibold shadow-none text-white border-0 transition-all">
+            Dismiss Alert
+          </button>
+        </div>
       </div>
     </div>
   </div>

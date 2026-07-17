@@ -23,6 +23,17 @@ export class GetRolesList {
   message!: string;
 }
 
+export interface UpdateRoleDto {
+    id: string;
+    name: string;
+    isActive: boolean;
+}
+
+export interface DeleteRoleResponse{
+   success: boolean;
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -40,5 +51,13 @@ export class RoleService {
 
   GetRoles(): Observable<GetRolesList> {
     return this.http.get<GetRolesList>(this.apiUrl);
+  }
+
+  UpdateRoleById(roleId: string, data: UpdateRoleDto): Observable<RoleResponse> {
+    return this.http.put<RoleResponse>(`${this.apiUrl}/${roleId}`, data)
+  }
+
+  DeleteRoleById(roleId: string): Observable<DeleteRoleResponse>{
+    return this.http.delete<DeleteRoleResponse>(`${this.apiUrl}/${roleId}`)
   }
 }

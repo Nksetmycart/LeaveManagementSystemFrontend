@@ -26,6 +26,12 @@ export class HolidaysList {
   success!: boolean;
 }
 
+export interface UpdateHolidayDto {
+  name: string;
+  type: string;
+  date: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,4 +48,13 @@ export class HolidayService {
   GetHolidays(): Observable<HolidaysList> {
     return this.http.get<HolidaysList>(this.apiUrl);
   }
+
+  UpdateHolidayById(holidayId: string, data: UpdateHolidayDto): Observable<HolidayResponse> {
+    return this.http.put<HolidayResponse>(`${this.apiUrl}/${holidayId}`, data)
+  }
+  
+  DeleteHolidayById(holidayId: string): Observable<HolidayResponse> {
+    return this.http.delete<HolidayResponse>(`${this.apiUrl}/${holidayId}`)
+  }
+
 }

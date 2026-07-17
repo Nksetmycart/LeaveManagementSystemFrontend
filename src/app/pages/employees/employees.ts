@@ -55,6 +55,7 @@ export class Employees implements OnInit {
     this.router.navigate(['/dashboard/employees/edit', employee.id]);
   }
 
+  // --- POPUP MODAL CONTROLLERS ---
   openDeleteConfirmation(employee: EmployeeResponseDto): void {
     this.employeeToDelete = employee;
     this.showConfirmationModal = true;
@@ -74,7 +75,7 @@ export class Employees implements OnInit {
         this.closeDeleteConfirmation();
       },
       error: (err) => {
-        console.error("Failed executing delete parameters pipeline context rule checks:", err);
+        console.log("Failed executing delete parameters pipeline context rule checks:", err);
         this.closeDeleteConfirmation();
       }
     });

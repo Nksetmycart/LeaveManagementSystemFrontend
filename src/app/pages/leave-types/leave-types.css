@@ -1,0 +1,176 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Base custom icon container dimensions */
+.icon-badge {
+  width: 44px;
+  height: 44px;
+}
+
+/* Individual Leave Type Card Customization */
+.type-card {
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
+.type-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Meta Data Labels */
+.meta-label {
+  font-size: 0.65rem !important;
+  letter-spacing: 0.06em;
+  color: #718096;
+  margin-bottom: 2px;
+}
+
+/* Trash Icon styling states */
+.action-trash {
+  color: #a0aec0 !important;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.action-trash:hover {
+  color: #e53e3e !important;
+  background-color: #fff5f5 !important;
+}
+
+/* Sizing Helpers utilities */
+.fs-7 {
+  font-size: 0.82rem !important;
+}
+
+.fs-8 {
+  font-size: 0.7rem !important;
+}
+
+.me-1\.5 {
+  margin-right: 0.4rem !important;
+}
+
+/* Action Button Interactive Custom States */
+.action-btn-view {
+  background-color: #f8fafc;
+  color: #4a5568;
+  transition: all 0.15s ease;
+}
+
+.action-btn-view:hover {
+  background-color: #e2e8f0;
+  color: #1a202c;
+}
+
+.action-btn-update {
+  transition: all 0.15s ease;
+}
+
+.bg-light {
+  background-color: #f8fafc !important;
+}
+
+/* Circular Link Trash Button Hover Action Layouts */
+.action-trash {
+  transition: all 0.2s ease-in-out !important;
+}
+.action-trash:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+  transform: scale(1.05);
+}
+
+/* Metadata Sub-labels structure alignments */
+.meta-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.03em;
+}
+
+/* Circular Trash Button Interaction Transitions */
+.action-trash {
+  transition: all 0.2s ease-in-out !important;
+}
+.action-trash:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+  transform: scale(1.05);
+}
+
+/* Custom Purple Theme Variant Badge Overrides */
+.bg-purple-subtle {
+  background-color: rgba(111, 66, 193, 0.12) !important;
+}
+.text-purple {
+  color: #6f42c1 !important;
+}
+
+/* Metadata Card Component Grid Helper Layout Blocks */
+.meta-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.03em;
+}
+
+.action-trash {
+  transition: all 0.2s ease-in-out !important;
+}
+.action-trash:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+  transform: scale(1.05);
+}
+
+.bg-purple-subtle {
+  background-color: rgba(111, 66, 193, 0.12) !important;
+}
+.text-purple {
+  color: #6f42c1 !important;
+}
+
+.meta-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.03em;
+}
+
+/* Perfect Full Viewport Centered Popups Overlay Styles */
+.custom-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(4px) !important;
+  
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  z-index: 2147483647 !important; /* Forces layout topmost depth layer stack */
+}
+
+.custom-modal-card {
+  width: 90% !important;
+  max-width: 440px !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  animation: modalPopUp 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes modalPopUp {
+  from {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
