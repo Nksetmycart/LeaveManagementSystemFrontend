@@ -16,8 +16,8 @@ export class AuthService {
     return JSON.parse(localStorage.getItem('user')!);
   }
 
-  getEmployeeId(): string | null {
-    return this.getUser()!.emloyeeId;
+  getEmployeeId(): string {
+    return this.getUser().employeeId;
   }
 
   getCompanyId(): string | null {

@@ -1,13 +1,29 @@
 <div class="container-fluid p-0 page-container animate-fade-in">
   
-  <!-- Header Title -->
-  <div class="mb-4">
-    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">People Ops</span>
-    <h1 class="fw-bold text-dark h2 mb-1">Onboard New Employee</h1>
-    <p class="text-secondary mb-0 fs-6">Fill in the profile operational parameters to issue system credentials.</p>
+  <!-- Header -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button [routerLink]="['/dashboard', 'employees']" class="btn btn-light rounded-3 shadow-none border p-2 d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">People Ops</span>
+      <h1 class="fw-bold text-dark h2 mb-1">Onboard New Employee</h1>
+    </div>
   </div>
 
-  <!-- Form Wrapper Context referencing template #empForm -->
+  <!-- Status Notification Banner -->
+  <div *ngIf="notification.show" 
+       class="alert alert-dismissible fade show border-0 rounded-4 p-3 mb-4 max-w-form d-flex align-items-center justify-content-between shadow-sm"
+       [ngClass]="notification.type === 'success' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
+       role="alert">
+    <div class="d-flex align-items-center">
+      <i class="bi me-2 fs-5" [ngClass]="notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+      <span class="fw-medium fs-7">{{ notification.message }}</span>
+    </div>
+    <button type="button" class="btn-close shadow-none" (click)="closeNotification()" aria-label="Close"></button>
+  </div>
+
+  <!-- Form Container -->
   <div class="card border-0 shadow-sm rounded-4 p-4 bg-white max-w-form">
     <form #empForm="ngForm" (ngSubmit)="onSubmit(empForm)" novalidate>
       
@@ -23,7 +39,7 @@
             required
             minlength="2"
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': nameModel.touched && nameModel.invalid}"
+            [ngClass]="{ 'is-invalid': nameModel.touched && nameModel.invalid }"
             placeholder="e.g. Liam Chen">
         </div>
 
@@ -38,7 +54,7 @@
             required
             email
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': emailModel.touched && emailModel.invalid}"
+            [ngClass]="{ 'is-invalid': emailModel.touched && emailModel.invalid }"
             placeholder="liam@leaveflow.io">
         </div>
 
@@ -53,7 +69,7 @@
             required
             minlength="6"
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': passwordModel.touched && passwordModel.invalid}"
+            [ngClass]="{ 'is-invalid': passwordModel.touched && passwordModel.invalid }"
             placeholder="••••••••">
         </div>
 
@@ -68,7 +84,7 @@
             required
             pattern="^[0-9]{10}$"
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': phoneModel.touched && phoneModel.invalid}"
+            [ngClass]="{ 'is-invalid': phoneModel.touched && phoneModel.invalid }"
             placeholder="e.g. 9876543210">
         </div>
 
@@ -81,7 +97,7 @@
             [(ngModel)]="employeeData.departmentId"
             required
             class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': deptModel.touched && deptModel.invalid}">
+            [ngClass]="{ 'is-invalid': deptModel.touched && deptModel.invalid }">
             <option value="" disabled>Select Department</option>
             <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
           </select>
@@ -96,7 +112,7 @@
             [(ngModel)]="employeeData.roleId"
             required
             class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': roleModel.touched && roleModel.invalid}">
+            [ngClass]="{ 'is-invalid': roleModel.touched && roleModel.invalid }">
             <option value="" disabled>Select Security Role</option>
             <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
           </select>
@@ -112,10 +128,10 @@
             [(ngModel)]="employeeData.joiningDate"
             required
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3"
-            [ngClass]="{'is-invalid': dateModel.touched && dateModel.invalid}">
+            [ngClass]="{ 'is-invalid': dateModel.touched && dateModel.invalid }">
         </div>
 
-        <!-- Complete Address Block -->
+        <!-- Address Block -->
         <div class="col-12">
           <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Residential Address</label>
           <textarea 
@@ -124,7 +140,7 @@
             [(ngModel)]="employeeData.address"
             required
             class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 resize-none"
-            [ngClass]="{'is-invalid': addressModel.touched && addressModel.invalid}"
+            [ngClass]="{ 'is-invalid': addressModel.touched && addressModel.invalid }"
             rows="3"
             placeholder="Enter physical address particulars..."></textarea>
         </div>
@@ -132,7 +148,10 @@
 
       <!-- Action Button Panel -->
       <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
-        <button type="button" (click)="empForm.resetForm()" class="btn btn-light rounded-3 px-4 py-2.5 fw-semibold border shadow-none">Clear Form</button>
+        <!-- Clean call to component helper method -->
+        <button type="button" (click)="clearForm(empForm)" class="btn btn-light rounded-3 px-4 py-2.5 fw-semibold border shadow-none">
+          Clear Form
+        </button>
         <button 
           type="submit" 
           [disabled]="isSubmitting"

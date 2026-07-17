@@ -1,0 +1,152 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+
+  <!-- Header Branding Row Section -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button type="button" (click)="goBack()" class="btn btn-light rounded-3 shadow-none border p-2 d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Management Console</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Modify Employee Information</h1>
+    </div>
+  </div>
+
+  <!-- Error Alert Banners Layout -->
+  <div *ngIf="errorMessage" class="alert alert-danger-subtle text-danger rounded-4 border-0 p-3 shadow-sm mb-4" style="max-width: 800px;">
+    <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
+    <span class="fw-medium fs-7">{{ errorMessage }}</span>
+  </div>
+
+  <!-- Main Structural Card Form Configuration View -->
+  <div *ngIf="employeeData && newEmployeeData" class="card border-0 shadow-sm rounded-4 bg-white p-4" style="max-width: 800px;">
+    <form #employeeForm="ngForm" (ngSubmit)="onSubmit(employeeForm)" novalidate>
+      
+      <div class="row g-3">
+        
+        <!-- Field: Full Name Input -->
+        <div class="col-12 col-md-6">
+          <label for="name" class="form-label fw-semibold text-secondary fs-7 small mb-1">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-control rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.name" 
+            required
+            #nameModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && nameModel.invalid}">
+          <div class="invalid-feedback fs-8">Name is required.</div>
+        </div>
+
+        <!-- Field: Email Address Input -->
+        <div class="col-12 col-md-6">
+          <label for="email" class="form-label fw-semibold text-secondary fs-7 small mb-1">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-control rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.email" 
+            required 
+            email
+            #emailModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && emailModel.invalid}">
+          <div class="invalid-feedback fs-8">A valid email address tracking handle is required.</div>
+        </div>
+
+        <!-- Field: Phone Number Input -->
+        <div class="col-12 col-md-6">
+          <label for="phoneNumber" class="form-label fw-semibold text-secondary fs-7 small mb-1">Phone Number</label>
+          <input 
+            type="text" 
+            id="phoneNumber" 
+            name="phoneNumber" 
+            class="form-control rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.phoneNumber" 
+            required
+            #phoneModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && phoneModel.invalid}">
+          <div class="invalid-feedback fs-8">Phone contact data parameters are required.</div>
+        </div>
+
+        <!-- Field: Date of Joining Input -->
+        <div class="col-12 col-md-6">
+          <label for="joiningDate" class="form-label fw-semibold text-secondary fs-7 small mb-1">Date of Joining</label>
+          <input 
+            type="date" 
+            id="joiningDate" 
+            name="joiningDate" 
+            class="form-control rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.joiningDate" 
+            required
+            #dateModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && dateModel.invalid}">
+          <div class="invalid-feedback fs-8">Date of organizational joining registration is required.</div>
+        </div>
+
+        <!-- Dropdown Selection: Department Options Link -->
+        <div class="col-12 col-md-6">
+          <label for="departmentId" class="form-label fw-semibold text-secondary fs-7 small mb-1">Department</label>
+          <select 
+            id="departmentId" 
+            name="departmentId" 
+            class="form-select rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.departmentId" 
+            required
+            #deptModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && deptModel.invalid}">
+            <option value="" disabled>Select department categorization node...</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
+          </select>
+          <div class="invalid-feedback fs-8">Please link this profile index record to an operational department node.</div>
+        </div>
+
+        <!-- Dropdown Selection: System Security Access Role Options Link -->
+        <div class="col-12 col-md-6">
+          <label for="roleId" class="form-label fw-semibold text-secondary fs-7 small mb-1">Assigned Role</label>
+          <select 
+            id="roleId" 
+            name="roleId" 
+            class="form-select rounded-3 shadow-none" 
+            [(ngModel)]="newEmployeeData.roleId" 
+            required
+            #roleModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && roleModel.invalid}">
+            <option value="" disabled>Select assigned operational clearance title...</option>
+            <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+          </select>
+          <div class="invalid-feedback fs-8">Please allocate an access clearance security role title mapping.</div>
+        </div>
+
+        <!-- Field: Residential Location Address Input (UPDATED TO REQUIRED) -->
+        <div class="col-12">
+          <label for="address" class="form-label fw-semibold text-secondary fs-7 small mb-1">Residential Address</label>
+          <textarea 
+            id="address" 
+            name="address" 
+            rows="3" 
+            class="form-control rounded-4 shadow-none" 
+            [(ngModel)]="newEmployeeData.address"
+            required
+            #addressModel="ngModel"
+            [ngClass]="{'is-invalid': employeeForm.submitted && addressModel.invalid}"></textarea>
+          <div class="invalid-feedback fs-8">Residential address is required.</div>
+        </div>
+
+      </div>
+
+      <!-- Form Control Action Trigger Footer Panels -->
+      <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
+        <button type="button" (click)="goBack()" class="btn btn-outline-secondary rounded-3 px-4 py-2 fw-medium fs-7 shadow-none">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="isSubmitting" class="btn btn-primary rounded-3 px-4 py-2 fw-semibold fs-7 shadow-none text-white transition-all d-flex align-items-center gap-2">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isSubmitting" class="bi bi-cloud-arrow-up-fill fs-6"></i> Update Profile Metadata
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

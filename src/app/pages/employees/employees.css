@@ -1,0 +1,86 @@
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Hardcoded Standard Sizing Ring for Profile Contexts */
+.avatar-size {
+  width: 48px;
+  height: 48px;
+}
+
+/* Card Presentation Base Structure */
+.employee-card {
+  background-color: #ffffff;
+}
+
+/* Sizing Helpers definitions matching interface structures */
+.fs-7 {
+  font-size: 0.82rem !important;
+}
+
+.fs-8 {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.06em !important;
+}
+
+.me-1\.5 {
+  margin-right: 0.4rem !important;
+}
+
+/* Card Button Interactive State Tweaks */
+.action-btn-view {
+  background-color: #f8fafc;
+  color: #4a5568;
+  transition: all 0.15s ease;
+}
+
+.action-btn-view:hover {
+  background-color: #e2e8f0;
+  color: #1a202c;
+}
+
+.action-btn-update {
+  transition: all 0.15s ease;
+}
+
+/* 1. Full Viewport Overlay Layer */
+.custom-modal-overlay {
+  position: fixed !important;    /* Fixed positioning breaks it out of normal document flow */
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;       /* Forces full viewport width */
+  height: 100vh !important;      /* Forces full viewport height */
+  background-color: rgba(15, 23, 42, 0.5) !important; /* Semi-transparent dark overlay mask */
+  backdrop-filter: blur(5px) !important;              /* Blurs everything behind it */
+  
+  /* Flexbox Centering Matrix Engine */
+  display: flex !important;
+  align-items: center !important;     /* Perfect vertical alignment */
+  justify-content: center !important;    /* Perfect horizontal alignment */
+  
+  /* Dominate Layer Depth Stack */
+  z-index: 99999999 !important;  /* Overrides navbars, cards, sidebars, and grid elements */
+}
+
+/* 2. Modal Center Popup Card Layout Box */
+.custom-modal-card {
+  width: 90% !important;
+  max-width: 420px !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  
+  /* Entrance Animation Engine */
+  animation: modalCenterPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes modalCenterPop {
+  from {
+    transform: scale(0.9) translateY(15px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}

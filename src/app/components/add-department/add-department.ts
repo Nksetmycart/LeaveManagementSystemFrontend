@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { CreateDepartmentResponse, DepartmentService } from '../../services/department-service';
+import { DepartmentResponse, DepartmentService } from '../../services/department-service';
 
 @Component({
   selector: 'app-add-department',
@@ -45,8 +45,8 @@ export class AddDepartment {
 
     this.isSubmitting = true;
 
-    this.departmentService.createDepartment(this.departmentData).subscribe({
-      next: (response: CreateDepartmentResponse) => {
+    this.departmentService.CreateDepartment(this.departmentData).subscribe({
+      next: (response: DepartmentResponse) => {
         this.isSubmitting = false;
         
         // Success Popup configuration

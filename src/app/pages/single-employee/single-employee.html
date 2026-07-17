@@ -1,0 +1,71 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+
+  <!-- Header Section with Back Navigation -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button [routerLink]="['/dashboard', 'employees']" class="btn btn-light rounded-3 shadow-none border p-2 d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Personnel Directory</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Employee Attendance & Profile</h1>
+    </div>
+  </div>
+
+  <!-- Loading Spinner Overlay State -->
+  <div *ngIf="isLoading" class="text-center my-5 py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading profile indices...</span>
+    </div>
+    <p class="text-muted mt-2 fs-7">Compiling security matrix profiles...</p>
+  </div>
+
+  <!-- Error Alerts Container -->
+  <div *ngIf="!isLoading && errorMessage" class="alert alert-danger-subtle text-danger rounded-4 border-0 p-3 shadow-sm mb-4">
+    <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
+    <span class="fw-medium fs-7">{{ errorMessage }}</span>
+  </div>
+
+  <!-- 1. COMPACT PROFILE HORIZONTAL STRIP VIEW -->
+  <div *ngIf="!isLoading && employee" class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4 w-100">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      
+      <!-- Left Section: Avatar, Name and Compact Meta Details -->
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="shadow-sm rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center border" style="width: 56px; height: 56px; font-size: 1.2rem;">
+          {{ getInitials(employee.name) }}
+        </div>
+        <div>
+          <h2 class="fw-bold text-dark h5 mb-1 d-flex align-items-center gap-2 flex-wrap">
+            {{ employee.name }} 
+            <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-2 fs-8 font-monospace tracking-wider text-uppercase fw-semibold">
+              {{ employee.department }}
+            </span>
+          </h2>
+          <div class="d-flex gap-3 align-items-center flex-wrap text-muted" style="font-size: 0.85rem;">
+            <span><i class="bi bi-briefcase me-1"></i>{{ employee.role }}</span>
+            <span>•</span>
+            <a href="mailto:{{ employee.email }}" class="text-reset text-decoration-none"><i class="bi bi-envelope me-1"></i>{{ employee.email }}</a>
+            <span *ngIf="employee.phoneNumber">•</span>
+            <span *ngIf="employee.phoneNumber"><i class="bi bi-telephone me-1"></i>{{ employee.phoneNumber }}</span>
+            <span>•</span>
+            <span><i class="bi bi-calendar3 me-1"></i>Joined: {{ employee.joiningDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Section: Action Management -->
+      <div class="d-flex align-items-center gap-2">
+        <button [routerLink]="['/dashboard/employees/update', employee.id]" class="btn btn-outline-primary btn-sm rounded-3 px-3 py-2 fw-semibold fs-7 shadow-none">
+          <i class="bi bi-pencil me-1.5"></i> Modify Profile
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. ATTENDANCE MANAGEMENT ENGINE COMPONENT -->
+  <div *ngIf="!isLoading && employeeId" class="animate-fade-in">
+    <app-attendance [employeeIdOverride]="employeeId"></app-attendance>
+  </div>
+
+</div>

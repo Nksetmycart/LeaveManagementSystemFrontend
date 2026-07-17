@@ -2,15 +2,36 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+export interface DeleteDepartmentResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface CreateDepartment {
+  name: string;
+  description: string;
+}
+
+export interface UpdateDepartmentDto {
+  name: string;
+  description: string;
+}
+
+export interface DepartmentResponse {
+  message: string;
+  success: boolean;
+  data: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class DepartmentService {
   constructor(private http: HttpClient) {}
 
-  createDepartment(data: CreateDepartment): Observable<CreateDepartmentResponse> {
+  CreateDepartment(data: CreateDepartment): Observable<DepartmentResponse> {
     console.log("CreateDepartmentData: ",data)
-    return this.http.post<CreateDepartmentResponse>(
+    return this.http.post<DepartmentResponse>(
       'https://localhost:7241/api/v0/Department',
       data,
     );
@@ -22,18 +43,17 @@ export class DepartmentService {
     );
   }
 
+  DeleteDepartmentById(departmentId: string): Observable<DeleteDepartmentResponse> {
+    return this.http.delete<DeleteDepartmentResponse> (`https://localhost:7241/api/v0/Department/${departmentId}`)
+  }
+
+  UpdateDepartmentById(data: UpdateDepartmentDto, departmentId: string): Observable<DepartmentResponse> {
+    return this.http.put<DepartmentResponse> (`https://localhost:7241/api/v0/Department/${departmentId}`, data);
+  }
+
 }
 
-export class CreateDepartment {
-  name!: string;
-  description!: string;
-}
 
-export class CreateDepartmentResponse {
-  message!: string;
-  success!: boolean;
-  data!: string;
-}
 
 export class GetDepartmentsList {
   data!: Array<{

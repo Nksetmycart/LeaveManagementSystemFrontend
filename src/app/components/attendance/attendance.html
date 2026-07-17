@@ -53,18 +53,79 @@
     </div>
   </div>
 
+  <!-- TRUE FLOATING MODAL ERROR POPUP OVERLAY -->
+  <div *ngIf="apiErrorMessage" class="custom-modal-overlay animate-fade-in mb-4">
+    <div class="custom-modal-card border-start border-danger border-4 shadow-lg p-4 rounded-4 bg-white text-center">
+      <div class="d-flex flex-column align-items-center gap-3">
+        <div class="rounded-circle bg-danger-subtle p-3 d-flex align-items-center justify-content-center text-danger" style="width: 60px; height: 60px;">
+          <i class="bi bi-exclamation-octagon-fill fs-3"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold text-dark h5 mb-2">Attention Required</h4>
+          <p class="text-secondary fs-7 mb-0 text-wrap-pretty px-2">{{ apiErrorMessage }}</p>
+        </div>
+        <button type="button" (click)="dismissApiError()" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-semibold shadow-none border-0 text-white mt-2 transition-all">
+          Acknowledge
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contextual Status Selection Toggle Strip Panel -->
+  <div *ngIf="hasSelections()" class="card border-0 shadow-sm p-3 mb-4 rounded-4 border-start border-primary border-3 animate-fade-in" style="background-color: #f8fafc;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+        <span class="fw-medium text-dark">Select the classification category to apply to your highlighted timeline:</span>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button 
+          type="button" 
+          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
+          [ngClass]="activeSelectedStatus === 'Working' ? 'btn-success text-white bg-success' : 'btn-light text-success bg-white'"
+          (click)="updateSelectedDaysStatus('Working')">
+          <i class="bi bi-briefcase-fill me-1"></i> Working
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
+          [ngClass]="activeSelectedStatus === 'Leave' ? 'btn-danger text-white bg-danger' : 'btn-light text-danger bg-white'"
+          (click)="updateSelectedDaysStatus('Leave')">
+          <i class="bi bi-calendar-x-fill me-1"></i> Leave
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
+          [ngClass]="activeSelectedStatus === 'FirstHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'"
+          (click)="updateSelectedDaysStatus('FirstHalf')">
+          <i class="bi bi-hourglass-top me-1"></i> First Half
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
+          [ngClass]="activeSelectedStatus === 'SecondHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'"
+          (click)="updateSelectedDaysStatus('SecondHalf')">
+          <i class="bi bi-hourglass-bottom me-1"></i> Second Half
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Operational Metrics Overview Strips Banner Row -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-xl-3">
       <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Present</span>
-        <h2 class="fw-bold text-primary mb-0 display-6">{{ stats.present }}</h2>
+        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Working</span>
+        <h2 class="fw-bold text-primary mb-0 display-6">{{ stats.working }}</h2>
       </div>
     </div>
     <div class="col-6 col-xl-3">
       <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Work From Home</span>
-        <h2 class="fw-bold text-indigo mb-0 display-6">{{ stats.wfh }}</h2>
+        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Leave</span>
+        <h2 class="fw-bold text-indigo mb-0 display-6">{{ stats.leave }}</h2>
       </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -99,7 +160,9 @@
             'bg-light-muted': !cell.isCurrentMonth,
             'is-selected-cell': isDateSelected(cell.date),
             'is-range-mid': isDateInsideRange(cell.date),
-            'is-range-cap': isDateRangeCap(cell.date)
+            'is-range-cap': isDateRangeCap(cell.date),
+            'disabled-future-cell': cell.isFuture,
+            'locked-backend-cell': isBackendDate(cell.date)
           }"
           (click)="handleCellSelection(cell.date)">
           
@@ -111,9 +174,9 @@
           </div>
 
           <!-- Dynamic Visual Indicators inside Grid block -->
-          <div class="mt-auto w-100 d-flex flex-column gap-1" *ngIf="cell.isCurrentMonth && attendanceRecords[getDateKey(cell.date)]">
+          <div class="mt-auto w-100 d-flex flex-column gap-1" *ngIf="attendanceRecords[getDateKey(cell.date)]">
             <div [class]="getRecordBadgeClass(attendanceRecords[getDateKey(cell.date)])">
-              {{ attendanceRecords[getDateKey(cell.date)] }}
+              {{ getReadableStatusName(attendanceRecords[getDateKey(cell.date)]) }}
             </div>
           </div>
 
@@ -123,4 +186,4 @@
     </div>
   </div>
 
-</div>  
+</div>

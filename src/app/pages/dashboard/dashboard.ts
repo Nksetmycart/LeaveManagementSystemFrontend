@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Sidebar } from "../sidebar/sidebar";
-import { Navbar } from "../navbar/navbar";
 import { RouterOutlet } from '@angular/router';
-import { Calandar } from '../calandar/calandar';
 import { CommonModule } from '@angular/common';
+import { Sidebar } from '../../components/sidebar/sidebar';
+import { Navbar } from '../../components/navbar/navbar';
+import { Calandar } from '../../components/calandar/calandar';
 
 @Component({
   selector: 'app-dashboard',

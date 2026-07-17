@@ -1,49 +1,113 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { AttendanceService, MarkAttendance } from '../../services/attendance-service';
 
 interface CalendarCell {
   date: Date;
   isCurrentMonth: boolean;
+  isFuture: boolean;
 }
 
 type SelectionMode = 'single' | 'range';
-type AttendanceType = 'Present' | 'WFH' | 'Half Day';
+type AttendanceType = 'Working' | 'Leave' | 'FirstHalf' | 'SecondHalf';
 
 @Component({
   selector: 'app-attendance',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './attendance.html',
   styleUrl: './attendance.css',
 })
-
 export class Attendance implements OnInit {
-currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
+  @Input() employeeIdOverride!: string; 
+
+  currentDate: Date = new Date(); 
   calendarCells: CalendarCell[] = [];
   weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  attendanceList: any[] = [];
 
-  // Selection Control Parameters Matrix
   selectionMode: SelectionMode = 'single';
-  selectedDates: Set<string> = new Set<string>(); // Used for standard multi/single distinct picks
+  selectedDates: Set<string> = new Set<string>();
+  backendAttendanceDates: Set<string> = new Set<string>();
+  
   rangeStart: Date | null = null;
   rangeEnd: Date | null = null;
+  employeeId!: string;
 
-  // Active Interactive Records Registry
+  activeSelectedStatus: AttendanceType = 'Working';
+  apiErrorMessage: string | null = null; 
+
   attendanceRecords: { [key: string]: AttendanceType } = {};
+  stats = { working: 0, leave: 0, halfDays: 0, totalHours: 0.0 };
 
-  // Display Metrics Structure Store
-  stats = { present: 0, wfh: 0, halfDays: 0, totalHours: 0.0 };
+  constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
-    this.generateCalendar();
-    this.recalculateDashboardStats();
+    if (this.employeeIdOverride) {
+      this.employeeId = this.employeeIdOverride;
+      this.generateCalendar();
+      this.loadAttendanceList();
+    } else {
+      console.error("Attendance Component Error: 'employeeIdOverride' was not provided by the parent component.");
+    }
   }
 
+  // --- GETTERS RESOLVING TEMPLATE ERRORS ---
   get currentMonthName(): string {
     return this.currentDate.toLocaleString('default', { month: 'long' });
   }
 
   get currentYear(): number {
     return this.currentDate.getFullYear();
+  }
+
+  dismissApiError(): void {
+    this.apiErrorMessage = null;
+  }
+
+  loadAttendanceList(): void {
+    this.attendanceService.GetAttendanceByEmployee(this.employeeId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.apiErrorMessage = null;
+          this.attendanceList = response.data;
+          
+          this.attendanceRecords = {};
+          this.selectedDates.clear();
+          this.backendAttendanceDates.clear();
+
+          this.attendanceList.forEach((record: any) => {
+            if (record.attendanceDate && record.status !== undefined && record.status !== null) {
+              const dateKey = record.attendanceDate.split('T')[0];
+              
+              let statusMapped: AttendanceType = 'Working';
+              const incomingStatus = String(record.status).trim().toLowerCase().replace(/\s+/g, '');
+
+              if (incomingStatus === 'leave' || incomingStatus === '1') {
+                statusMapped = 'Leave';
+              } else if (incomingStatus === 'firsthalf' || incomingStatus === '2') {
+                statusMapped = 'FirstHalf';
+              } else if (incomingStatus === 'secondhalf' || incomingStatus === '3') {
+                statusMapped = 'SecondHalf';
+              } else {
+                statusMapped = 'Working';
+              }
+
+              this.attendanceRecords[dateKey] = statusMapped;
+              this.backendAttendanceDates.add(dateKey);
+            }
+          });
+
+          this.recalculateDashboardStats();
+        } else {
+          this.apiErrorMessage = response.message || 'No attendance records found for this employee.';
+        }
+      },
+      error: (error) => {
+        console.error("Error pulling database profiles:", error);
+        this.apiErrorMessage = 'A network exception occurred while fetching attendance profiles.';
+      }
+    });
   }
 
   setSelectionMode(mode: SelectionMode): void {
@@ -54,6 +118,7 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
   generateCalendar(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
+    const todayTimestamp = this.clearTime(new Date());
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -63,40 +128,57 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
 
     const cells: CalendarCell[] = [];
 
+    const createCell = (dateObj: Date, isCurrent: boolean): CalendarCell => {
+      return {
+        date: dateObj,
+        isCurrentMonth: isCurrent,
+        isFuture: this.clearTime(dateObj) > todayTimestamp
+      };
+    };
+
     for (let i = startOffset - 1; i >= 0; i--) {
-      cells.push({ date: new Date(year, month, -i), isCurrentMonth: false });
+      cells.push(createCell(new Date(year, month, -i), false));
     }
     for (let i = 1; i <= totalDays; i++) {
-      cells.push({ date: new Date(year, month, i), isCurrentMonth: true });
+      cells.push(createCell(new Date(year, month, i), true));
     }
     const totalGridSize = cells.length > 35 ? 42 : 35;
     const remainingSlots = totalGridSize - cells.length;
     for (let i = 1; i <= remainingSlots; i++) {
-      cells.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+      cells.push(createCell(new Date(year, month + 1, i), false));
     }
 
     this.calendarCells = cells;
   }
 
-  /* -------------------------------------------------------------------------- */
-  /* Selection Processing Engine Core Functions                                 */
-  /* -------------------------------------------------------------------------- */
   handleCellSelection(date: Date): void {
     const dateKey = this.getDateKey(date);
+    this.apiErrorMessage = null; 
+
+    if (this.backendAttendanceDates.has(dateKey)) {
+      return; 
+    }
+
+    const todayTimestamp = this.clearTime(new Date());
+    const targetTimestamp = this.clearTime(date);
+
+    if (targetTimestamp > todayTimestamp) {
+      return; 
+    }
 
     if (this.selectionMode === 'single') {
-      // Toggle logic for single clicks
       if (this.selectedDates.has(dateKey)) {
         this.selectedDates.delete(dateKey);
         delete this.attendanceRecords[dateKey];
       } else {
+        this.clearTemporarySelections();
         this.selectedDates.add(dateKey);
-        // Defaults selection state assignment to Present log rule
-        this.attendanceRecords[dateKey] = 'Present';
+        this.attendanceRecords[dateKey] = this.activeSelectedStatus;
       }
     } 
     else if (this.selectionMode === 'range') {
       if (!this.rangeStart || (this.rangeStart && this.rangeEnd)) {
+        this.clearTemporarySelections();
         this.rangeStart = date;
         this.rangeEnd = null;
       } else if (this.rangeStart && !this.rangeEnd) {
@@ -112,38 +194,63 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
     this.recalculateDashboardStats();
   }
 
+  updateSelectedDaysStatus(status: AttendanceType): void {
+    this.activeSelectedStatus = status;
+    this.selectedDates.forEach(key => {
+      if (!this.backendAttendanceDates.has(key)) {
+        this.attendanceRecords[key] = status;
+      }
+    });
+    this.recalculateDashboardStats();
+  }
+
+  private clearTemporarySelections(): void {
+    Object.keys(this.attendanceRecords).forEach(key => {
+      if (!this.backendAttendanceDates.has(key)) {
+        delete this.attendanceRecords[key];
+        this.selectedDates.delete(key);
+      }
+    });
+  }
+
   private applyRangeAttendance(): void {
     if (!this.rangeStart || !this.rangeEnd) return;
+    const todayTimestamp = this.clearTime(new Date());
 
     let current = new Date(this.rangeStart);
     while (current <= this.rangeEnd) {
-      // Skip weekend allocations for standard default tracking logic
-      if (current.getDay() !== 0 && current.getDay() !== 6) {
-        const key = this.getDateKey(current);
-        this.attendanceRecords[key] = 'Present';
+      const currentTimestamp = this.clearTime(current);
+      const key = this.getDateKey(current);
+      
+      if (
+        currentTimestamp <= todayTimestamp && 
+        current.getDay() !== 0 && 
+        current.getDay() !== 6 && 
+        !this.backendAttendanceDates.has(key)
+      ) {
+        this.attendanceRecords[key] = this.activeSelectedStatus;
+        this.selectedDates.add(key);
       }
       current.setDate(current.getDate() + 1);
     }
   }
 
   recalculateDashboardStats(): void {
-    let p = 0; let w = 0; let h = 0;
+    let w = 0; let l = 0; let h = 0;
     
     Object.keys(this.attendanceRecords).forEach(key => {
       const type = this.attendanceRecords[key];
-      if (type === 'Present') p++;
-      else if (type === 'WFH') w++;
-      else if (type === 'Half Day') h++;
+      if (type === 'Working') w++;
+      else if (type === 'Leave') l++;
+      else if (type === 'FirstHalf' || type === 'SecondHalf') h++;
     });
 
-    this.stats.present = p;
-    this.stats.wfh = w;
+    this.stats.working = w;
+    this.stats.leave = l;
     this.stats.halfDays = h;
-    // Evaluates standard formula base metrics: 8 hours per full day, 4 hours per half day
-    this.stats.totalHours = (p * 8.0) + (w * 8.0) + (h * 4.0);
+    this.stats.totalHours = (w * 8.0) + (h * 4.0);
   }
 
-  // Verification Helper Flag Engines
   isDateSelected(date: Date): boolean {
     return this.selectedDates.has(this.getDateKey(date));
   }
@@ -161,10 +268,11 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
   }
 
   clearSelection(): void {
-    this.selectedDates.clear();
     this.rangeStart = null;
     this.rangeEnd = null;
-    this.attendanceRecords = {};
+    this.activeSelectedStatus = 'Working';
+    this.apiErrorMessage = null;
+    this.clearTemporarySelections();
     this.recalculateDashboardStats();
   }
 
@@ -176,11 +284,19 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
     return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
   }
 
+  getReadableStatusName(type: AttendanceType): string {
+    if (type === 'FirstHalf') return 'First Half';
+    if (type === 'SecondHalf') return 'Second Half';
+    return type;
+  }
+
   getRecordBadgeClass(type: AttendanceType): string {
     switch (type) {
-      case 'Present': return 'status-pill bg-present';
-      case 'WFH': return 'status-pill bg-wfh';
-      case 'Half Day': return 'status-pill bg-half';
+      case 'Working': return 'status-pill bg-present'; 
+      case 'Leave': return 'status-pill bg-wfh';       
+      case 'FirstHalf':
+      case 'SecondHalf': 
+        return 'status-pill bg-half';     
       default: return 'status-pill bg-light text-muted';
     }
   }
@@ -195,24 +311,81 @@ currentDate: Date = new Date(2026, 6, 15); // Explicit layout target July 2026
     this.generateCalendar();
   }
 
-  // Helper to check if any active selection parameters exist across modes
-hasSelections(): boolean {
-  if (this.selectionMode === 'single') {
-    return this.selectedDates.size > 0;
-  } else {
-    return !!this.rangeStart;
-  }
-}
+  hasSelections(): boolean {
+    let directAdditions = false;
+    this.selectedDates.forEach(dateStr => {
+      if (!this.backendAttendanceDates.has(dateStr)) {
+        directAdditions = true;
+      }
+    });
 
-// Method triggered when clicking the "Send Attendance Request" button
-submitAttendance(): void {
-  const payload = {
-    mode: this.selectionMode,
-    timestamp: new Date(),
-    details: this.attendanceRecords
-  };
-  
-  console.log('Sending Mark Attendance HTTP Payload Request:', payload);
-  alert(`Attendance request successfully sent for ${Object.keys(this.attendanceRecords).length} day(s)!`);
-}
+    return this.selectionMode === 'single' ? directAdditions : !!this.rangeStart;
+  }
+
+  isBackendDate(date: Date): boolean {
+    return this.backendAttendanceDates.has(this.getDateKey(date));
+  }
+
+  submitAttendance(): void {
+    const updatesList: { dateKey: string, status: AttendanceType }[] = [];
+    
+    Object.keys(this.attendanceRecords).forEach(key => {
+      if (!this.backendAttendanceDates.has(key)) {
+        updatesList.push({
+          dateKey: key, 
+          status: this.attendanceRecords[key]
+        });
+      }
+    });
+
+    if (updatesList.length === 0) {
+      this.apiErrorMessage = 'No new selections found to record.';
+      return;
+    }
+
+    if (this.selectionMode === 'single' || updatesList.length === 1) {
+      const item = updatesList[0];
+      
+      const payload: MarkAttendance = {
+        attendanceDate: item.dateKey, 
+        status: item.status
+      };
+
+      this.attendanceService.MarkAttendance(payload, this.employeeId).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.clearSelection();
+            this.loadAttendanceList();
+          } else {
+            this.apiErrorMessage = response.message || 'Failed to submit attendance log entry.';
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.apiErrorMessage = 'An error occurred while transmitting your attendance records.';
+        }
+      });
+    } 
+    else if (this.selectionMode === 'range') {
+      const payloadBulk: MarkAttendance[] = updatesList.map(item => ({
+        attendanceDate: item.dateKey, 
+        status: item.status
+      }));
+
+      this.attendanceService.MarkBulkAttendance(payloadBulk, this.employeeId).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.clearSelection();
+            this.loadAttendanceList();
+          } else {
+            this.apiErrorMessage = response.message || 'Failed to submit bulk allocation array records.';
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.apiErrorMessage = 'An error occurred while transmitting your bulk attendance records.';
+        }
+      });
+    }
+  }
 }
