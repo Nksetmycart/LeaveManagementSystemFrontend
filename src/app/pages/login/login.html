@@ -9,7 +9,8 @@
         </p>
       </div>
 
-      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- UPDATED: Added loginForm parameter to the form submit event handler -->
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" novalidate>
 
         <!-- Email -->
         <div class="mb-3">
@@ -85,7 +86,7 @@
 
         <button
           type="submit"
-          class="btn btn-primary w-100 btn-lg">
+          class="btn btn-primary w-100 btn-lg shadow-none">
           Sign In
         </button>
 

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HolidayService, HolidaysList } from '../../services/holiday-service';
+import { AuthService, Role } from '../../services/auth-service';
 
 export interface BackendHolidayRecord {
   id: string;
@@ -25,7 +26,8 @@ export interface UpdateHolidayDto {
   styleUrl: './holidays.css',
 })
 export class Holidays implements OnInit {
-  
+  Role = Role;
+
   holidayList: BackendHolidayRecord[] = [];
   apiResponse!: HolidaysList;
 
@@ -42,7 +44,7 @@ export class Holidays implements OnInit {
   showErrorModal = false;
   apiErrorMessage = '';
 
-  constructor(private holidayService: HolidayService) {}
+  constructor(private holidayService: HolidayService, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadAllHolidays();

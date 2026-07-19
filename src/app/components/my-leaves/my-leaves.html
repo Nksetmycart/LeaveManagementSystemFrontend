@@ -18,38 +18,112 @@
             <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">From</th>
             <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">To</th>
             <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Days</th>
-            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Reason</th>
             <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Applied</th>
             <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Status</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell text-end pe-4">Actions</th>
           </tr>
         </thead>
 
         <!-- Table Body Matrix -->
         <tbody>
           <!-- Dynamic Data Rows Display -->
-          <tr *ngFor="let leave of leaveHistory">
-            <td class="fw-semibold text-dark text-nowrap py-3 px-4">{{ leave.type }}</td>
-            <td class="text-secondary text-nowrap px-4">{{ leave.from }}</td>
-            <td class="text-secondary text-nowrap px-4">{{ leave.to }}</td>
-            <td class="text-dark fw-medium px-4">{{ leave.days }}</td>
-            <td class="text-secondary text-truncate max-w-reason px-4" [title]="leave.reason">{{ leave.reason }}</td>
-            <td class="text-muted text-nowrap px-4">{{ leave.applied }}</td>
-            <td class="px-4">
-              <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold" [ngClass]="getStatusClass(leave.status)">
-                {{ leave.status }}
-              </span>
+          <ng-container *ngFor="let leave of leaveHistory; let i = index">
+            
+            <!-- Master Clickable Data Row -->
+            <tr (click)="toggleRowExpansion(i)" class="clickable-row transition-all" [ngClass]="{ 'row-expanded-bg': expandedRowIndex === i }">
+              <td class="fw-semibold text-dark text-nowrap py-3 px-4">
+                <i class="bi me-2 text-primary text-secondary transition-all" 
+                   [ngClass]="expandedRowIndex === i ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                {{ leave.leaveType }}
+              </td>
+              <td class="text-secondary text-nowrap px-4">{{ leave.startDate | date:'yyyy-MM-dd' }}</td>
+              <td class="text-secondary text-nowrap px-4">{{ leave.endDate | date:'yyyy-MM-dd' }}</td>
+              <td class="text-dark fw-medium px-4">
+                {{ calculateLeaveDays(leave.startDate, leave.endDate, leave.isHalfDay) }}
+              </td>
+              <td class="text-muted text-nowrap px-4">{{ leave.submittedAt | date:'dd/MM/yyyy' }}</td>
+              <td class="px-4">
+                <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase" [ngClass]="getStatusClass(leave.status)">
+                  {{ leave.status }}
+                </span>
+              </td>
+              
+              <!-- Action Control -->
+              <td class="text-end pe-4 px-4" (click)="$event.stopPropagation()">
+                <button 
+                  *ngIf="canCancel(leave.status)"
+                  (click)="openCancelConfirmation(leave)" 
+                  class="btn btn-outline-danger btn-sm rounded-2 fw-semibold px-2.5 py-1.5 fs-8 shadow-none transition-all">
+                  <i class="bi bi-x-circle me-1"></i> Cancel
+                </button>
+                <span *ngIf="!canCancel(leave.status)" class="text-muted fs-8 font-monospace text-uppercase opacity-50">Locked</span>
+              </td>
+            </tr>
+
+            <!-- Expandable Panel Nested Row Container -->
+            <tr *ngIf="expandedRowIndex === i">
+              <td colspan="7" class="p-0 border-0">
+                <div class="bg-light-subtle px-5 py-3 border-start border-primary border-3 animate-slide-down">
+                  <div class="row">
+                    <div class="col-12">
+                      <span class="text-muted text-uppercase fw-black d-block mb-1.5" style="font-size: 0.65rem; letter-spacing: 0.05em;">Reason Context</span>
+                      <p class="text-dark fs-7 mb-0 text-wrap-pretty bg-white p-3 border rounded-3 shadow-2xs">
+                        {{ leave.reason ? leave.reason : 'No specific descriptive parameters context was provided for this application instance.' }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </ng-container>
+
+          <!-- Dynamic Loading Skeleton -->
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="text-center py-5">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              <span class="text-muted fs-7 fw-medium">Streaming active database logs grid details...</span>
             </td>
           </tr>
 
-          <!-- Fallback Visual Component Block (Shows only when array is empty) -->
-          <tr *ngIf="leaveHistory.length === 0">
+          <!-- Fallback Empty State -->
+          <tr *ngIf="!isLoading && leaveHistory.length === 0">
             <td colspan="7" class="text-center py-5">
-              <span class="text-muted fs-6 d-block my-2">No leaves yet.</span>
+              <div class="py-4 text-muted">
+                <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
+                <span class="fs-7 fw-medium d-block">No leaves requested yet.</span>
+              </div>
             </td>
           </tr>
         </tbody>
 
       </table>
+    </div>
+  </div>
+
+  <!-- TRUE FLOATING CONFIRMATION POPUP MODAL OVERLAY (Dead Center) -->
+  <div *ngIf="showCancelModal && leaveToCancel" class="custom-modal-overlay animate-fade-in">
+    <div class="custom-modal-card border-start border-danger border-4 shadow-lg p-4 rounded-4 bg-white text-center">
+      <div class="d-flex flex-column align-items-center gap-3">
+        <div class="rounded-circle bg-danger-subtle p-3 d-flex align-items-center justify-content-center text-danger" style="width: 60px; height: 60px;">
+          <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold text-dark h5 mb-2">Cancel Leave Request</h4>
+          <p class="text-secondary fs-7 mb-0 text-wrap-pretty px-2">
+            Are you sure you want to withdraw the <strong>{{ leaveToCancel.leaveType }}</strong> application from <strong>{{ leaveToCancel.startDate | date:'yyyy-MM-dd' }}</strong> to <strong>{{ leaveToCancel.endDate | date:'yyyy-MM-dd' }}</strong>?
+          </p>
+        </div>
+        <div class="d-flex gap-2 w-100 mt-2">
+          <button type="button" (click)="closeCancelConfirmation()" class="btn btn-light btn-sm flex-grow-1 rounded-3 py-2 fw-semibold border shadow-none">
+            Keep Request
+          </button>
+          <button type="button" [disabled]="isCancelling" (click)="confirmCancel()" class="btn btn-danger btn-sm flex-grow-1 rounded-3 py-2 fw-semibold shadow-none text-white border-0 transition-all d-flex align-items-center justify-content-center gap-2">
+            <span *ngIf="isCancelling" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Confirm Cancel
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LeaveService, GetLeaveTypesList } from '../../services/leave-service';
+import { AuthService, Role } from '../../services/auth-service';
 
 export interface LeaveTypeRecord {
   id: string;
@@ -32,7 +33,7 @@ export interface UpdateLeaveType {
   styleUrl: './leave-types.css',
 })
 export class LeaveTypes implements OnInit {
-  
+  Role = Role;
   leaveTypesList: any[] = [];
   apiResponse!: GetLeaveTypesList;
 
@@ -49,7 +50,7 @@ export class LeaveTypes implements OnInit {
   showErrorModal = false;
   apiErrorMessage = '';
 
-  constructor(private leaveService: LeaveService) {}
+  constructor(private leaveService: LeaveService, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadLeaveTypes();

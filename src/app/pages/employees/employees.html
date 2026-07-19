@@ -60,7 +60,7 @@
           <button [routerLink]="['/dashboard', 'employees', emp.id]" class="btn btn-light btn-sm flex-grow-1 rounded-2 fw-semibold fs-7 py-2 action-btn-view shadow-none border">
             <i class="bi bi-eye me-1.5"></i> View Details
           </button>
-          <button 
+          <button *ngIf="authService.hasRole(Role.HR, Role.SuperAdmin)"
              (click)="openDeleteConfirmation(emp); $event.stopPropagation()" 
               class="btn btn-link text-muted p-2 rounded-circle border-0 action-trash shadow-none flex-shrink-0">
                 <i class="bi bi-trash fs-6"></i>

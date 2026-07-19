@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { EmployeeService, EmployeeResponseDto } from '../../services/employee-service';
+import { AuthService, Role } from '../../services/auth-service';
 
 @Component({
   selector: 'app-employees',
@@ -11,7 +12,7 @@ import { EmployeeService, EmployeeResponseDto } from '../../services/employee-se
   styleUrl: './employees.css',
 })
 export class Employees implements OnInit {
-  
+  Role = Role;
   employeeList: EmployeeResponseDto[] = [];
 
   // Popup Modal Operational State Tracking Metrics Variables
@@ -19,6 +20,7 @@ export class Employees implements OnInit {
   employeeToDelete: EmployeeResponseDto | null = null;
 
   constructor(
+    public authService: AuthService,
     private employeeService: EmployeeService,
     private router: Router
   ) {}

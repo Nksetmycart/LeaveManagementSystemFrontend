@@ -9,6 +9,7 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   loginUser(data: LoginUser): Observable<UserResponse>{
+    console.log("LoginData", data)
     return this.http.post<UserResponse>('https://localhost:7241/api/v0/Auth/login',data);
   }
 
@@ -39,6 +40,12 @@ export class AuthService {
   logout() {
     localStorage.clear();
   }
+
+  hasRole(...roles: string[]): boolean {
+    const role = this.getRole();
+
+    return role !== null && roles.includes(role);
+  }
 }
 
 export class LoginUser {
@@ -59,4 +66,11 @@ export class UserResponse{
   }
   message!: string;
   success!: boolean;
+}
+
+export enum Role {
+  SuperAdmin = 'SuperAdmin',
+  Manager = 'Manager',
+  HR = 'HR',
+  Employee = 'Employee'
 }

@@ -1,60 +1,147 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth-service';
+import { LeaveService, LeaveResponseList } from '../../services/leave-service';
 
 @Component({
   selector: 'app-my-leaves',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './my-leaves.html',
   styleUrl: './my-leaves.css',
 })
-export class MyLeaves {
-// Dynamic Array containing sample historical logs. To view the empty state from your screenshot, simply set this to an empty array: []
-  leaveHistory: LeaveRecord[] = [
-    {
-      type: 'Earned Leave',
-      from: '2026-07-26',
-      to: '2026-07-28',
-      days: 3,
-      reason: 'Vacation with family',
-      applied: '12/07/2026',
-      status: 'Pending'
-    },
-    {
-      type: 'Sick Leave',
-      from: '2026-05-12',
-      to: '2026-05-13',
-      days: 1.5,
-      reason: 'Doctor consultation & rest',
-      applied: '12/05/2026',
-      status: 'Approved'
-    },
-    {
-      type: 'Casual Leave',
-      from: '2026-03-05',
-      to: '2026-03-05',
-      days: 1,
-      reason: 'Urgent personal work at home',
-      applied: '04/03/2026',
-      status: 'Rejected'
+export class MyLeaves implements OnInit {
+  
+  leaveHistory: any[] = [];
+  apiResponse!: LeaveResponseList;
+  isLoading = false;
+  isCancelling = false;
+
+  // Row Accordion Dropdown expanded index pointer
+  expandedRowIndex: number | null = null;
+
+  // Custom Confirmation Modal Overlay States
+  showCancelModal = false;
+  leaveToCancel: any | null = null;
+
+  constructor(
+    private leaveService: LeaveService, 
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadEmployeeLeaveHistory();
+  }
+
+  loadEmployeeLeaveHistory(): void {
+    const employeeId = this.authService.getEmployeeId();
+    if (!employeeId) {
+      console.error("Pipeline blocked: Active identity context missing.");
+      return;
     }
-  ];
+
+    this.isLoading = true;
+    this.leaveService.GetLeaveRequestsByEmployee(employeeId).subscribe({
+      next: (response) => {
+        this.apiResponse = response;
+        this.leaveHistory = response.data;
+        this.isLoading = false;
+        this.expandedRowIndex = null;
+        console.log("Historical data fetched successfully from stream:", this.leaveHistory);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.log("Error retrieving customized leave logs:", error);
+      }
+    });
+  }
+
+  toggleRowExpansion(index: number): void {
+    this.expandedRowIndex = this.expandedRowIndex === index ? null : index;
+  }
+
+  canCancel(status: string): boolean {
+    if (!status) return false;
+    return status.trim().toLowerCase() === 'pending';
+  }
+
+  // --- CUSTOM POPUP CONTROLLER METHODS ---
+  openCancelConfirmation(leave: any): void {
+    this.leaveToCancel = leave;
+    this.showCancelModal = true;
+  }
+
+  closeCancelConfirmation(): void {
+    this.showCancelModal = false;
+    this.leaveToCancel = null;
+    this.isCancelling = false;
+  }
+
+  confirmCancel(): void {
+    if (!this.leaveToCancel) return;
+
+    // 1. Fetch employee identity parameter context rules logs
+    const employeeId = this.authService.getEmployeeId();
+    if (!employeeId) {
+      console.error("Cancellation blocked: Active employee context identity missing.");
+      return;
+    }
+
+    this.isSubmittingCancelPipeline();
+
+    // 2. FIXED: Triggers the absolute structured parameter endpoint passing both employeeId and leaveRequestId
+    this.leaveService.CancelLeaveRequest(employeeId, this.leaveToCancel.id).subscribe({
+      next: (res) => {
+        if (res && res.success === false) {
+          this.handleCancellationError(res.message || "The application configuration pipeline rejected adjustments.");
+          return;
+        }
+        this.closeCancelConfirmation();
+        this.loadEmployeeLeaveHistory(); 
+      },
+      error: (err) => {
+        this.handleCancellationError(err?.error?.message || err?.message || "An error occurred while withdrawing the request entry.");
+      }
+    });
+  }
+
+  private isSubmittingCancelPipeline(): void {
+    this.isCancelling = true;
+  }
+
+  private handleCancellationError(errorMessage: string): void {
+    this.isCancelling = false;
+    console.error("Failed executing cancellation workflow drop operation:", errorMessage);
+    alert(errorMessage);
+  }
+
+  calculateLeaveDays(startDate: any, endDate: any, isHalfDayStr: string): number {
+    if (!startDate || !endDate) return 0;
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    start.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+    
+    const timeDiff = Math.abs(end.getTime() - start.getTime());
+    const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    
+    if (isHalfDayStr === '1' || isHalfDayStr === '2' || isHalfDayStr?.toLowerCase().includes('half')) {
+      return totalDays - 0.5;
+    }
+    
+    return totalDays;
+  }
 
   getStatusClass(status: string): string {
-    switch (status) {
-      case 'Approved': return 'bg-success-subtle text-success';
-      case 'Pending': return 'bg-warning-subtle text-warning-emphasis';
-      case 'Rejected': return 'bg-danger-subtle text-danger';
+    if (!status) return 'bg-secondary-subtle text-secondary';
+    
+    switch (status.trim().toLowerCase()) {
+      case 'approved': return 'bg-success-subtle text-success';
+      case 'pending': return 'bg-warning-subtle text-warning-emphasis';
+      case 'rejected': return 'bg-danger-subtle text-danger';
       default: return 'bg-secondary-subtle text-secondary';
     }
   }
-}
-
-interface LeaveRecord {
-  type: string;
-  from: string;
-  to: string;
-  days: number;
-  reason: string;
-  applied: string;
-  status: 'Approved' | 'Pending' | 'Rejected';
 }

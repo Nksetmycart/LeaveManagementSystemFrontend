@@ -1,0 +1,87 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Header Title Section with Primary Action Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Allocations</span>
+      <h1 class="fw-bold text-dark h2 mb-0">Leave Balance</h1>
+    </div>
+    <button *ngIf="authService.hasRole(Role.HR, Role.SuperAdmin)" (click)="openBulkAllocation()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+      <i class="bi bi-plus-circle me-2 fs-5"></i> Assign Balance
+    </button>
+  </div>
+
+  <!-- Main Table Container Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle custom-table text-nowrap">
+        
+        <!-- Table Header Column Titles (DYNAMICALLY COMPUTED) -->
+        <thead>
+          <tr>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell ps-4">Employee</th>
+            <!-- Dynamically loops over unique leave categories discovered within data streams -->
+            <th scope="col" 
+                *ngFor="let column of dynamicColumns; let last = last" 
+                class="text-uppercase fw-bold text-muted table-header-cell"
+                [ngClass]="{'pe-4': last}">
+              {{ column }}
+            </th>
+          </tr>
+        </thead>
+
+        <!-- Table Body Matrix -->
+        <tbody>
+          <!-- Dynamic Data Rows Display -->
+          <tr *ngFor="let record of balancesList">
+            <!-- Employee Profile Block with initials avatar layout rules -->
+            <td class="py-3 px-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-2.5 d-flex align-items-center justify-content-center rounded-circle" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                  {{ record.initials }}
+                </div>
+                <div>
+                  <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">{{ record.employeeName }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.78rem;">{{ record.role }}</small>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Dynamic Leave Type Values lookup map matrix -->
+            <td *ngFor="let column of dynamicColumns; let last = last" class="px-4" [ngClass]="{'pe-4': last}">
+              <ng-container *ngIf="record.balances[column]; else fallbackEmptyBlock">
+                <span class="fw-bold text-dark">{{ record.balances[column].remaining }}</span>
+                <span class="text-muted fs-8"> /{{ record.balances[column].total }}d</span>
+              </ng-container>
+              <!-- Renders fallback values if a particular employee doesn't have an allocation record for this leave type -->
+              <ng-template #fallbackEmptyBlock>
+                <span class="text-muted fw-medium fs-7">—</span>
+              </ng-template>
+            </td>
+          </tr>
+
+          <!-- Dynamic Loading Visual State Row -->
+          <tr *ngIf="isLoading">
+            <!-- Automatically spans across the variable dynamic column count + 1 avatar anchor header -->
+            <td [attr.colspan]="dynamicColumns.length + 1" class="text-center py-5">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              <span class="text-muted fs-7 fw-medium">Streaming ledger metric values from database server cache...</span>
+            </td>
+          </tr>
+
+          <!-- Fallback Visual Component Block (Shows only when data set array is empty) -->
+          <tr *ngIf="!isLoading && balancesList.length === 0">
+            <td [attr.colspan]="dynamicColumns.length + 1" class="text-center py-5">
+              <div class="py-4 text-muted">
+                <i class="bi bi-person-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
+                <span class="fs-7 fw-medium d-block">No employee leave balance allocations mapped.</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>

@@ -12,63 +12,82 @@
     <!-- LEFT COLUMN: Leave Application Form -->
     <div class="col-12 col-xl-4">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-        <form (ngSubmit)="submitLeaveRequest()">
+        <form #leaveForm="ngForm" (ngSubmit)="submitLeaveRequest(leaveForm)" novalidate>
           
           <!-- Leave Type Selection -->
           <div class="mb-3">
-            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Leave Type</label>
-            <select class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6">
+            <label for="leaveTypeSelect" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Leave Type</label>
+            <select 
+              id="leaveTypeSelect"
+              name="leaveTypeId"
+              class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+              [(ngModel)]="leaveRequestModel.leaveTypeId"
+              required
+              #leaveTypeModel="ngModel"
+              [ngClass]="{'is-invalid': leaveForm.submitted && leaveTypeModel.invalid}">
               <option value="" disabled selected>Select a leave type</option>
-              <option value="earned">Earned Leave</option>
-              <option value="casual">Casual Leave</option>
-              <option value="sick">Sick Leave</option>
+              <option *ngFor="let type of leaveTypesList" [value]="type.id">{{ type.name }}</option>
             </select>
+            <div class="invalid-feedback fs-8">Please choose a valid leave type option parameter.</div>
           </div>
 
-          <!-- Selected Dates Inputs (Populated by Calendar Clicks) -->
+          <!-- Selected Dates Inputs -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Start Date</label>
-              <div class="form-control border bg-light text-secondary rounded-3 py-2.5 text-center fs-7 text-truncate">
+              <div class="form-control border rounded-3 py-2.5 text-center fs-7 text-truncate"
+                   [ngClass]="(leaveForm.submitted && !startDate) ? 'bg-danger-subtle text-danger border-danger' : 'bg-light text-secondary'">
                 {{ startDate ? (startDate | date:'yyyy-MM-dd') : 'Pick from calendar' }}
               </div>
             </div>
             <div class="col-6">
               <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">End Date</label>
-              <div class="form-control border bg-light text-secondary rounded-3 py-2.5 text-center fs-7 text-truncate">
+              <div class="form-control border rounded-3 py-2.5 text-center fs-7 text-truncate"
+                   [ngClass]="(leaveForm.submitted && !endDate) ? 'bg-danger-subtle text-danger border-danger' : 'bg-light text-secondary'">
                 {{ endDate ? (endDate | date:'yyyy-MM-dd') : 'Pick from calendar' }}
               </div>
+            </div>
+            <div class="col-12 mt-1" *ngIf="leaveForm.submitted && (!startDate || !endDate)">
+              <small class="text-danger d-block fs-8">Both calendar timeline constraint boundaries are required.</small>
             </div>
           </div>
 
           <!-- Day Type Select -->
           <div class="mb-3">
-            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Day Type</label>
-            <select class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6">
-              <option value="full" selected>Full Day</option>
+            <label for="dayTypeSelect" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Day Type</label>
+            <select 
+              id="dayTypeSelect" 
+              name="dayType" 
+              class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6" 
+              [(ngModel)]="selectedDayType">
+              <option value="full">Full Day</option>
               <option value="half-first">First Half</option>
               <option value="half-second">Second Half</option>
             </select>
           </div>
 
-          <!-- Reason Textarea -->
+          <!-- Reason Textarea (UPDATED: Enforces a hard limit of 150 characters maximum) -->
           <div class="mb-3">
-            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Reason</label>
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <label for="reasonText" class="text-muted text-uppercase fw-bold d-block meta-label m-0">Reason</label>
+              <span class="fs-8 fw-semibold text-muted">
+                {{ leaveRequestModel.reason?.length || 0 }}/150 characters
+              </span>
+            </div>
             <textarea 
+              id="reasonText"
+              name="reason"
               class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 px-3 fs-6 resize-none" 
               rows="3" 
-              placeholder="Share context so your manager can approve quickly."></textarea>
-          </div>
-
-          <!-- Emergency Contact Input -->
-          <div class="mb-3">
-            <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Emergency Contact (Optional)</label>
-            <div class="position-relative">
-              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-              <input 
-                type="text" 
-                class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 ps-5 fs-6" 
-                placeholder="+91 98xxxx...">
+              placeholder="Share context so your manager can approve quickly."
+              [(ngModel)]="leaveRequestModel.reason"
+              maxlength="150"
+              required
+              #reasonModel="ngModel"
+              [ngClass]="{'is-invalid': leaveForm.submitted && reasonModel.invalid}"></textarea>
+            
+            <div class="invalid-feedback fs-8" *ngIf="leaveForm.submitted && reasonModel.errors?.['required']">
+              Please append descriptive summary reasons.
             </div>
           </div>
 
@@ -79,8 +98,9 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" class="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none text-white fs-6">
-            <i class="bi bi-send me-2 fs-7"></i> Submit request
+          <button type="submit" [disabled]="isSubmitting" class="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none text-white fs-6">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <i *ngIf="!isSubmitting" class="bi bi-send me-2 fs-7"></i> Submit request
           </button>
           
         </form>
@@ -90,8 +110,6 @@
     <!-- RIGHT COLUMN: Pick Dates Interactive Selection Calendar -->
     <div class="col-12 col-xl-8">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-        
-        <!-- Calendar Controls Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h3 class="fw-bold text-dark mb-0 fs-5">Pick your dates</h3>
@@ -104,7 +122,6 @@
           </div>
         </div>
 
-        <!-- Grid Layout -->
         <div class="calendar-container">
           <div class="calendar-grid-header mb-1">
             <div class="text-muted text-center fw-semibold text-uppercase py-1" *ngFor="let day of weekDays">{{ day }}</div>
@@ -121,7 +138,6 @@
                 'selected-range-mid': isInsideRange(cell.date)
               }"
               (click)="onDateSelect(cell.date)">
-              
               <span class="day-number" [ngClass]="{ 'text-muted-cell': !cell.isCurrentMonth, 'fw-bold': cell.isCurrentMonth }">
                 {{ cell.date.getDate() }}
               </span>

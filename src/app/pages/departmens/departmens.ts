@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms'; // <-- 1. Imported FormsModule
 import { RouterLink } from "@angular/router";
 import { DepartmentService, GetDepartmentsList } from '../../services/department-service';
+import { AuthService, Role } from '../../services/auth-service';
 
 export interface Department {
   id: string; 
@@ -20,7 +21,6 @@ export interface Department {
   styleUrl: './departmens.css',
 })
 export class Departmens implements OnInit {
-
   departmentsList: any[] = [];
   data!: GetDepartmentsList;
 

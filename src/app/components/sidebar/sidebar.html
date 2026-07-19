@@ -21,43 +21,37 @@
         <span class="fw-medium">Dashboard</span>
       </a>
     </li>
-    <li>
+    <li *ngIf="authService.hasRole(Role.SuperAdmin, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'approval']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-check2-square me-3 fs-5-custom"></i>
         <span class="fw-medium">Approvals</span>
       </a>
     </li>
-    <li>
+     <li *ngIf="authService.hasRole(Role.SuperAdmin, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'employees']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-people me-3 fs-5-custom"></i>
         <span class="fw-medium">Employees</span>
       </a>
     </li>
-    <li>
+     <li *ngIf="authService.hasRole(Role.SuperAdmin, Role.HR)">
       <a [routerLink]="['/dashboard',  'departments']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-building me-3 fs-5-custom"></i>
         <span class="fw-medium">Departments</span>
       </a>
     </li>
-    
-    <!-- NEW: Roles Management -->
-    <li>
+     <li *ngIf="authService.hasRole(Role.SuperAdmin, Role.HR)">
       <a [routerLink]="['/dashboard',  'roles']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-shield-lock me-3 fs-5-custom"></i>
         <span class="fw-medium">Roles</span>
       </a>
     </li>
-
-    <!-- NEW: Leave Types CRUD -->
     <li>
       <a [routerLink]="['/dashboard',  'leave-types']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-sliders me-3 fs-5-custom"></i>
         <span class="fw-medium">Leave Types</span>
       </a>
     </li>
-
-    <!-- NEW: Leave Balance CRUD -->
-    <li>
+     <li *ngIf="authService.hasRole(Role.SuperAdmin, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'leave-balance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-wallet2 me-3 fs-5-custom"></i>
         <span class="fw-medium">Leave Balance</span>
@@ -86,12 +80,6 @@
       <a [routerLink]="['/dashboard',  'attendance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-calendar3 me-3 fs-5-custom"></i>
         <span class="fw-medium">My Attendance</span>
-      </a>
-    </li>
-    <li>
-      <a [routerLink]="['/dashboard',  'profile']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
-        <i class="bi bi-person-circle me-3 fs-5-custom"></i>
-        <span class="fw-medium">Profile</span>
       </a>
     </li>
   </ul>

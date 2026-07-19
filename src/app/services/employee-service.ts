@@ -96,7 +96,6 @@ export class EmployeeService {
     return this.http.get<SingleEmployeeResponse>(`${this.apiUrl}/${targetId}`);
   }
 
-  // GET: Fetch the entire administrative index grid list of application workers
   GetEmployees(): Observable<EmployeeListResponse> {
     return this.http.get<EmployeeListResponse>(this.apiUrl);
   }
