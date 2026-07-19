@@ -1,0 +1,59 @@
+/* Core Layout Structure Configuration Rules */
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.table-header-cell {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.05em;
+  padding: 1rem 0.75rem !important;
+  background-color: #f8fafc !important;
+}
+
+.custom-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.custom-table tbody tr:hover {
+  background-color: rgba(248, 249, 250, 0.6);
+}
+
+.style-badge-font {
+  font-size: 0.65rem !important;
+  letter-spacing: 0.03em;
+}
+
+.max-w-comment-field {
+  max-width: 260px !important;
+}
+
+.text-dark-emphasis {
+  color: #334155 !important;
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.fs-9 {
+  font-size: 0.68rem !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.bg-info-subtle {
+  background-color: #e0f2fe !important;
+}
+
+.text-info-emphasis {
+  color: #0369a1 !important;
+}
+
+.animate-fade-in {
+  animation: approvalsFadeInEffect 0.25s ease-out forwards;
+}
+
+@keyframes approvalsFadeInEffect {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

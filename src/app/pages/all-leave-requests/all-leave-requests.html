@@ -1,0 +1,118 @@
+<div class="container-fluid p-0 page-container animate-fade-in">
+  
+  <!-- Breadcrumb Navigation Actions Header -->
+  <div class="mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div>
+      <a [routerLink]="['/dashboard/leave-approval']" class="text-decoration-none text-muted fs-8 fw-semibold d-inline-flex align-items-center gap-1 mb-1 text-uppercase tracking-wider">
+        <i class="bi bi-arrow-left"></i> Back to approvals
+      </a>
+      <h1 class="fw-bold text-dark h2 mb-0">All Corporate Leave Requests</h1>
+    </div>
+    <span class="badge bg-light text-secondary border px-3 py-2 rounded-3 fs-8 fw-medium">
+      Read-Only Directory Registry
+    </span>
+  </div>
+
+  <!-- Main Table Grid Container Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle custom-table text-nowrap">
+        
+        <!-- Table Header Titles -->
+        <thead>
+          <tr>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell ps-4">Employee</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Leave Type</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Duration Timeline</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Days Count</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Reason Statement</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell">Filed Date</th>
+            <th scope="col" class="text-uppercase fw-bold text-muted table-header-cell pe-4">Status</th>
+          </tr>
+        </thead>
+
+        <!-- Table Body Content Matrix -->
+        <tbody>
+          <tr *ngFor="let record of leaveRequests">
+            
+            <!-- Employee Column Block -->
+            <td class="py-3 px-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-2.5 d-flex align-items-center justify-content-center rounded-circle" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                  {{ getInitials(record.employeeName) }}
+                </div>
+                <div>
+                  <span class="fw-semibold text-dark d-block" style="font-size: 0.92rem;">{{ record.employeeName }}</span>
+                  <small class="text-muted fw-medium d-block mt-0.5" style="font-size: 0.75rem;">
+                    {{ record.employeeRole || record.role || 'Staff Member' }}
+                  </small>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Leave Type Display -->
+            <td class="px-4 fw-medium text-dark">{{ record.leaveType }}</td>
+            
+            <!-- From -> To Calendar Dates Mapping -->
+            <td class="px-4 text-secondary font-monospace" style="font-size: 0.85rem;">
+              {{ record.startDate | date:'yyyy-MM-dd' }} <i class="bi bi-arrow-right mx-1 text-muted fs-8"></i> {{ record.endDate | date:'yyyy-MM-dd' }}
+            </td>
+            
+            <!-- Day Span Output with Normalized Selection Matrix Checkers -->
+            <td class="px-4">
+              <span class="fw-bold text-dark-emphasis d-block">
+                {{ calculateLeaveDays(record.startDate, record.endDate, record.isHalfDay) }}d
+              </span>
+              
+              <!-- Chips lookups read successfully from our processed numeric fields -->
+              <span *ngIf="record.isHalfDay === 0" class="badge bg-light text-secondary border fw-medium px-2 py-0.5 mt-1 rounded fs-9 d-inline-block">
+                Full Day
+              </span>
+              <span *ngIf="record.isHalfDay === 1" class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-medium px-2 py-0.5 mt-1 rounded fs-9 d-inline-block">
+                First Half
+              </span>
+              <span *ngIf="record.isHalfDay === 2" class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-medium px-2 py-0.5 mt-1 rounded fs-9 d-inline-block">
+                Second Half
+              </span>
+            </td>
+            
+            <!-- Reason Text Context -->
+            <td class="px-4 text-secondary text-truncate max-w-reason-field" [title]="record.reason">
+              {{ record.reason ? record.reason : '—' }}
+            </td>
+            
+            <!-- Date Filed Timestamp -->
+            <td class="px-4 text-muted" style="font-size: 0.85rem;">{{ record.submittedAt | date:'dd/MM/yyyy' }}</td>
+            
+            <!-- Read-Only Status Badge Layout Flag -->
+            <td class="px-4 pe-4">
+              <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font" [ngClass]="getStatusClass(record.status)">
+                {{ record.status }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Dynamic Spinner Loading Skeleton View Row -->
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="text-center py-5">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              <span class="text-muted fs-7 fw-medium">Compiling master organization request ledger caches...</span>
+            </td>
+          </tr>
+
+          <!-- Fallback Empty State Block -->
+          <tr *ngIf="!isLoading && leaveRequests.length === 0">
+            <td colspan="7" class="text-center py-5">
+              <div class="py-4 text-muted">
+                <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary opacity-50"></i>
+                <span class="fs-7 fw-medium d-block">No application logs discovered.</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>

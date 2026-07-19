@@ -1,0 +1,219 @@
+<div class="container-fluid p-0 page-container animate-fade-in position-relative">
+  
+  <!-- TRUE FLOATING STATUS NOTIFICATION POPUP BANNER (Top Centered) -->
+  <div *ngIf="notification.show" 
+       class="custom-toast-notification text-white shadow-lg d-flex align-items-center gap-3 px-4 py-3 rounded-3"
+       [ngClass]="notification.isSuccess ? 'bg-success' : 'bg-danger'">
+    <div class="d-flex align-items-center justify-content-center flex-shrink-0">
+      <i class="bi fs-4" [ngClass]="notification.isSuccess ? 'bi-check-circle-fill' : 'bi-exclamation-octagon-fill'"></i>
+    </div>
+    <div class="flex-grow-1 fs-7 fw-medium text-wrap-pretty">
+      {{ notification.message }}
+    </div>
+    <button type="button" (click)="dismissNotification()" class="btn-close btn-close-white ms-auto shadow-none border-0 fs-8"></button>
+  </div>
+  
+  <!-- Header Title Block -->
+  <div class="mb-4">
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Approvals</span>
+    <h1 class="fw-bold text-dark h2 mb-1">Leave requests</h1>
+    <p class="text-secondary mb-3 fs-6">Review, approve, or reject leave requests with context.</p>
+
+    <!-- UPDATED: Decoupled manual triggers and mapped clean Angular route channels instead -->
+    <div class="d-flex gap-2 flex-wrap mt-3">
+      <a [routerLink]="['/dashboard/leave-requests']" class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-2 fw-medium shadow-none bg-white fs-7 d-flex align-items-center gap-2 text-decoration-none text-secondary">
+        <i class="bi bi-collection text-primary"></i> Check All Leave Requests
+      </a>
+      <a [routerLink]="['/dashboard/leave-approvals']" class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-2 fw-medium shadow-none bg-white fs-7 d-flex align-items-center gap-2 text-decoration-none text-secondary">
+        <i class="bi bi-journal-check text-success"></i> Check All Approvals
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading State Indicator Spans Layout -->
+  <div *ngIf="isLoading" class="text-center p-5 card border-0 shadow-sm rounded-4 bg-white min-h-card d-flex align-items-center justify-content-center">
+    <div class="spinner-border text-primary mb-2" role="status"></div>
+    <span class="text-muted fs-7 fw-medium">Syncing leave workflow parameters...</span>
+  </div>
+
+  <!-- Two-Column Master-Detail Split Layout -->
+  <div class="row g-4" *ngIf="!isLoading">
+    
+    <!-- LEFT SIDE: Request Master Lists -->
+    <div class="col-12 col-xl-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white min-h-card">
+        
+        <!-- Pending Section Header -->
+        <div class="mb-4">
+          <h3 class="fw-bold text-dark mb-0 fs-5">Pending ({{ pendingRequests.length }})</h3>
+          <span class="text-muted fs-7">Awaiting your decision</span>
+        </div>
+
+        <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+        <div class="scroll-container mb-4 pe-1">
+          <div class="d-flex flex-column gap-2">
+            <div *ngFor="let req of pendingRequests" 
+                 (click)="selectRequestItem(req)"
+                 class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3 transition-all" 
+                 [ngClass]="{ 'active-card shadow-sm border-primary': selectedRequest?.id === req.id, 'bg-white clickable-hover': selectedRequest?.id !== req.id }"
+                 role="button">
+              <div class="d-flex align-items-center overflow-hidden">
+                <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 42px; height: 42px;">
+                  {{ getInitials(req.employeeName) }}
+                </div>
+                <div class="overflow-hidden">
+                  <div class="d-flex align-items-center gap-2 text-truncate">
+                    <span class="fw-bold text-dark fs-6 text-truncate">{{ req.employeeName }}</span>
+                    <span class="badge bg-light text-secondary border text-uppercase" style="font-size: 0.6rem; letter-spacing: 0.05em;">Staff</span>
+                  </div>
+                  <small class="text-secondary d-block text-truncate mt-0.5">
+                    {{ req.leaveType }} • {{ req.startDate | date:'yyyy-MM-dd' }} → {{ req.endDate | date:'yyyy-MM-dd' }} • {{ calculateLeaveDays(req.startDate, req.endDate, req.isHalfDay) }} day(s)
+                  </small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-2">
+                <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font">Pending</span>
+                <i class="bi bi-chevron-right text-muted fs-7"></i>
+              </div>
+            </div>
+
+            <div *ngIf="pendingRequests.length === 0" class="text-center py-4 border border-dashed rounded-3 bg-light text-muted fs-7">
+              <i class="bi bi-shield-check text-secondary d-block fs-4 mb-1"></i> All clear! No inbound leave applications are waiting.
+            </div>
+          </div>
+        </div>
+
+        <!-- Recently Decided Section Header -->
+        <div class="mb-3 pt-2">
+          <h4 class="fw-bold text-secondary mb-0 fs-6">Recently decided</h4>
+        </div>
+
+        <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+        <div class="scroll-container border-top pe-1">
+          <div class="d-flex flex-column">
+            <div *ngFor="let approval of decidedApprovals" class="d-flex align-items-center justify-content-between py-3 border-bottom transition-all">
+              <div class="d-flex align-items-center overflow-hidden">
+                <div class="avatar-circle bg-light border text-muted fw-semibold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; font-size: 0.8rem;">
+                  {{ getInitials(approval.employeeName) }}
+                </div>
+                <div class="overflow-hidden">
+                  <span class="fw-semibold text-dark d-block text-truncate" style="font-size: 0.92rem;">{{ approval.employeeName }} • {{ approval.leaveType }}</span>
+                  <small class="text-muted d-block font-monospace mt-0.5" style="font-size: 0.78rem;">{{ approval.startDate | date:'yyyy-MM-dd' }} → {{ approval.endDate | date:'yyyy-MM-dd' }}</small>
+                </div>
+              </div>
+              <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font flex-shrink-0 ms-2"
+                    [ngClass]="{
+                      'bg-success-subtle text-success': approval.status?.toLowerCase() === 'approved',
+                      'bg-danger-subtle text-danger': approval.status?.toLowerCase() === 'rejected',
+                      'bg-light text-secondary border': approval.status?.toLowerCase() !== 'approved' && approval.status?.toLowerCase() !== 'rejected'
+                    }">
+                {{ approval.status }}
+              </span>
+            </div>
+
+            <div *ngIf="decidedApprovals.length === 0" class="text-center py-4 text-muted fs-8 font-monospace text-uppercase tracking-wider opacity-50">
+              No decision audits logged yet.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: Focused Context Detail View Component -->
+    <div class="col-12 col-xl-5">
+      
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-column h-auto" *ngIf="selectedRequest">
+        
+        <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+          <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 52px; height: 52px; font-size: 1.2rem;">
+            {{ getInitials(selectedRequest.employeeName) }}
+          </div>
+          <div>
+            <h3 class="fw-bold text-dark fs-5 mb-0">{{ selectedRequest.employeeName }}</h3>
+            <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Authorized Staff</span>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Leave Type</label>
+            <span class="fw-semibold text-dark fs-7 d-block text-truncate mt-0.5">{{ selectedRequest.leaveType }}</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Days</label>
+            <span class="fw-semibold text-dark fs-7 d-block mt-0.5">{{ calculateLeaveDays(selectedRequest.startDate, selectedRequest.endDate, selectedRequest.isHalfDay) }}</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Start</label>
+            <span class="fw-semibold text-dark fs-7 d-block font-monospace mt-0.5">{{ selectedRequest.startDate | date:'yyyy-MM-dd' }}</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">End</label>
+            <span class="fw-semibold text-dark fs-7 d-block font-monospace mt-0.5">{{ selectedRequest.endDate | date:'yyyy-MM-dd' }}</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Applied</label>
+            <span class="fw-semibold text-dark fs-7 d-block font-monospace mt-0.5">{{ selectedRequest.submittedAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="col-6">
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Day Type</label>
+            <span class="fw-semibold text-dark fs-7 d-block mt-0.5">
+              {{ selectedRequest.isHalfDay === '0' ? 'Full Day' : (selectedRequest.isHalfDay === '1' ? 'First Half' : 'Second Half') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Reason</label>
+          <div class="bg-light rounded-3 p-3 text-dark fs-7 text-wrap-pretty border shadow-2xs">
+            {{ selectedRequest.reason ? selectedRequest.reason : 'No descriptive details filed.' }}
+          </div>
+        </div>
+
+        <div class="mb-3 border-bottom pb-3" *ngIf="selectedRequest.emergencyContact">
+          <span class="text-secondary fs-7"><i class="bi bi-telephone text-muted me-1"></i> Emergency: <span class="fw-medium text-dark">{{ selectedRequest.emergencyContact }}</span></span>
+        </div>
+
+        <!-- Decision Commentary Form Box -->
+        <div class="mb-4 mt-1">
+          <label for="decisionCommentArea" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">
+            <i class="bi bi-chat-left-text me-1"></i> Decision Comment
+          </label>
+          <textarea 
+            id="decisionCommentArea"
+            name="comment"
+            class="form-control border bg-light text-secondary shadow-none rounded-3 py-2.5 px-3 fs-6 resize-none" 
+            rows="3" 
+            placeholder="Optional descriptive explanation notes..."
+            [(ngModel)]="decisionComment"></textarea>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <button [disabled]="isProcessingAction" (click)="onApprove()" class="btn btn-success-custom w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none gap-2">
+              <span *ngIf="isProcessingAction" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <i *ngIf="!isProcessingAction" class="bi bi-check2 fs-5"></i> Approve
+            </button>
+          </div>
+          <div class="col-6">
+            <button [disabled]="isProcessingAction" (click)="onReject()" class="btn btn-danger-custom w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none gap-2">
+              <span *ngIf="isProcessingAction" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <i *ngIf="!isProcessingAction" class="bi bi-x fs-5"></i> Reject
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Fallback Empty State -->
+      <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center text-muted h-100 d-flex align-items-center justify-content-center" *ngIf="!selectedRequest">
+        <i class="bi bi-inboxes display-4 text-secondary opacity-25 mb-2"></i>
+        <h5 class="fw-bold text-dark fs-6 mb-1">No Selection Focus</h5>
+        <p class="mb-0 fs-8 text-uppercase tracking-wide font-monospace">Choose an entry row from pending queue to view audit specs profiles.</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>

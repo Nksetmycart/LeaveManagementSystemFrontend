@@ -1,0 +1,172 @@
+/* Core Styling Matrix */
+.page-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Master Rounding Avatar Configuration */
+.avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Row Styling & Hover Engines */
+.request-row {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.clickable-hover:hover {
+  background-color: rgba(248, 249, 250, 0.75) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Selected Active Focus Setup */
+.active-card {
+  border: 2px solid #0d6efd !important;
+  background-color: rgba(13, 110, 253, 0.03) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Meta Param Data Labels */
+.meta-label {
+  font-size: 0.68rem !important;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+/* Utility Typographies & Layout Anchors */
+.fs-7 {
+  font-size: 0.85rem !important;
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.style-badge-font {
+  font-size: 0.65rem !important;
+  letter-spacing: 0.03em;
+}
+
+.min-h-card {
+  min-height: 520px;
+}
+
+.resize-none {
+  resize: none;
+}
+
+.text-wrap-pretty {
+  text-wrap: pretty;
+}
+
+/* Spacing Configurations Overrides */
+.py-2\.5 {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
+.px-2\.5 {
+  padding-left: 0.65rem !important;
+  padding-right: 0.65rem !important;
+}
+
+.py-1\.5 {
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.35rem !important;
+}
+
+/* Soft Subdued Background Layout */
+.bg-light {
+  background-color: #f4f5f7 !important;
+}
+
+/* Action Processing Buttons Overrides */
+.btn-success-custom {
+  background-color: #198754 !important;
+  color: #ffffff !important;
+  border: none !important;
+  transition: all 0.2s ease-in-out;
+}
+.btn-success-custom:hover:not([disabled]) {
+  background-color: #157347 !important;
+  transform: translateY(-1px);
+}
+.btn-success-custom:active:not([disabled]) {
+  transform: translateY(0);
+}
+
+.btn-danger-custom {
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+  border: none !important;
+  transition: all 0.2s ease-in-out;
+}
+.btn-danger-custom:hover:not([disabled]) {
+  background-color: #bb2d3b !important;
+  transform: translateY(-1px);
+}
+.btn-danger-custom:active:not([disabled]) {
+  transform: translateY(0);
+}
+
+button[disabled] {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* Scroll Boundary Engine Layout Controls */
+.scroll-container {
+  max-height: 390px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Custom Center Top Viewport Toast Notification Panel */
+.custom-toast-notification {
+  position: fixed !important;
+  top: 24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 90% !important;
+  max-width: 480px !important;
+  z-index: 2147483647 !important; /* Forces dominance layout context over background overlays */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+  animation: slideToastFromTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+@keyframes slideToastFromTop {
+  from {
+    top: -20px;
+    opacity: 0;
+  }
+  to {
+    top: 24px;
+    opacity: 1;
+  }
+}

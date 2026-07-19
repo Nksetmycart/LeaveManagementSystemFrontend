@@ -52,6 +52,7 @@ export interface LeaveResponseList {
     id: string;
     companyId: string;
     employeeName: string;
+    employeeRole: string;
     leaveType: string;
     startDate: Date;
     endDate: Date;
@@ -79,7 +80,7 @@ export interface LeaveBalancesResponseList {
       usedLeaves: number;
       adjustments: number;
       balance: number;
-      lastAccruedOn:Date;
+      lastAccruedOn: Date;
       createdAt: Date;
       updatedAt: Date;
     }>
@@ -89,6 +90,36 @@ export interface LeaveBalancesResponseList {
 export interface CancelRequestResponse {
   success: boolean;
   message: string;
+}
+
+export interface LeaveApprovalsResponse {
+  success: boolean;
+  message: string;
+  data: Array<{
+    id: string;
+    leaveType: string;
+    employeeName: string;
+    employeeRole: string;
+    approverName: string;
+    approvarRole: string;
+    startDate: Date;
+    endDate: Date;
+    reason: string;
+    isHalfDay: string;
+    status: string;
+    comment: string;
+  }>
+}
+
+export interface ApprovalDto{
+  leaveRequestId: string;
+  comment: string;
+}
+
+export interface ApprovalResponse {
+  success: boolean;
+  message: string;
+  data: string;
 }
 
 @Injectable({
@@ -135,6 +166,22 @@ export class LeaveService {
 
   GetAllLeaveBalances(): Observable<LeaveBalancesResponseList> {
     return this.http.get<LeaveBalancesResponseList>(`${this.baseUrl}/LeaveBalance`)
+  }
+  
+  GetAllLeaveApprovals(): Observable<LeaveApprovalsResponse> {
+    return this.http.get<LeaveApprovalsResponse>(`${this.baseUrl}/LeaveApproval`)
+  }
+  
+  GetLeaveApprovalsByApprovarId(approvarId: string): Observable<LeaveApprovalsResponse> {
+    return this.http.get<LeaveApprovalsResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}`)
+  }
+
+  ApproveLeave(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
+    return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/approve`, data)
+  }
+
+  Reject(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
+    return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/reject`, data)
   }
 }
 

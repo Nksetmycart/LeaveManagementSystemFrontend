@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { HomeComponent } from './components/home-component/home-component';
-import { LeaveApproval } from './components/leave-approval/leave-approval';
+import { LeaveApproval } from './pages/leave-approval/leave-approval';
 import { Employees } from './pages/employees/employees';
 import { Departmens } from './pages/departmens/departmens';
 import { Holidays } from './pages/holidays/holidays';
@@ -22,6 +22,8 @@ import { Unauthorized } from './pages/unauthorized/unauthorized';
 import { authGuard } from './guards/auth-guard';
 import { roleGuard } from './guards/role-guard';
 import { LeaveBalance } from './pages/leave-balance/leave-balance';
+import { AllLeaveRequests } from './pages/all-leave-requests/all-leave-requests';
+import { AllLeaveApprovals } from './pages/all-leave-approvals/all-leave-approvals';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -30,6 +32,8 @@ export const routes: Routes = [
     {
         path: 'dashboard', component: Dashboard, canActivate: [authGuard], children: [
             { path: '', component: HomeComponent },
+            { path: 'leave-requests', component: AllLeaveRequests},
+            { path: 'leave-approvals', component: AllLeaveApprovals},
             { path: 'approval', canActivate: [roleGuard], data: { roles: ['SuperAdmin', 'HR', 'Manager'] }, component: LeaveApproval },
             {
                 path: 'employees', canActivate: [roleGuard], data: { roles: ['SuperAdmin', 'HR', 'Manager'] }, children: [
