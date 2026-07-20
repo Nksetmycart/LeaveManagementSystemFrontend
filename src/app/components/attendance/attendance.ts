@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, Input } from '@angular/core';
 import { AttendanceService, MarkAttendance } from '../../services/attendance-service';
+import { HolidayService, HolidaysList } from '../../services/holiday-service'; // Added Holiday Service Import
 
 interface CalendarCell {
   date: Date;
   isCurrentMonth: boolean;
   isFuture: boolean;
+  isHoliday?: boolean;      // Added tracking property flag
+  holidayName?: string;     // Added tracking property value name
 }
 
 type SelectionMode = 'single' | 'range';
@@ -25,6 +28,7 @@ export class Attendance implements OnInit {
   calendarCells: CalendarCell[] = [];
   weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   attendanceList: any[] = [];
+  holidaysCache: any[] = []; // Added database holidays collection array cache container
 
   selectionMode: SelectionMode = 'single';
   selectedDates: Set<string> = new Set<string>();
@@ -40,16 +44,38 @@ export class Attendance implements OnInit {
   attendanceRecords: { [key: string]: AttendanceType } = {};
   stats = { working: 0, leave: 0, halfDays: 0, totalHours: 0.0 };
 
-  constructor(private attendanceService: AttendanceService) {}
+  constructor(
+    private attendanceService: AttendanceService,
+    private holidayService: HolidayService // Injected HolidayService securely
+  ) {}
 
   ngOnInit(): void {
     if (this.employeeIdOverride) {
       this.employeeId = this.employeeIdOverride;
-      this.generateCalendar();
-      this.loadAttendanceList();
+      // Pipeline call sequences are loaded sequentially to preserve original execution order
+      this.loadHolidayDataIndex(); 
     } else {
       console.error("Attendance Component Error: 'employeeIdOverride' was not provided by the parent component.");
     }
+  }
+
+  // --- NEW HOOK ADDITION: Fetches public holidays list database index entries ---
+  loadHolidayDataIndex(): void {
+    this.holidayService.GetHolidays().subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          this.holidaysCache = response.data;
+        }
+        // Always executes core methods downstream regardless of result parameters to prevent breaking baseline view states
+        this.generateCalendar();
+        this.loadAttendanceList();
+      },
+      error: (error) => {
+        console.error("Error pulling holiday parameters:", error);
+        this.generateCalendar();
+        this.loadAttendanceList();
+      }
+    });
   }
 
   // --- GETTERS RESOLVING TEMPLATE ERRORS ---
@@ -129,10 +155,17 @@ export class Attendance implements OnInit {
     const cells: CalendarCell[] = [];
 
     const createCell = (dateObj: Date, isCurrent: boolean): CalendarCell => {
+      const keyStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+      
+      // Scans database records for matching date parameters context tracking metrics
+      const matchedHoliday = this.holidaysCache.find(h => h.date && h.date.split('T')[0] === keyStr);
+
       return {
         date: dateObj,
         isCurrentMonth: isCurrent,
-        isFuture: this.clearTime(dateObj) > todayTimestamp
+        isFuture: this.clearTime(dateObj) > todayTimestamp,
+        isHoliday: !!matchedHoliday,
+        holidayName: matchedHoliday ? matchedHoliday.name : undefined
       };
     };
 
@@ -154,6 +187,13 @@ export class Attendance implements OnInit {
   handleCellSelection(date: Date): void {
     const dateKey = this.getDateKey(date);
     this.apiErrorMessage = null; 
+
+    // BLOCKS MANIPULATION INTERCEPTOR: Rejects changes over locked official corporate holidays records bounds
+    const matchedCell = this.calendarCells.find(c => this.getDateKey(c.date) === dateKey);
+    if (matchedCell?.isHoliday) {
+      this.apiErrorMessage = `Selection Refused: Cannot adjust attendance parameters over official holiday "${matchedCell.holidayName}".`;
+      return;
+    }
 
     if (this.backendAttendanceDates.has(dateKey)) {
       return; 
@@ -197,7 +237,9 @@ export class Attendance implements OnInit {
   updateSelectedDaysStatus(status: AttendanceType): void {
     this.activeSelectedStatus = status;
     this.selectedDates.forEach(key => {
-      if (!this.backendAttendanceDates.has(key)) {
+      // Prevents updating historical database indicators or active public holiday fields indices
+      const cellCheck = this.calendarCells.find(c => this.getDateKey(c.date) === key);
+      if (!this.backendAttendanceDates.has(key) && !cellCheck?.isHoliday) {
         this.attendanceRecords[key] = status;
       }
     });
@@ -222,11 +264,14 @@ export class Attendance implements OnInit {
       const currentTimestamp = this.clearTime(current);
       const key = this.getDateKey(current);
       
+      const cellCheck = this.calendarCells.find(c => this.getDateKey(c.date) === key);
+
       if (
         currentTimestamp <= todayTimestamp && 
         current.getDay() !== 0 && 
         current.getDay() !== 6 && 
-        !this.backendAttendanceDates.has(key)
+        !this.backendAttendanceDates.has(key) &&
+        !cellCheck?.isHoliday // Bypass range selection assignments across mapped public holidays boundaries
       ) {
         this.attendanceRecords[key] = this.activeSelectedStatus;
         this.selectedDates.add(key);
@@ -303,12 +348,12 @@ export class Attendance implements OnInit {
 
   previousMonth(): void {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
-    this.generateCalendar();
+    this.loadHolidayDataIndex();
   }
 
   nextMonth(): void {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
-    this.generateCalendar();
+    this.loadHolidayDataIndex();
   }
 
   hasSelections(): boolean {

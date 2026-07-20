@@ -79,110 +79,65 @@
         <span class="fw-medium text-dark">Select the classification category to apply to your highlighted timeline:</span>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <button 
-          type="button" 
-          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
-          [ngClass]="activeSelectedStatus === 'Working' ? 'btn-success text-white bg-success' : 'btn-light text-success bg-white'"
-          (click)="updateSelectedDaysStatus('Working')">
-          <i class="bi bi-briefcase-fill me-1"></i> Working
-        </button>
-
-        <button 
-          type="button" 
-          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
-          [ngClass]="activeSelectedStatus === 'Leave' ? 'btn-danger text-white bg-danger' : 'btn-light text-danger bg-white'"
-          (click)="updateSelectedDaysStatus('Leave')">
-          <i class="bi bi-calendar-x-fill me-1"></i> Leave
-        </button>
-
-        <button 
-          type="button" 
-          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
-          [ngClass]="activeSelectedStatus === 'FirstHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'"
-          (click)="updateSelectedDaysStatus('FirstHalf')">
-          <i class="bi bi-hourglass-top me-1"></i> First Half
-        </button>
-
-        <button 
-          type="button" 
-          class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all"
-          [ngClass]="activeSelectedStatus === 'SecondHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'"
-          (click)="updateSelectedDaysStatus('SecondHalf')">
-          <i class="bi bi-hourglass-bottom me-1"></i> Second Half
-        </button>
+        <button type="button" class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all" [ngClass]="activeSelectedStatus === 'Working' ? 'btn-success text-white bg-success' : 'btn-light text-success bg-white'" (click)="updateSelectedDaysStatus('Working')"><i class="bi bi-briefcase-fill me-1"></i> Working</button>
+        <button type="button" class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all" [ngClass]="activeSelectedStatus === 'Leave' ? 'btn-danger text-white bg-danger' : 'btn-light text-danger bg-white'" (click)="updateSelectedDaysStatus('Leave')"><i class="bi bi-calendar-x-fill me-1"></i> Leave</button>
+        <button type="button" class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all" [ngClass]="activeSelectedStatus === 'FirstHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'" (click)="updateSelectedDaysStatus('FirstHalf')"><i class="bi bi-hourglass-top me-1"></i> First Half</button>
+        <button type="button" class="btn btn-sm px-3 rounded-3 fw-semibold shadow-none border transition-all" [ngClass]="activeSelectedStatus === 'SecondHalf' ? 'btn-warning text-dark bg-warning' : 'btn-light text-warning-emphasis bg-white'" (click)="updateSelectedDaysStatus('SecondHalf')"><i class="bi bi-hourglass-bottom me-1"></i> Second Half</button>
       </div>
     </div>
   </div>
 
   <!-- Operational Metrics Overview Strips Banner Row -->
   <div class="row g-3 mb-4">
-    <div class="col-6 col-xl-3">
-      <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Working</span>
-        <h2 class="fw-bold text-primary mb-0 display-6">{{ stats.working }}</h2>
-      </div>
-    </div>
-    <div class="col-6 col-xl-3">
-      <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Leave</span>
-        <h2 class="fw-bold text-indigo mb-0 display-6">{{ stats.leave }}</h2>
-      </div>
-    </div>
-    <div class="col-6 col-xl-3">
-      <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Half Days</span>
-        <h2 class="fw-bold text-warning-emphasis mb-0 display-6">{{ stats.halfDays }}</h2>
-      </div>
-    </div>
-    <div class="col-6 col-xl-3">
-      <div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white">
-        <span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Total Hours</span>
-        <h2 class="fw-bold text-success mb-0 display-6">{{ stats.totalHours | number:'1.1-1' }}</h2>
-      </div>
-    </div>
+    <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white"><span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Working</span><h2 class="fw-bold text-primary mb-0 display-6">{{ stats.working }}</h2></div></div>
+    <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white"><span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Leave</span><h2 class="fw-bold text-indigo mb-0 display-6">{{ stats.leave }}</h2></div></div>
+    <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white"><span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Half Days</span><h2 class="fw-bold text-warning-emphasis mb-0 display-6">{{ stats.halfDays }}</h2></div></div>
+    <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm p-3 h-100 rounded-4 bg-white"><span class="text-muted text-uppercase fw-bold d-block mb-2 metrics-label">Total Hours</span><h2 class="fw-bold text-success mb-0 display-6">{{ stats.totalHours | number:'1.1-1' }}</h2></div></div>
   </div>
 
   <!-- Large Interactive Attendance Grid Area -->
   <div class="card border-0 shadow-sm p-4 rounded-4 bg-white w-100">
     <div class="calendar-container">
-      
-      <!-- Day Headers Column Matrix -->
       <div class="calendar-grid-header mb-2">
         <div class="text-muted text-center fw-semibold text-uppercase py-1" *ngFor="let day of weekDays">{{ day }}</div>
       </div>
 
-      <!-- Functional Month Matrix Engine Cells -->
       <div class="calendar-grid-body">
         <div 
           *ngFor="let cell of calendarCells" 
-          class="calendar-day-cell position-relative"
+          class="calendar-day-cell"
           [ngClass]="{
             'bg-light-muted': !cell.isCurrentMonth,
             'is-selected-cell': isDateSelected(cell.date),
             'is-range-mid': isDateInsideRange(cell.date),
             'is-range-cap': isDateRangeCap(cell.date),
             'disabled-future-cell': cell.isFuture,
+            'holiday-locked-cell': cell.isHoliday,
             'locked-backend-cell': isBackendDate(cell.date)
           }"
           (click)="handleCellSelection(cell.date)">
           
-          <!-- Day Top Metadata Header Row -->
-          <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+          <div class="d-flex justify-content-between align-items-center w-100">
             <span class="day-number" [ngClass]="{ 'text-muted-cell': !cell.isCurrentMonth, 'fw-bold': cell.isCurrentMonth }">
               {{ cell.date.getDate() }}
             </span>
           </div>
 
-          <!-- Dynamic Visual Indicators inside Grid block -->
-          <div class="mt-auto w-100 d-flex flex-column gap-1" *ngIf="attendanceRecords[getDateKey(cell.date)]">
-            <div [class]="getRecordBadgeClass(attendanceRecords[getDateKey(cell.date)])">
+          <!-- DYNAMIC LABELS ACTIONS BOTTOM STACK BLOCK (Includes tight structural element spacing gaps) -->
+          <div class="mt-2 w-100 d-flex flex-column gap-1">
+            <!-- Renders official database holiday tags cleanly using your custom layout chip -->
+            <span *ngIf="cell.isHoliday" class="holiday-label-chip text-truncate d-block" [title]="cell.holidayName">
+              {{ cell.holidayName }}
+            </span>
+
+            <!-- Original Internal Attendance Badge Stream Display -->
+            <div *ngIf="attendanceRecords[getDateKey(cell.date)]" [class]="getRecordBadgeClass(attendanceRecords[getDateKey(cell.date)])">
               {{ getReadableStatusName(attendanceRecords[getDateKey(cell.date)]) }}
             </div>
           </div>
 
         </div>
       </div>
-
     </div>
   </div>
 

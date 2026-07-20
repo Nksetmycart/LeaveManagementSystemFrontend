@@ -30,6 +30,15 @@
   margin-right: 0.4rem !important;
 }
 
+/* Dynamic Auxiliary Loading Buffer screen */
+.calendar-loading-blur {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
 /* ==========================================================================
    Screen-Optimized Calendar Grid Matrix
    ========================================================================== */
@@ -39,7 +48,7 @@
 }
 
 .calendar-grid-header div {
-  font-size: 0.68rem; /* Scaled down slightly to fit structure */
+  font-size: 0.68rem;
   letter-spacing: 0.05em;
   color: #a0aec0;
 }
@@ -47,34 +56,34 @@
 .calendar-grid-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px; /* Tighter uniform box gap spacing rules for vertical space recovery */
+  gap: 8px;
 }
 
 .calendar-day-cell {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px; /* Refined visual radius for smaller dimensions */
+  border-radius: 12px;
   
-  /* CRITICAL CHANGE: Swapped fixed 140px min-height to a responsive viewport metric
-     combined with a strict max-height threshold to prevent single screen overflow */
-  min-height: 75px;
-  height: 9.5vh; 
+  /* CRITICAL CORRECTION FIX: Reconfigured cell values to clean automatic heights blocks 
+     with safe vertical min thresholds, eliminating absolute clipping on overflow spikes */
+  min-height: 105px;
+  height: auto;
   
-  padding: 8px 10px; /* Reduced from 14px to maximize available rendering space */
+  padding: 10px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Pushes number up and badge down without layout blooming */
+  justify-content: space-between;
   align-items: flex-start;
   transition: all 0.15s ease-in-out;
 }
 
-.calendar-day-cell:hover {
+.calendar-day-cell:hover:not(.disabled-future-cell) {
   border-color: #a0aec0;
 }
 
 .day-number {
-  font-size: 0.88rem; /* Highly readable layout proportion scale */
+  font-size: 0.88rem;
   color: #1a202c;
 }
 
@@ -83,47 +92,105 @@
   border-color: #edf2f7;
 }
 
-.text-muted-cell {
-  color: #cbd5e1 !important;
-}
+.text-muted-cell { color: #cbd5e1 !important; }
 
 /* ==========================================================================
-   Interactive Highlight Mechanics Rendering Rules
+   Interactive Highlights States (Blue Active selections markers)
    ========================================================================== */
 .is-selected-cell, 
 .is-range-cap {
-  border: 2px solid #2b6cb0 !important;
+  border: 2px solid #0d6efd !important;
   background-color: #f7fafc !important;
 }
 
 .is-range-mid {
-  background-color: #ebf8ff !important;
-  border-color: #bee3f8 !important;
+  background-color: rgba(13, 110, 253, 0.06) !important;
+  border-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+.disabled-future-cell {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #f8f9fa;
 }
 
 /* ==========================================================================
-   Interior Compact Status Badges
+   Interior Compact Status Badges Matrix (Synchronized with Holiday styles)
    ========================================================================== */
 .status-pill {
-  font-size: 0.65rem; /* Reduced from 0.72rem for single screen composition */
-  font-weight: 600;
-  padding: 3px 6px; /* Tight functional padding */
-  border-radius: 4px;
+  font-size: 0.58rem !important;
+  font-weight: 700;
+  padding: 4px 6px; /* Optimized layout baseline bounds spacing padding */
+  border-radius: 6px;
   text-align: center;
   width: 100%;
   display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Safely truncates string text instead of wrapping layouts */
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
-.bg-present { background-color: #e6f6f0; color: #00875a; }
-.bg-wfh     { background-color: #faf5ff; color: #553c9a; }
-.bg-half    { background-color: #fffaf0; color: #dd6b20; }
+.bg-present { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.bg-wfh     { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.bg-half    { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 
-.disabled-future-cell {
-  opacity: 0.55;
-  cursor: not-allowed !important;
-  background-color: #f8f9fa;
-  pointer-events: auto; /* Keeps event active so click function runs and blocks cleanly */
+/* Holiday UI Layer Accents */
+.holiday-locked-cell {
+  background-color: #fae8ff !important;
+  border: 1px dashed #c084fc !important;
+}
+
+.holiday-label-chip {
+  font-size: 0.58rem !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  padding: 4px 6px; /* Matched status pill thickness for exact visual symmetry */
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid #d8b4fe;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+/* True Full Overlay Modal Message Window Alert styling overrides */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.custom-modal-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: #ffffff;
+  animation: modalPopEffect 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+}
+
+@keyframes modalPopEffect {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: attendanceFadeIn 0.25s ease-out forwards;
+}
+
+@keyframes attendanceFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

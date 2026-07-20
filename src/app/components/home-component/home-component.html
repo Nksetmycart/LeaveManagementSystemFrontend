@@ -1,109 +1,242 @@
-<div class="container-fluid p-0 page-container animate-fade-in">
+<div class="container-fluid p-0 page-container animate-fade-in position-relative">
+
+  <!-- Spinner overlay loading metadata blocks -->
+  <div *ngIf="isLoadingData" class="dashboard-loading-blur d-flex flex-column align-items-center justify-content-center rounded-4">
+    <div class="spinner-border text-primary mb-2" role="status"></div>
+    <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-9">Syncing Workspace Registers...</span>
+  </div>
   
   <!-- Top Greeting Banner Header -->
   <div class="mb-4">
-    <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">HR Admin • Workspace</span>
-    <h1 class="fw-bold text-dark display-6 mb-1">Hi Priya, welcome back</h1>
-    <p class="text-secondary mb-0">Here's your high-level overview tracker for today.</p>
+    <span class="text-muted text-uppercase fw-bold tracking-wider fs-9 d-block mb-1" style="letter-spacing: 0.08em;">
+      {{ role || 'System' }} • Workspace
+    </span>
+    <h1 class="fw-bold text-dark display-6 mb-1">Hi {{ user?.name || 'User' }}, welcome back</h1>
+    <p class="text-secondary mb-0 fs-6">Here's your high-level overview tracker for today.</p>
   </div>
 
-  <!-- Row Panel: Quick Action Operational Buttons -->
-  <div class="d-flex gap-3 mb-4 flex-wrap">
-    <button [routerLink]="['/dashboard', employeeId, 'apply-leave']" (click)="navigateToApplyLeave()" class="btn btn-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none text-white fs-6">
+  <!-- Row Panel: Quick Action Operational Buttons (Shown only to Standard Employees) -->
+  <div class="d-flex gap-3 mb-4 flex-wrap" *ngIf="role?.toLowerCase() === 'employee' && employeeId">
+    <button [routerLink]="['/dashboard', 'apply-leave']" (click)="navigateToApplyLeave()" class="btn btn-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none text-white fs-7">
       <i class="bi bi-clipboard-plus me-2 fs-5"></i> Apply for Leave
     </button>
-    <button [routerLink]="['/dashboard', employeeId, 'attendance']" (click)="navigateToMarkAttendance()" class="btn btn-outline-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none bg-white fs-6">
+    <button [routerLink]="['/dashboard', 'attendance']" (click)="navigateToMarkAttendance()" class="btn btn-outline-primary d-flex align-items-center px-4 py-2.5 rounded-3 fw-semibold shadow-none bg-white fs-7">
       <i class="bi bi-calendar-check me-2 fs-5"></i> Mark Attendance
     </button>
   </div>
 
   <!-- Metric Overview Stats Cards Grid -->
-  <div class="row g-3 mb-4">
-    <!-- Card 1: Total Leave Balance Summary Info -->
-    <div class="col-12 col-md-4">
-      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-muted text-uppercase fw-bold metrics-label">Total Leave Balance</span>
-          <div class="rounded-3 p-2 bg-primary-subtle text-primary icon-box">
-            <i class="bi bi-wallet2 fs-5"></i>
+  <div class="row g-3 mb-4" *ngIf="dashboardData">
+    
+    <!-- IF USER IS EMPLOYEE: Renders standard single user metrics data blocks -->
+    <ng-container *ngIf="role?.toLowerCase() === 'employee'">
+      <!-- Card 1: Total Leave Balance Summary Info -->
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 rounded-4 bg-white metrics-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-8">Total Leave Balance</span>
+            <div class="card-icon-box bg-blue-subtle text-primary rounded-3">
+              <i class="bi bi-wallet2 fs-5"></i>
+            </div>
           </div>
+          <h2 class="fw-bold text-dark mb-0 display-5">
+            {{ dashboardData.totalLeaveBalance || 0 }} <span class="fs-7 text-secondary fw-normal">days left</span>
+          </h2>
+          <small class="text-muted d-block mt-3 fs-8">Across Casual, Sick, and Earned balances</small>
         </div>
-        <h2 class="fw-bold text-dark mb-1 display-6">37 <span class="fs-6 text-muted fw-normal">days left</span></h2>
-        <small class="text-secondary">Across Casual, Sick, and Earned balances</small>
       </div>
-    </div>
 
-    <!-- Card 2: Total Leave Requests Status Monitoring -->
-    <div class="col-12 col-md-4">
-      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-muted text-uppercase fw-bold metrics-label">Total Leave Requests</span>
-          <div class="rounded-3 p-2 bg-warning-subtle text-warning-emphasis icon-box">
-            <i class="bi bi-clock-history fs-5"></i>
+      <!-- Card 2: Total Leave Requests Status Monitoring -->
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 rounded-4 bg-white metrics-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-8">Total Leave Requests</span>
+            <div class="card-icon-box bg-yellow-subtle text-warning-emphasis rounded-3">
+              <i class="bi bi-clock-history fs-5"></i>
+            </div>
           </div>
+          <h2 class="fw-bold text-dark mb-0 display-5">
+            {{ dashboardData.totalLeaveRequests || 0 }} <span class="fs-7 text-secondary fw-normal">filed</span>
+          </h2>
+          <small class="text-muted d-block mt-3 fs-8">Awaiting immediate managerial context review</small>
         </div>
-        <h2 class="fw-bold text-dark mb-1 display-6">2 <span class="fs-6 text-muted fw-normal">pending</span></h2>
-        <small class="text-secondary">Awaiting immediate managerial context review</small>
       </div>
-    </div>
+    </ng-container>
 
-    <!-- Card 3: Upcoming Holidays Reference Block -->
+    <!-- IF USER IS NOT EMPLOYEE (HR / Admin / Superadmin): Renders organizational aggregate metrics -->
+    <ng-container *ngIf="role?.toLowerCase() !== 'employee'">
+      <!-- Card 1: Global Workforce Employee Headcount Tracking -->
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 rounded-4 bg-white metrics-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-8">Total Employees</span>
+            <div class="card-icon-box bg-blue-subtle text-primary rounded-3">
+              <i class="bi bi-people-fill fs-5"></i>
+            </div>
+          </div>
+          <h2 class="fw-bold text-dark mb-0 display-5">
+            {{ dashboardData.totalEmmployees || 0 }} <span class="fs-7 text-secondary fw-normal">active</span>
+          </h2>
+          <small class="text-muted d-block mt-3 fs-8">Total verified identities under system registry</small>
+        </div>
+      </div>
+
+      <!-- Card 2: Processed Leave Requests Split Counters -->
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 rounded-4 bg-white metrics-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-8">Processed Transactions</span>
+            <div class="card-icon-box bg-success-subtle text-success rounded-3">
+              <i class="bi bi-shield-check fs-5"></i>
+            </div>
+          </div>
+          <div class="d-flex gap-4 mt-1">
+            <div>
+              <h3 class="fw-bold text-success mb-0 h2">{{ dashboardData.approvedLeaveRequests || 0 }}</h3>
+              <small class="text-muted fw-medium fs-9 text-uppercase tracking-wider">Approved</small>
+            </div>
+            <div class="border-start opacity-25"></div>
+            <div>
+              <h3 class="fw-bold text-danger mb-0 h2">{{ dashboardData.rejectedLeaveRequests || 0 }}</h3>
+              <small class="text-muted fw-medium fs-9 text-uppercase tracking-wider">Rejected</small>
+            </div>
+          </div>
+          <small class="text-muted d-block mt-2 fs-8">Processed leave determinations totals</small>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- SHARED CARD: Upcoming Holiday reference highlight showcase -->
     <div class="col-12 col-md-4">
-      <div class="card border-0 shadow-sm p-3.5 h-100 rounded-4 bg-white">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-muted text-uppercase fw-bold metrics-label">Upcoming Holidays</span>
-          <div class="rounded-3 p-2 bg-purple-subtle text-purple icon-box">
+      <div class="card border-0 shadow-sm p-4 h-100 rounded-4 bg-white metrics-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="text-muted text-uppercase fw-bold tracking-wider font-monospace fs-8">Upcoming Holidays</span>
+          <div class="card-icon-box bg-purple-subtle text-purple rounded-3">
             <i class="bi bi-tree fs-5"></i>
           </div>
         </div>
-        <!-- Display nearest holiday inline details -->
-        <h2 class="fw-bold text-dark mb-1 fs-3 text-truncate">Independence Day</h2>
-        <small class="text-purple fw-semibold">Next: Saturday, Aug 15</small>
+        <h2 class="fw-bold text-dark mb-1 h3 text-truncate max-w-card-title">
+          {{ upcomingHoliday?.name || 'No Upcoming Events' }}
+        </h2>
+        <small class="text-purple fw-semibold mt-2 d-block fs-7" *ngIf="upcomingHoliday">
+          Next: {{ upcomingHoliday.date | date:'EEEE, MMM dd' }}
+        </small>
       </div>
     </div>
   </div>
 
   <!-- Lower Details Secondary Row Grid Matrix -->
-  <div class="row g-4">
-    <!-- Detailed Balance Sub-Breakdowns Panel -->
+  <div class="row g-4" *ngIf="dashboardData">
+    
+    <!-- LEFT BOX SPLIT WORKSPACE -->
     <div class="col-12 col-xl-7">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-        <div class="mb-4">
-          <h3 class="fw-bold text-dark fs-5 mb-1">Your Leave Categories</h3>
-          <span class="text-muted fs-7">Real-time breakdown allocation limits</span>
+      
+      <!-- CONDITION A: If user is Superadmin, display the Manager/HR Leave Determination metrics table instead -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100" *ngIf="role?.toLowerCase() === 'superadmin'">
+        <div class="mb-3">
+          <h3 class="fw-bold text-dark h5 mb-1">Approver Determination Matrix</h3>
+          <span class="text-muted fs-8">Real-time leave application determination counts by administrative roles</span>
         </div>
         
-        <div class="d-flex flex-column gap-3">
-          <div *ngFor="let leave of quickBalances">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-semibold text-dark fs-6">{{ leave.name }}</span>
-              <span class="text-secondary fs-7 fw-medium">{{ leave.remaining }} / {{ leave.total }} Days left</span>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 text-nowrap">
+            <thead>
+              <tr class="table-light text-secondary font-monospace fs-9 text-uppercase">
+                <th scope="col" class="py-2.5 ps-3 rounded-start">Approver Name</th>
+                <th scope="col" class="py-2.5">System Designation</th>
+                <th scope="col" class="py-2.5 text-center">Approved</th>
+                <th scope="col" class="py-2.5 text-center rounded-end pe-3">Rejected</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let approver of approverMetrics">
+                <td class="py-3 ps-3 fw-bold text-dark fs-7">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-light text-secondary d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                      {{ approver.name.charAt(0) }}
+                    </div>
+                    {{ approver.name }}
+                  </div>
+                </td>
+                <td class="py-3 text-secondary fs-8 font-monospace">{{ approver.role }}</td>
+                <td class="py-3 text-center">
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
+                    {{ approver.approvedCount }}
+                  </span>
+                </td>
+                <td class="py-3 text-center pe-3">
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
+                    {{ approver.rejectedCount }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONDITION B: Fallback standard progress bar breakdown view for Employee / standard admin roles -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100" *ngIf="role?.toLowerCase() !== 'superadmin'">
+        <div class="mb-4">
+          <h3 class="fw-bold text-dark h5 mb-1">
+            {{ role?.toLowerCase() === 'employee' ? 'Your Leave Categories' : 'System Leave Category Overview' }}
+          </h3>
+          <span class="text-muted fs-8">Real-time breakdown allocation limits</span>
+        </div>
+        
+        <div class="d-flex flex-column gap-4">
+          <div *ngFor="let leave of (dashboardData.LeaveBalances || dashboardData.leaveBalances); let i = index">
+            <div class="d-flex justify-content-between align-items-center mb-1.5">
+              <span class="fw-bold text-dark fs-7">{{ leave.name }}</span>
+              <span class="text-secondary fs-8 fw-semibold">
+                {{ leave.balance }} / {{ (+leave.balance) + (+leave.usedLeaves) }} Days left
+              </span>
             </div>
-            <div class="progress rounded-pill bg-light" style="height: 6px;">
-              <div class="progress-bar rounded-pill" [style.width.%]="(leave.remaining/leave.total)*100" [style.backgroundColor]="leave.color"></div>
+            <div class="progress rounded-pill overflow-hidden" style="height: 6px; background-color: #f1f5f9;">
+              <div class="progress-bar rounded-pill" 
+                   [ngClass]="{
+                     'bg-primary': i % 3 === 0,
+                     'bg-success': i % 3 === 1,
+                     'bg-warning': i % 3 === 2
+                   }"
+                   [style.width.%]="getLeavePercentage(leave.balance, leave.usedLeaves)">
+              </div>
             </div>
+          </div>
+          
+          <div *ngIf="!(dashboardData.LeaveBalances || dashboardData.leaveBalances)?.length" class="text-center py-4 text-muted fs-8 font-monospace">
+            No leave categories configuration details found.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Mini Reference Holiday Timeline List Wrapper -->
+    <!-- RIGHT BOX SPLIT WORKSPACE: Common public roster timeline layout list -->
     <div class="col-12 col-xl-5">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h3 class="fw-bold text-dark fs-5 mb-0">Holiday Roster</h3>
-          <span class="text-muted text-uppercase fw-bold fs-8" style="letter-spacing: 0.05em;">2026 Timeline</span>
+          <h3 class="fw-bold text-dark h5 mb-0">Holiday Roster</h3>
+          <span class="text-muted fw-bold font-monospace fs-9 text-uppercase tracking-wider">2026 Timeline</span>
         </div>
         
-        <div class="d-flex flex-column gap-3">
-          <div *ngFor="let holiday of miniHolidays" class="d-flex justify-content-between align-items-center py-1">
-            <div class="d-flex align-items-center overflow-hidden">
-              <div class="mini-purple-badge rounded-2 me-2.5 flex-shrink-0 d-flex align-items-center justify-content-center">
-                <i class="bi bi-calendar-event"></i>
+        <div class="d-flex flex-column gap-3 overflow-y-auto max-h-holidays-roster pe-1">
+          <div *ngFor="let holiday of (dashboardData.Holidays || dashboardData.holidays)" class="d-flex justify-content-between align-items-center py-2 border-bottom-subtle">
+            <div class="d-flex align-items-center overflow-hidden gap-3">
+              <div class="mini-purple-badge bg-purple-subtle text-purple rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
+                <i class="bi bi-calendar-event fs-7"></i>
               </div>
-              <span class="fw-semibold text-dark text-truncate fs-6">{{ holiday.name }}</span>
+              <div>
+                <span class="fw-bold text-dark text-truncate d-block fs-7">{{ holiday.name }}</span>
+                <small class="text-muted text-uppercase tracking-wide font-monospace fs-9 opacity-75">{{ holiday.type }}</small>
+              </div>
             </div>
-            <span class="text-secondary fw-medium fs-7 text-nowrap ms-2">{{ holiday.date }}</span>
+            <span class="text-secondary font-monospace fw-semibold fs-8 text-nowrap ms-2">
+              {{ holiday.date | date:'MMM dd' }}
+            </span>
+          </div>
+
+          <div *ngIf="!(dashboardData.Holidays || dashboardData.holidays)?.length" class="text-center py-4 text-muted fs-8 font-monospace">
+            No company calendar holidays recorded.
           </div>
         </div>
       </div>

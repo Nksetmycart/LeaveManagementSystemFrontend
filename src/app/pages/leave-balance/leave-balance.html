@@ -6,7 +6,7 @@
       <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Allocations</span>
       <h1 class="fw-bold text-dark h2 mb-0">Leave Balance</h1>
     </div>
-    <button *ngIf="authService.hasRole(Role.HR, Role.SuperAdmin)" (click)="openBulkAllocation()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
+    <button [routerLink]="['/dashboard', 'leave-balance', 'assign']" *ngIf="authService.hasRole(Role.HR, Role.SuperAdmin)" (click)="openBulkAllocation()" class="btn btn-primary d-flex align-items-center px-3 py-2 rounded-3 fw-medium shadow-none text-white fs-6">
       <i class="bi bi-plus-circle me-2 fs-5"></i> Assign Balance
     </button>
   </div>

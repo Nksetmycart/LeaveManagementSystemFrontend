@@ -111,12 +111,27 @@ export interface LeaveApprovalsResponse {
   }>
 }
 
-export interface ApprovalDto{
+export interface ApprovalDto {
   leaveRequestId: string;
   comment: string;
 }
 
 export interface ApprovalResponse {
+  success: boolean;
+  message: string;
+  data: string;
+}
+
+export interface AssignLeaveBalanceDto {
+  leaveTypeId: string;
+  year: number;
+  earnedLeaves: number;
+  usedLeaves: number;
+  adjustments: number;
+  lastAccruedOn: Date;
+}
+
+export interface AssignLeaveBalanceResponse {
   success: boolean;
   message: string;
   data: string;
@@ -167,11 +182,11 @@ export class LeaveService {
   GetAllLeaveBalances(): Observable<LeaveBalancesResponseList> {
     return this.http.get<LeaveBalancesResponseList>(`${this.baseUrl}/LeaveBalance`)
   }
-  
+
   GetAllLeaveApprovals(): Observable<LeaveApprovalsResponse> {
     return this.http.get<LeaveApprovalsResponse>(`${this.baseUrl}/LeaveApproval`)
   }
-  
+
   GetLeaveApprovalsByApprovarId(approvarId: string): Observable<LeaveApprovalsResponse> {
     return this.http.get<LeaveApprovalsResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}`)
   }
@@ -180,8 +195,12 @@ export class LeaveService {
     return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/approve`, data)
   }
 
-  Reject(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
+  RejectLeave(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
     return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/reject`, data)
+  }
+
+  AssignLeaveBalance(employeeId: string, data: AssignLeaveBalanceDto): Observable<AssignLeaveBalanceResponse> {
+    return this.http.post<AssignLeaveBalanceResponse>(`${this.baseUrl}/LeaveBalance/${employeeId}`, data)
   }
 }
 

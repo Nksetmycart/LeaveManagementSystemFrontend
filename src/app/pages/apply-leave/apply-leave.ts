@@ -1,12 +1,18 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
 import { GetLeaveTypesList, LeaveService, ApplyLeaveRequestDto } from '../../services/leave-service';
+import { HolidayService, HolidaysList } from '../../services/holiday-service';
+import { AttendanceService, AttendanceListResponse } from '../../services/attendance-service';
+import { forkJoin } from 'rxjs';
 
 interface CalendarCell {
   date: Date;
   isCurrentMonth: boolean;
+  isHoliday: boolean;
+  holidayName?: string;
+  attendanceStatus?: string;
 }
 
 @Component({
@@ -23,23 +29,37 @@ export class ApplyLeave implements OnInit {
   leaveTypesList: any[] = [];
   apiResponse!: GetLeaveTypesList;
   
-  // Selection Range Targets
+  holidaysCache: any[] = [];
+  attendanceCache: any[] = [];
+
   startDate: Date | null = null;
   endDate: Date | null = null;
 
-  // Form Controls Models
   selectedDayType = 'full';
   leaveRequestModel: any = {
     leaveTypeId: '',
     reason: ''
   };
+  
   isSubmitting = false;
+  isLoadingMetadata = false;
+  
+  notification = {
+    show: false,
+    message: '',
+    isSuccess: true
+  };
 
-  constructor(private leaveService: LeaveService, private authService: AuthService) {}
+  constructor(
+    private leaveService: LeaveService, 
+    private authService: AuthService,
+    private holidayService: HolidayService,
+    private attendanceService: AttendanceService
+  ) {}
 
   ngOnInit(): void {
-    this.generateCalendar();
     this.loadLeaveTypes();
+    this.loadCalendarMetadataMetrics();
   }
 
   loadLeaveTypes(): void {
@@ -49,7 +69,31 @@ export class ApplyLeave implements OnInit {
         this.leaveTypesList = response.data;
       },
       error: (error) => {
-        console.error("Error Fetching Leave Types List from server:", error);
+        console.error("Error Fetching Leave Types List:", error);
+      }
+    });
+  }
+
+  loadCalendarMetadataMetrics(): void {
+    const employeeId = this.authService.getEmployeeId();
+    if (!employeeId) return;
+
+    this.isLoadingMetadata = true;
+    
+    forkJoin({
+      holidays: this.holidayService.GetHolidays(),
+      attendance: this.attendanceService.GetAttendanceByEmployee(employeeId)
+    }).subscribe({
+      next: (results: { holidays: HolidaysList, attendance: AttendanceListResponse }) => {
+        this.holidaysCache = results.holidays?.data || [];
+        this.attendanceCache = results.attendance?.data || [];
+        this.generateCalendar();
+        this.isLoadingMetadata = false;
+      },
+      error: (err) => {
+        console.error("Failed to map dynamic calendar metadata profiles:", err);
+        this.isLoadingMetadata = false;
+        this.generateCalendar();
       }
     });
   }
@@ -75,23 +119,54 @@ export class ApplyLeave implements OnInit {
     const cells: CalendarCell[] = [];
 
     for (let i = startOffset - 1; i >= 0; i--) {
-      cells.push({ date: new Date(year, month, -i), isCurrentMonth: false });
+      const d = new Date(year, month, -i);
+      cells.push(this.buildCalendarCellMeta(d, false));
     }
 
     for (let i = 1; i <= totalDays; i++) {
-      cells.push({ date: new Date(year, month, i), isCurrentMonth: true });
+      const d = new Date(year, month, i);
+      cells.push(this.buildCalendarCellMeta(d, true));
     }
 
     const totalGridSize = cells.length > 35 ? 42 : 35;
     const remainingSlots = totalGridSize - cells.length;
     for (let i = 1; i <= remainingSlots; i++) {
-      cells.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+      const d = new Date(year, month + 1, i);
+      cells.push(this.buildCalendarCellMeta(d, false));
     }
 
     this.calendarCells = cells;
   }
 
-  onDateSelect(date: Date): void {
+  private buildCalendarCellMeta(date: Date, isCurrentMonth: boolean): CalendarCell {
+    const checkTime = this.clearTime(date);
+    
+    const matchedHoliday = this.holidaysCache.find(h => this.clearTime(new Date(h.date)) === checkTime);
+    const matchedAttendance = this.attendanceCache.find(a => this.clearTime(new Date(a.attendanceDate)) === checkTime);
+
+    return {
+      date: date,
+      isCurrentMonth: isCurrentMonth,
+      isHoliday: !!matchedHoliday,
+      holidayName: matchedHoliday ? matchedHoliday.name : undefined,
+      attendanceStatus: matchedAttendance ? matchedAttendance.status : undefined
+    };
+  }
+
+  onDateSelect(cell: CalendarCell): void {
+    // SELECTION BLOCKS GATEKEEPER: Not disabled visually, but intercepted here on action trigger
+    if (cell.isHoliday) {
+      this.triggerToastNotification(`Selection Rejected: Cannot select an official corporate holiday [${cell.holidayName}].`, false);
+      return;
+    }
+
+    if (cell.attendanceStatus) {
+      this.triggerToastNotification(`Selection Rejected: Cannot request time off on a date marked as [${cell.attendanceStatus}].`, false);
+      return;
+    }
+
+    const date = cell.date;
+
     if (!this.startDate || (this.startDate && this.endDate)) {
       this.startDate = date;
       this.endDate = null;
@@ -100,8 +175,43 @@ export class ApplyLeave implements OnInit {
       if (date < this.startDate) {
         this.startDate = date;
       } else {
+        if (this.containsBlockedRangeMetadata(this.startDate, date)) {
+          this.triggerToastNotification("Range Selection Blocked: Active metadata bounds exist inside this timeline.", false);
+          return;
+        }
         this.endDate = date;
       }
+    }
+  }
+
+  private containsBlockedRangeMetadata(start: Date, end: Date): boolean {
+    const startTime = this.clearTime(start);
+    const endTime = this.clearTime(end);
+
+    const hasHoliday = this.holidaysCache.some(h => {
+      const hTime = this.clearTime(new Date(h.date));
+      return hTime >= startTime && hTime <= endTime;
+    });
+
+    const hasAttendance = this.attendanceCache.some(a => {
+      const aTime = this.clearTime(new Date(a.attendanceDate));
+      return aTime >= startTime && aTime <= endTime;
+    });
+
+    return hasHoliday || hasAttendance;
+  }
+
+  // Maps clean styling themes based on your exact text definitions rules
+  getAttendanceThemeClass(status: string): string {
+    if (!status) return '';
+    const cleanStr = status.trim().toLowerCase();
+    
+    switch(cleanStr) {
+      case 'working':   return 'bg-theme-working';
+      case 'leave':     return 'bg-theme-leave';
+      case 'firsthalf': return 'bg-theme-firsthalf';
+      case 'secondhalf':return 'bg-theme-secondhalf';
+      default:          return 'bg-light text-secondary border';
     }
   }
 
@@ -133,17 +243,24 @@ export class ApplyLeave implements OnInit {
     this.generateCalendar();
   }
 
+  triggerToastNotification(msg: string, isSuccess: boolean): void {
+    this.notification = { show: true, message: msg, isSuccess: isSuccess };
+    setTimeout(() => { this.dismissNotification(); }, 5000);
+  }
+
+  dismissNotification(): void {
+    this.notification.show = false;
+  }
+
   submitLeaveRequest(form: NgForm): void {
-    // Form verification guard includes verification of character bounds limit
     if (form.invalid || !this.startDate || !this.endDate || (this.leaveRequestModel.reason?.length > 150)) {
-      console.error("Submission blocked: Form validation parameters metrics failed.");
+      this.triggerToastNotification("Form input constraints validation failed.", false);
       return;
     }
 
     const employeeId = this.authService.getEmployeeId();
     if (!employeeId) {
-      console.error("Submission blocked: Active employee identity missing.");
-      alert("Session error: Could not identify user details.");
+      this.triggerToastNotification("Session trace variable index key mismatch.", false);
       return;
     }
 
@@ -172,14 +289,14 @@ export class ApplyLeave implements OnInit {
     this.leaveService.ApplyLeaveById(leaveRequestPayload, employeeId).subscribe({
       next: (res) => {
         this.isSubmitting = false;
-        alert("Leave request logged successfully.");
+        this.triggerToastNotification("Leave request logged successfully.", true);
         this.startDate = null;
         this.endDate = null;
         form.resetForm({ dayType: 'full' });
       },
       error: (err) => {
         this.isSubmitting = false;
-        alert(err?.error?.message || "An error occurred while transmitting your request.");
+        this.triggerToastNotification(err?.error?.message || "Time off request validation execution failed.", false);
       }
     });
   }

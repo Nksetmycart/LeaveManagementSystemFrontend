@@ -64,19 +64,19 @@
         <span class="fw-medium">Holidays</span>
       </a>
     </li>
-    <li>
+    <li *ngIf="authService.hasRole(Role.Employee, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'apply-leave']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-clipboard-plus me-3 fs-5-custom"></i>
         <span class="fw-medium">Apply Leave</span>
       </a>
     </li>
-    <li>
+    <li *ngIf="authService.hasRole(Role.Employee, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'my-leaves']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-list-check me-3 fs-5-custom"></i>
         <span class="fw-medium">My Leaves</span>
       </a>
     </li>
-    <li>
+    <li *ngIf="authService.hasRole(Role.Employee, Role.Manager, Role.HR)">
       <a [routerLink]="['/dashboard',  'attendance']" routerLinkActive="active" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary">
         <i class="bi bi-calendar3 me-3 fs-5-custom"></i>
         <span class="fw-medium">My Attendance</span>
@@ -86,7 +86,7 @@
 
   <!-- Footer Section (Reduced Height) -->
   <div class="pt-3 border-top">
-    <a href="#" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary custom-logout">
+    <a (click)="onSignOut($event)" href="#" class="nav-link d-flex align-items-center py-2 px-3 rounded-3 text-secondary custom-logout">
       <i class="bi bi-box-arrow-right me-3 fs-5-custom"></i>
       <span class="fw-medium">Sign out</span>
     </a>

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AuthService, Role } from '../../services/auth-service';
 import { LeaveService, LeaveBalancesResponseList } from '../../services/leave-service';
+import { RouterLink } from '@angular/router';
 
 interface LeaveMetrics {
   remaining: number;
@@ -19,7 +20,7 @@ interface DynamicEmployeeRecord {
 @Component({
   selector: 'app-leave-balance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './leave-balance.html',
   styleUrl: './leave-balance.css',
 })

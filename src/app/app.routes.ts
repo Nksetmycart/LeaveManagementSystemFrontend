@@ -24,6 +24,7 @@ import { roleGuard } from './guards/role-guard';
 import { LeaveBalance } from './pages/leave-balance/leave-balance';
 import { AllLeaveRequests } from './pages/all-leave-requests/all-leave-requests';
 import { AllLeaveApprovals } from './pages/all-leave-approvals/all-leave-approvals';
+import { AssignLeaveBalance } from './pages/assign-leave-balance/assign-leave-balance';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -55,9 +56,9 @@ export const routes: Routes = [
                     { path: 'add', canActivate:[roleGuard], data: { roles: ['SuperAdmin', 'HR']}, component: AddHoliday }
                 ]
             },
-            { path: 'apply-leave', component: ApplyLeave },
-            { path: 'my-leaves', component: MyLeaves },
-            { path: 'attendance', component: MyAttendance },
+            { path: 'apply-leave', canActivate: [roleGuard], data: { roles: ['Employee', 'HR', 'Manager'] }, component: ApplyLeave },
+            { path: 'my-leaves', canActivate: [roleGuard], data: { roles: ['Employee', 'HR', 'Manager'] }, component: MyLeaves },
+            { path: 'attendance', canActivate: [roleGuard], data: { roles: ['Employee', 'HR', 'Manager'] }, component: MyAttendance },
             {
                 path: 'roles', canActivate:[roleGuard], data: { roles: ['SuperAdmin', 'HR']},  children: [
                     { path: '', component: Roles },
@@ -70,7 +71,10 @@ export const routes: Routes = [
                     { path: 'add', canActivate:[roleGuard], data: { roles: ['SuperAdmin', 'HR']}, component: CreateLeaveType }
                 ]
             },
-            { path: 'leave-balance', canActivate:[roleGuard], data: { roles: ['SuperAdmin', 'HR', 'Manager']},  component: LeaveBalance },
+            { path: 'leave-balance', canActivate:[roleGuard], data: { roles: ['SuperAdmin', 'HR', 'Manager']}, children: [
+                { path: '', component: LeaveBalance}, 
+                { path: 'assign', component: AssignLeaveBalance}
+            ]},
         ]
     }
 ];

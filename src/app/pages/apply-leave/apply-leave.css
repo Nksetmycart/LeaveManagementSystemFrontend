@@ -1,10 +1,12 @@
+/* Core Styling Matrix & Typography Foundations */
 .page-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .meta-label {
   font-size: 0.68rem !important;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
 }
 
 .bg-light {
@@ -18,6 +20,42 @@
 .resize-none {
   resize: none;
 }
+
+.text-wrap-pretty {
+  text-wrap: pretty;
+}
+
+/* Base utility scale helpers */
+.py-2\.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
+.p-2\.5  { padding: 0.65rem !important; }
+.fs-7    { font-size: 0.85rem !important; }
+.fs-8    { font-size: 0.75rem !important; }
+.fs-9    { font-size: 0.65rem !important; }
+
+/* Dynamic Auxiliary Blur Screen for API Loading Cycles */
+.calendar-loading-blur {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+/* Legend Indicator Parameters Matrix Layout */
+.legend-box {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+/* Unified Dynamic State Color Tokens Matrix */
+.bg-theme-holiday    { background-color: #fae8ff; border: 1px solid #d8b4fe; color: #6b21a8; }
+.bg-theme-working    { background-color: #dcfce7; border: 1px solid #bbf7d0; color: #15803d; }
+.bg-theme-leave      { background-color: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; }
+.bg-theme-firsthalf  { background-color: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+.bg-theme-secondhalf { background-color: #fef9c3; border: 1px solid #fef08a; color: #a16207; }
 
 /* -------------------------------------------------------------------------- */
 /* Calendar Engine Style Layout                                               */
@@ -36,23 +74,23 @@
 .calendar-grid-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px; /* Standard spacing matrix grid spacing from screenshot */
+  gap: 8px;
 }
 
 .calendar-day-cell {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  min-height: 95px;
-  padding: 12px;
+  min-height: 105px;
+  padding: 10px;
   cursor: pointer;
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+  flex-column: column;
+  justify-content: space-between;
   transition: all 0.15s ease-in-out;
 }
 
-.calendar-day-cell:hover {
+.calendar-day-cell:hover:not(.selected-range-start):not(.selected-range-end) {
   border-color: #4a5568;
 }
 
@@ -61,7 +99,7 @@
   color: #1a202c;
 }
 
-/* Grayed out layout configuration rules */
+/* Grayed out layout config rules for non-current month dates */
 .bg-light-muted {
   background-color: #f8fafc !important;
   border-color: #edf2f7;
@@ -71,6 +109,17 @@
   color: #cbd5e1 !important;
 }
 
+/* Block Content Context Label Chips Base styling layout */
+.status-label-chip {
+  font-size: 0.58rem !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-align: center;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Dynamic Date Selection Highlights States                                    */
 /* -------------------------------------------------------------------------- */
@@ -78,8 +127,9 @@
 /* Range Cap Targets (Blue active blocks) */
 .selected-range-start, 
 .selected-range-end {
-  background-color: #2b6cb0 !important;
-  border-color: #2b6cb0 !important;
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: #ffffff !important;
 }
 
 .selected-range-start .day-number, 
@@ -87,18 +137,40 @@
   color: #ffffff !important;
 }
 
-/* Middle In-Between Days Block */
+/* Middle In-Between Range Days Block */
 .selected-range-mid {
-  background-color: #ebf8ff !important;
-  border-color: #bee3f8 !important;
+  background-color: rgba(13, 110, 253, 0.08) !important;
+  border-color: rgba(13, 110, 253, 0.2) !important;
 }
 
 .selected-range-mid .day-number {
-  color: #2b6cb0 !important;
+  color: #0d6efd !important;
   font-weight: 600;
 }
 
-/* Base utility helpers padding scales */
-.py-2\.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
-.p-2\.5  { padding: 0.65rem !important; }
-.fs-7    { font-size: 0.8rem !important; }
+/* Floating Top-Center Status Toast Interceptor Configuration Rules */
+.custom-toast-notification {
+  position: fixed !important;
+  top: 24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 90% !important;
+  max-width: 480px !important;
+  z-index: 2147483647 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+  animation: applyLeaveToastIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+@keyframes applyLeaveToastIn {
+  from { top: -20px; opacity: 0; }
+  to { top: 24px; opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: componentFadeInEffect 0.25s ease-out forwards;
+}
+
+@keyframes componentFadeInEffect {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -162,7 +162,7 @@ export class LeaveApproval implements OnInit {
       comment: this.decisionComment
     };
 
-    this.leaveService.Reject(this.approvarId, dto).subscribe({
+    this.leaveService.RejectLeave(this.approvarId, dto).subscribe({
       next: (response) => {
         this.isProcessingAction = false;
         if (response.success) {
