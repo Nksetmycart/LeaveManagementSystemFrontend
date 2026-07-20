@@ -293,7 +293,7 @@ export class Attendance implements OnInit {
     this.stats.working = w;
     this.stats.leave = l;
     this.stats.halfDays = h;
-    this.stats.totalHours = (w * 8.0) + (h * 4.0);
+    this.stats.totalHours = (w * 9.0) + (h * 4.5);
   }
 
   isDateSelected(date: Date): boolean {

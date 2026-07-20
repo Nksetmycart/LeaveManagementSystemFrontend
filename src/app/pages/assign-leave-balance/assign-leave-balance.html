@@ -1,6 +1,6 @@
 <div class="container-fluid p-0 page-container animate-fade-in position-relative">
   
-  <!-- TRUE FLOATING STATUS NOTIFICATION POPUP BANNER (Top Centered Foreground context) -->
+  <!-- TRUE FLOATING STATUS NOTIFICATION POPUP BANNER -->
   <div *ngIf="notification.show" 
        class="custom-toast-notification text-white shadow-lg d-flex align-items-center gap-3 px-4 py-3 rounded-3"
        [ngClass]="notification.isSuccess ? 'bg-success' : 'bg-danger'">
@@ -20,123 +20,176 @@
     <p class="text-secondary mb-0 fs-6">Initialize or modify absolute time-off allowances for staff members.</p>
   </div>
 
-  <div class="row g-4 justify-content-start">
-    <div class="col-12 col-xl-6">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white position-relative overflow-hidden">
-        
-        <!-- Loading Buffer overlay screens -->
-        <div *ngIf="isLoadingMetadata" class="metadata-loading-blur d-flex flex-column align-items-center justify-content-center">
-          <div class="spinner-border text-primary mb-2" role="status"></div>
-          <span class="text-muted fs-8 fw-semibold font-monospace text-uppercase">Syncing System Registers Cache...</span>
+  <!-- Form wrapper context -->
+  <form #balanceForm="ngForm" (ngSubmit)="submitBalanceAllocation(balanceForm)" novalidate>
+    
+    <!-- Expanded to col-xl-12 to hold both columns cleanly side-by-side -->
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white position-relative overflow-hidden">
+          
+          <!-- Loading Buffer overlay screens -->
+          <div *ngIf="isLoadingMetadata" class="metadata-loading-blur d-flex flex-column align-items-center justify-content-center">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <span class="text-muted fs-8 fw-semibold font-monospace text-uppercase">Syncing System Registers Cache...</span>
+          </div>
+
+          <!-- Grid Row Container Split -->
+          <div class="row g-4">
+            
+            <!-- LEFT COLUMN: Target Employee Picker Panel -->
+            <div class="col-12 col-md-6">
+              <div class="mb-3 position-relative">
+                <label for="employeeSearch" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Target Employee</label>
+                
+                <div class="dropdown-paginated-container border rounded-3 bg-light p-2.5">
+                  <!-- Internal Filter Input Search Field -->
+                  <div class="input-group input-group-sm mb-2">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input 
+                      type="text" 
+                      id="employeeSearch"
+                      class="form-control border-start-0 shadow-none ps-1 py-1.5" 
+                      placeholder="Type name, role or department to filter..." 
+                      name="dropdownSearch"
+                      [(ngModel)]="dropdownSearchQuery"
+                      (ngModelChange)="onDropdownSearchChange()">
+                  </div>
+
+                  <!-- Paginated Selector Options List Box -->
+                  <div class="dropdown-options-box d-flex flex-column gap-1 mb-2">
+                    <div *ngFor="let emp of paginatedEmployees" 
+                         (click)="selectedEmployeeId = emp.id"
+                         class="dropdown-option-row p-2 rounded-2 transition-all d-flex align-items-center justify-content-between"
+                         [ngClass]="{'active-option text-white': selectedEmployeeId === emp.id, 'clickable-hover bg-white text-dark': selectedEmployeeId !== emp.id}"
+                         role="button">
+                      <div class="text-truncate me-2">
+                        <span class="fw-semibold d-block text-truncate" style="font-size: 0.88rem;">{{ emp.name }}</span>
+                        <small class="d-block text-truncate opacity-75" style="font-size: 0.72rem;">
+                          {{ emp.role || 'Staff Member' }} • {{ emp.department }}
+                        </small>
+                      </div>
+                      <i *ngIf="selectedEmployeeId === emp.id" class="bi bi-check-circle-fill flex-shrink-0 text-white"></i>
+                    </div>
+
+                    <div *ngIf="paginatedEmployees.length === 0" class="text-center py-3 text-muted fs-8 bg-white rounded border border-dashed">
+                      No matching active personnel found.
+                    </div>
+                  </div>
+
+                  <!-- Internal Nav Deck Sub-Footer Panel Elements -->
+                  <div class="d-flex align-items-center justify-content-between px-1 pt-2 border-top flex-wrap gap-2 text-secondary fs-8">
+                    <span>Page {{ dropdownPage }} of {{ totalDropdownPages }}</span>
+                    <div class="d-inline-flex gap-1">
+                      <button type="button" class="btn btn-light btn-xs rounded border py-0.5 px-2 shadow-none" [disabled]="dropdownPage === 1" (click)="changeDropdownPage($event, -1)">
+                        <i class="bi bi-chevron-left"></i> Prev
+                      </button>
+                      <button type="button" class="btn btn-light btn-xs rounded border py-0.5 px-2 shadow-none" [disabled]="dropdownPage >= totalDropdownPages || filteredEmployees.length <= dropdownPageSize" (click)="changeDropdownPage($event, 1)">
+                        Next <i class="bi bi-chevron-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <input type="hidden" name="employeeIdValidator" [(ngModel)]="selectedEmployeeId" required #empModel="ngModel">
+                <div *ngIf="balanceForm.submitted && empModel.invalid" class="text-danger d-block mt-1 fs-8">Please choose a target corporate employee profile above.</div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Leave Configuration Form Fields -->
+            <div class="col-12 col-md-6 d-flex flex-column justify-content-between">
+              <div>
+                <!-- Dropdown Element 2: Target Leave Type Selector Matrix -->
+                <div class="mb-3">
+                  <label for="leaveTypeSelect" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Leave Type Category</label>
+                  <select 
+                    id="leaveTypeSelect"
+                    name="leaveTypeId"
+                    class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+                    [(ngModel)]="balanceModel.leaveTypeId"
+                    required
+                    #typeModel="ngModel"
+                    [ngClass]="{'is-invalid': balanceForm.submitted && typeModel.invalid}">
+                    <option value="" disabled selected>Select a mapped leave structure category</option>
+                    <option *ngFor="let type of leaveTypesList" [value]="type.id">
+                      {{ type.name }} {{ type.isPaid ? '— [Paid Leave]' : '— [Unpaid Leave]' }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback fs-8">Selecting active entitlement categories is required.</div>
+                </div>
+
+                <!-- Numeric Entitlement Input parameters segments grids -->
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label for="yearInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Operational Year</label>
+                    <input 
+                      type="number" 
+                      id="yearInput"
+                      name="year" 
+                      class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+                      [(ngModel)]="balanceModel.year"
+                      required
+                      min="2000" max="2100">
+                  </div>
+                  <div class="col-6">
+                    <label for="earnedInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Earned Leaves</label>
+                    <input 
+                      type="number" 
+                      id="earnedInput"
+                      name="earnedLeaves" 
+                      class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+                      [(ngModel)]="balanceModel.earnedLeaves"
+                      required min="0">
+                  </div>
+                  <div class="col-6">
+                    <label for="usedInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Used Leaves Counter</label>
+                    <input 
+                      type="number" 
+                      id="usedInput"
+                      name="usedLeaves" 
+                      class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+                      [(ngModel)]="balanceModel.usedLeaves"
+                      required min="0">
+                  </div>
+                  <div class="col-6">
+                    <label for="adjustmentsInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Adjustments Balance</label>
+                    <input 
+                      type="number" 
+                      id="adjustmentsInput"
+                      name="adjustments" 
+                      class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
+                      [(ngModel)]="balanceModel.adjustments"
+                      required>
+                  </div>
+                </div>
+
+                <!-- Chronological Accrual Calendar Date Selector mapping parameters -->
+                <div class="mb-4">
+                  <label for="accruedDateInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Last Accrued On Date</label>
+                  <input 
+                    type="date" 
+                    id="accruedDateInput"
+                    name="lastAccruedOn" 
+                    class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6 font-monospace"
+                    [ngModel]="balanceModel.lastAccruedOn | date:'yyyy-MM-dd'"
+                    (ngModelChange)="balanceModel.lastAccruedOn = $event"
+                    required>
+                </div>
+              </div>
+
+              <!-- Structural Action Submission button aligned at the bottom -->
+              <div class="mt-auto pt-2">
+                <button type="submit" [disabled]="isSubmitting" class="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none text-white fs-6">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <i *ngIf="!isSubmitting" class="bi bi-shield-plus me-2 fs-6"></i> Assign Leave Entitlements
+                </button>
+              </div>
+            </div>
+
+          </div> <!-- /row -->
+
         </div>
-
-        <form #balanceForm="ngForm" (ngSubmit)="submitBalanceAllocation(balanceForm)" novalidate>
-          
-          <!-- Dropdown Element 1: Target Employee Selector Matrix -->
-          <div class="mb-3">
-            <label for="employeeSelect" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Target Employee</label>
-            <select 
-              id="employeeSelect"
-              name="employeeId"
-              class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-              [(ngModel)]="selectedEmployeeId"
-              required
-              #empModel="ngModel"
-              [ngClass]="{'is-invalid': balanceForm.submitted && empModel.invalid}">
-              <option value="" disabled selected>Select an active employee profile</option>
-              <option *ngFor="let emp of employeesList" [value]="emp.id">
-                {{ emp.name }} — [{{ emp.role || 'Staff Member' }}] ({{ emp.department }})
-              </option>
-            </select>
-            <div class="invalid-feedback fs-8">Please link a target corporate employee profile.</div>
-          </div>
-
-          <!-- Dropdown Element 2: Target Leave Type Selector Matrix -->
-          <div class="mb-3">
-            <label for="leaveTypeSelect" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Leave Type Category</label>
-            <select 
-              id="leaveTypeSelect"
-              name="leaveTypeId"
-              class="form-select border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-              [(ngModel)]="balanceModel.leaveTypeId"
-              required
-              #typeModel="ngModel"
-              [ngClass]="{'is-invalid': balanceForm.submitted && typeModel.invalid}">
-              <option value="" disabled selected>Select a mapped leave structure category</option>
-              <option *ngFor="let type of leaveTypesList" [value]="type.id">
-                {{ type.name }} {{ type.isPaid ? '— [Paid Leave]' : '— [Unpaid Leave]' }}
-              </option>
-            </select>
-            <div class="invalid-feedback fs-8">Selecting active entitlement categories is required.</div>
-          </div>
-
-          <!-- Numeric Entitlement Input parameters segments grids -->
-          <div class="row g-3 mb-3">
-            <div class="col-6">
-              <label for="yearInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Operational Year</label>
-              <input 
-                type="number" 
-                id="yearInput"
-                name="year" 
-                class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-                [(ngModel)]="balanceModel.year"
-                required
-                min="2000" max="2100">
-            </div>
-            <div class="col-6">
-              <label for="earnedInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Earned Leaves</label>
-              <input 
-                type="number" 
-                id="earnedInput"
-                name="earnedLeaves" 
-                class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-                [(ngModel)]="balanceModel.earnedLeaves"
-                required min="0">
-            </div>
-            <div class="col-6">
-              <label for="usedInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Used Leaves Counter</label>
-              <input 
-                type="number" 
-                id="usedInput"
-                name="usedLeaves" 
-                class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-                [(ngModel)]="balanceModel.usedLeaves"
-                required min="0">
-            </div>
-            <div class="col-6">
-              <label for="adjustmentsInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Adjustments Balance</label>
-              <input 
-                type="number" 
-                id="adjustmentsInput"
-                name="adjustments" 
-                class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6"
-                [(ngModel)]="balanceModel.adjustments"
-                required>
-            </div>
-          </div>
-
-          <!-- Chronological Accrual Calendar Date Selector mapping parameters -->
-          <div class="mb-4">
-            <label for="accruedDateInput" class="text-muted text-uppercase fw-bold d-block meta-label mb-2">Last Accrued On Date</label>
-            <input 
-              type="date" 
-              id="accruedDateInput"
-              name="lastAccruedOn" 
-              class="form-control border bg-light shadow-none rounded-3 py-2.5 px-3 fs-6 font-monospace"
-              [ngModel]="balanceModel.lastAccruedOn | date:'yyyy-MM-dd'"
-              (ngModelChange)="balanceModel.lastAccruedOn = $event"
-              required>
-          </div>
-
-          <!-- Structural Action Submission triggers buttons -->
-          <button type="submit" [disabled]="isSubmitting" class="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center shadow-none text-white fs-6">
-            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            <i *ngIf="!isSubmitting" class="bi bi-shield-plus me-2 fs-6"></i> Assign Leave Entitlements
-          </button>
-          
-        </form>
-
       </div>
     </div>
-  </div>
+  </form>
 </div>

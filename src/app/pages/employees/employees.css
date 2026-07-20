@@ -1,97 +1,171 @@
-.page-container {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
+  .page-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
 
-/* Hardcoded Standard Sizing Ring for Profile Contexts */
-.avatar-size {
-  width: 48px;
-  height: 48px;
-}
+  /* Hardcoded Standard Sizing Ring for Profile Contexts */
+  .avatar-size {
+    width: 48px;
+    height: 48px;
+  }
 
-/* Card Presentation Base Structure */
-.employee-card {
-  background-color: #ffffff;
-}
+  /* Card Presentation Base Structure */
+  .employee-card {
+    background-color: #ffffff;
+  }
 
-/* Sizing Helpers definitions matching interface structures */
-.fs-7 {
-  font-size: 0.82rem !important;
-}
+  /* Sizing Helpers definitions matching interface structures */
+  .fs-7 {
+    font-size: 0.82rem !important;
+  }
 
-.fs-8 {
-  font-size: 0.68rem !important;
-  letter-spacing: 0.06em !important;
-}
+  .fs-8 {
+    font-size: 0.68rem !important;
+    letter-spacing: 0.06em !important;
+  }
 
-.me-1\.5 {
-  margin-right: 0.4rem !important;
-}
+  .me-1\.5 {
+    margin-right: 0.4rem !important;
+  }
 
-/* Card Button Interactive State Tweaks */
-.action-btn-view {
+  /* Card Button Interactive State Tweaks */
+  .action-btn-view {
+    background-color: #f8fafc;
+    color: #4a5568;
+    transition: all 0.15s ease;
+  }
+
+  .action-btn-view:hover {
+    background-color: #e2e8f0;
+    color: #1a202c;
+  }
+
+  .action-btn-update {
+    transition: all 0.15s ease;
+  }
+
+  /* 1. Full Viewport Overlay Layer */
+  .custom-modal-overlay {
+    position: fixed !important;    /* Fixed positioning breaks it out of normal document flow */
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;       /* Forces full viewport width */
+    height: 100vh !important;      /* Forces full viewport height */
+    background-color: rgba(15, 23, 42, 0.5) !important; /* Semi-transparent dark overlay mask */
+    backdrop-filter: blur(5px) !important;              /* Blurs everything behind it */
+    
+    /* Flexbox Centering Matrix Engine */
+    display: flex !important;
+    align-items: center !important;     /* Perfect vertical alignment */
+    justify-content: center !important;    /* Perfect horizontal alignment */
+    
+    /* Dominate Layer Depth Stack */
+    z-index: 99999999 !important;  /* Overrides navbars, cards, sidebars, and grid elements */
+  }
+
+  /* 2. Modal Center Popup Card Layout Box */
+  .custom-modal-card {
+    width: 90% !important;
+    max-width: 420px !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    
+    /* Entrance Animation Engine */
+    animation: modalCenterPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  }
+
+  /* Circular Link Trash Button Hover Effect */
+  .action-trash {
+    transition: all 0.2s ease-in-out !important;
+  }
+
+  .action-trash:hover {
+    background-color: rgba(220, 53, 69, 0.1) !important; /* Soft crimson/danger background tint */
+    color: #dc3545 !important;                          /* Shifts the icon color to a crisp red */
+    transform: scale(1.05);                              /* Micro-scale punch animation */
+  }
+
+  @keyframes modalCenterPop {
+    from {
+      transform: scale(0.9) translateY(15px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* ==========================================
+   ISOLATED CUSTOM TABLE & PAGINATION STYLING 
+   ========================================== */
+
+/* Header Row Customization */
+.page-container .custom-table thead tr th.table-header-cell {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 0.75rem;
   background-color: #f8fafc;
+  border-bottom: 1px solid #edf2f7;
+}
+
+/* Base Body Rows Transitions */
+.custom-table tbody tr {
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Hover Interactive Matrix State */
+.custom-table tbody tr:hover {
+  background-color: rgba(248, 249, 250, 0.6);
+}
+
+/* Page Size Selector Menu Dropdown Drop-cap */
+.page-container .select-size-dropdown {
+  width: auto;
+  display: inline-block;
+  padding-right: 1.8rem;
+}
+
+/* Generic Pagination Base Anchor Blocks */
+.page-container .pagination .page-item .page-link {
   color: #4a5568;
-  transition: all 0.15s ease;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  cursor: pointer;
 }
 
-.action-btn-view:hover {
-  background-color: #e2e8f0;
-  color: #1a202c;
+/* Pagination Hover Effects */
+.page-container .pagination .page-item .page-link:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e1;
 }
 
-.action-btn-update {
-  transition: all 0.15s ease;
+/* Pagination Active Focus State Selection */
+.page-container .pagination .page-item.active .page-link {
+  color: #ffffff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
 }
 
-/* 1. Full Viewport Overlay Layer */
-.custom-modal-overlay {
-  position: fixed !important;    /* Fixed positioning breaks it out of normal document flow */
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;       /* Forces full viewport width */
-  height: 100vh !important;      /* Forces full viewport height */
-  background-color: rgba(15, 23, 42, 0.5) !important; /* Semi-transparent dark overlay mask */
-  backdrop-filter: blur(5px) !important;              /* Blurs everything behind it */
-  
-  /* Flexbox Centering Matrix Engine */
-  display: flex !important;
-  align-items: center !important;     /* Perfect vertical alignment */
-  justify-content: center !important;    /* Perfect horizontal alignment */
-  
-  /* Dominate Layer Depth Stack */
-  z-index: 99999999 !important;  /* Overrides navbars, cards, sidebars, and grid elements */
+/* Pagination Locked Boundary Dead States */
+.page-container .pagination .page-item.disabled .page-link {
+  color: #cbd5e1;
+  pointer-events: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
 }
 
-/* 2. Modal Center Popup Card Layout Box */
-.custom-modal-card {
-  width: 90% !important;
-  max-width: 420px !important;
-  background: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  
-  /* Entrance Animation Engine */
-  animation: modalCenterPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+/* FIXED: Target the card container wrapper instead of the page root container */
+.page-container .card.animate-fade-in {
+  animation: componentFadeIn 0.25s ease-out forwards;
 }
 
-/* Circular Link Trash Button Hover Effect */
-.action-trash {
-  transition: all 0.2s ease-in-out !important;
-}
-
-.action-trash:hover {
-  background-color: rgba(220, 53, 69, 0.1) !important; /* Soft crimson/danger background tint */
-  color: #dc3545 !important;                          /* Shifts the icon color to a crisp red */
-  transform: scale(1.05);                              /* Micro-scale punch animation */
-}
-
-@keyframes modalCenterPop {
-  from {
-    transform: scale(0.9) translateY(15px);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
+@keyframes componentFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

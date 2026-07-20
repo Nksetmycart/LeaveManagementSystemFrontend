@@ -19,7 +19,6 @@
     <h1 class="fw-bold text-dark h2 mb-1">Leave requests</h1>
     <p class="text-secondary mb-3 fs-6">Review, approve, or reject leave requests with context.</p>
 
-    <!-- UPDATED: Decoupled manual triggers and mapped clean Angular route channels instead -->
     <div class="d-flex gap-2 flex-wrap mt-3">
       <a [routerLink]="['/dashboard/leave-requests']" class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-2 fw-medium shadow-none bg-white fs-7 d-flex align-items-center gap-2 text-decoration-none text-secondary">
         <i class="bi bi-collection text-primary"></i> Check All Leave Requests
@@ -41,80 +40,130 @@
     
     <!-- LEFT SIDE: Request Master Lists -->
     <div class="col-12 col-xl-7">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white min-h-card">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white min-h-card d-flex flex-column justify-content-between">
         
-        <!-- Pending Section Header -->
-        <div class="mb-4">
-          <h3 class="fw-bold text-dark mb-0 fs-5">Pending ({{ pendingRequests.length }})</h3>
-          <span class="text-muted fs-7">Awaiting your decision</span>
-        </div>
+        <div>
+          <!-- Pending Section Header -->
+          <div class="mb-4">
+            <h3 class="fw-bold text-dark mb-0 fs-5">Pending ({{ totalItemsPending }})</h3>
+            <span class="text-muted fs-7">Awaiting your decision</span>
+          </div>
 
-        <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
-        <div class="scroll-container mb-4 pe-1">
-          <div class="d-flex flex-column gap-2">
-            <div *ngFor="let req of pendingRequests" 
-                 (click)="selectRequestItem(req)"
-                 class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3 transition-all" 
-                 [ngClass]="{ 'active-card shadow-sm border-primary': selectedRequest?.id === req.id, 'bg-white clickable-hover': selectedRequest?.id !== req.id }"
-                 role="button">
-              <div class="d-flex align-items-center overflow-hidden">
-                <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 42px; height: 42px;">
-                  {{ getInitials(req.employeeName) }}
-                </div>
-                <div class="overflow-hidden">
-                  <div class="d-flex align-items-center gap-2 text-truncate">
-                    <span class="fw-bold text-dark fs-6 text-truncate">{{ req.employeeName }}</span>
-                    <span class="badge bg-light text-secondary border text-uppercase" style="font-size: 0.6rem; letter-spacing: 0.05em;">Staff</span>
+          <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+          <div class="scroll-container mb-2 pe-1">
+            <div class="d-flex flex-column gap-2">
+              <div *ngFor="let req of pendingRequests" 
+                   (click)="selectRequestItem(req)"
+                   class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3 transition-all" 
+                   [ngClass]="{ 'active-card shadow-sm border-primary': selectedRequest?.id === req.id, 'bg-white clickable-hover': selectedRequest?.id !== req.id }"
+                   role="button">
+                <div class="d-flex align-items-center overflow-hidden">
+                  <div class="avatar-circle bg-primary-subtle text-primary fw-bold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 42px; height: 42px;">
+                    {{ getInitials(req.employeeName) }}
                   </div>
-                  <small class="text-secondary d-block text-truncate mt-0.5">
-                    {{ req.leaveType }} • {{ req.startDate | date:'yyyy-MM-dd' }} → {{ req.endDate | date:'yyyy-MM-dd' }} • {{ calculateLeaveDays(req.startDate, req.endDate, req.isHalfDay) }} day(s)
-                  </small>
+                  <div class="overflow-hidden">
+                    <div class="d-flex align-items-center gap-2 text-truncate">
+                      <span class="fw-bold text-dark fs-6 text-truncate">{{ req.employeeName }}</span>
+                      <span class="badge bg-light text-secondary border text-uppercase" style="font-size: 0.6rem; letter-spacing: 0.05em;">Staff</span>
+                    </div>
+                    <small class="text-secondary d-block text-truncate mt-0.5">
+                      {{ req.leaveType }} • {{ req.startDate | date:'yyyy-MM-dd' }} → {{ req.endDate | date:'yyyy-MM-dd' }} • {{ calculateLeaveDays(req.startDate, req.endDate, req.isHalfDay) }} day(s)
+                    </small>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-2">
+                  <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font">Pending</span>
+                  <i class="bi bi-chevron-right text-muted fs-7"></i>
                 </div>
               </div>
-              <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-2">
-                <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font">Pending</span>
-                <i class="bi bi-chevron-right text-muted fs-7"></i>
-              </div>
-            </div>
 
-            <div *ngIf="pendingRequests.length === 0" class="text-center py-4 border border-dashed rounded-3 bg-light text-muted fs-7">
-              <i class="bi bi-shield-check text-secondary d-block fs-4 mb-1"></i> All clear! No inbound leave applications are waiting.
+              <div *ngIf="pendingRequests.length === 0" class="text-center py-4 border border-dashed rounded-3 bg-light text-muted fs-7">
+                <i class="bi bi-shield-check text-secondary d-block fs-4 mb-1"></i> All clear! No inbound leave applications are waiting.
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Recently Decided Section Header -->
-        <div class="mb-3 pt-2">
-          <h4 class="fw-bold text-secondary mb-0 fs-6">Recently decided</h4>
+        <!-- PENDING GRID COMPONENT PAGINATION FOOTER -->
+        <div *ngIf="pendingRequests.length > 0" class="d-flex align-items-center justify-content-between py-2 border-top bg-white flex-wrap gap-2 mb-4">
+          <div class="d-flex align-items-center gap-1.5 text-secondary fs-8 shadow-none">
+            <select class="form-select form-select-sm select-size-dropdown shadow-none py-0.5" name="pendingPageSize" [(ngModel)]="pageSize" (ngModelChange)="onPendingPageSizeChange($event)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+            <span>/ page ({{ startPendingIndex }}-{{ endPendingIndex }} of {{ totalItemsPending }})</span>
+          </div>
+          <nav aria-label="Pending deck control panel">
+            <ul class="pagination pagination-sm mb-0 gap-1 align-items-center shadow-none">
+              <li class="page-item" [class.disabled]="page === 1">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onPendingPageChange(page - 1)"><i class="bi bi-chevron-left"></i></button>
+              </li>
+              <li class="page-item" *ngFor="let p of [].constructor(totalPagesPending); let idx = index" [class.active]="page === (idx + 1)">
+                <button type="button" class="page-link rounded-2 px-2.5 py-1 shadow-none border" (click)="onPendingPageChange(idx + 1)">{{ idx + 1 }}</button>
+              </li>
+              <li class="page-item" [class.disabled]="page >= totalPagesPending || pendingRequests.length < pageSize">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onPendingPageChange(page + 1)"><i class="bi bi-chevron-right"></i></button>
+              </li>
+            </ul>
+          </nav>
         </div>
 
-        <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
-        <div class="scroll-container border-top pe-1">
-          <div class="d-flex flex-column">
-            <div *ngFor="let approval of decidedApprovals" class="d-flex align-items-center justify-content-between py-3 border-bottom transition-all">
-              <div class="d-flex align-items-center overflow-hidden">
-                <div class="avatar-circle bg-light border text-muted fw-semibold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; font-size: 0.8rem;">
-                  {{ getInitials(approval.employeeName) }}
-                </div>
-                <div class="overflow-hidden">
-                  <span class="fw-semibold text-dark d-block text-truncate" style="font-size: 0.92rem;">{{ approval.employeeName }} • {{ approval.leaveType }}</span>
-                  <small class="text-muted d-block font-monospace mt-0.5" style="font-size: 0.78rem;">{{ approval.startDate | date:'yyyy-MM-dd' }} → {{ approval.endDate | date:'yyyy-MM-dd' }}</small>
-                </div>
-              </div>
-              <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font flex-shrink-0 ms-2"
-                    [ngClass]="{
-                      'bg-success-subtle text-success': approval.status?.toLowerCase() === 'approved',
-                      'bg-danger-subtle text-danger': approval.status?.toLowerCase() === 'rejected',
-                      'bg-light text-secondary border': approval.status?.toLowerCase() !== 'approved' && approval.status?.toLowerCase() !== 'rejected'
-                    }">
-                {{ approval.status }}
-              </span>
-            </div>
+        <div>
+          <!-- Recently Decided Section Header -->
+          <div class="mb-3 pt-2">
+            <h4 class="fw-bold text-secondary mb-0 fs-6">Recently decided</h4>
+          </div>
 
-            <div *ngIf="decidedApprovals.length === 0" class="text-center py-4 text-muted fs-8 font-monospace text-uppercase tracking-wider opacity-50">
-              No decision audits logged yet.
+          <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+          <div class="scroll-container border-top pe-1 mb-2">
+            <div class="d-flex flex-column">
+              <div *ngFor="let approval of decidedApprovals" class="d-flex align-items-center justify-content-between py-3 border-bottom transition-all">
+                <div class="d-flex align-items-center overflow-hidden">
+                  <div class="avatar-circle bg-light border text-muted fw-semibold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; font-size: 0.8rem;">
+                    {{ getInitials(approval.employeeName) }}
+                  </div>
+                  <div class="overflow-hidden">
+                    <span class="fw-semibold text-dark d-block text-truncate" style="font-size: 0.92rem;">{{ approval.employeeName }} • {{ approval.leaveType }}</span>
+                    <small class="text-muted d-block font-monospace mt-0.5" style="font-size: 0.78rem;">{{ approval.startDate | date:'yyyy-MM-dd' }} → {{ approval.endDate | date:'yyyy-MM-dd' }}</small>
+                  </div>
+                </div>
+                <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font flex-shrink-0 ms-2"
+                      [ngClass]="{
+                        'bg-success-subtle text-success': approval.status?.toLowerCase() === 'approved',
+                        'bg-danger-subtle text-danger': approval.status?.toLowerCase() === 'rejected',
+                        'bg-light text-secondary border': approval.status?.toLowerCase() !== 'approved' && approval.status?.toLowerCase() !== 'rejected'
+                      }">
+                  {{ approval.status }}
+                </span>
+              </div>
+
+              <div *ngIf="decidedApprovals.length === 0" class="text-center py-4 text-muted fs-8 font-monospace text-uppercase tracking-wider opacity-50">
+                No decision audits logged yet.
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- DECIDED AUDIT HISTORICAL LEDGER PAGINATION FOOTER -->
+        <div *ngIf="decidedApprovals.length > 0" class="d-flex align-items-center justify-content-between py-2 border-top bg-white flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-1.5 text-secondary fs-8 shadow-none">
+            <select class="form-select form-select-sm select-size-dropdown shadow-none py-0.5" name="decidedPageSize" [(ngModel)]="pageSize1" (ngModelChange)="onDecidedPageSizeChange($event)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+            <span>/ page ({{ startDecidedIndex }}-{{ endDecidedIndex }} of {{ totalItemsDecided }})</span>
+          </div>
+          <nav aria-label="Decided queue catalog navigational control tracker">
+            <ul class="pagination pagination-sm mb-0 gap-1 align-items-center shadow-none">
+              <li class="page-item" [class.disabled]="page1 === 1">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onDecidedPageChange(page1 - 1)"><i class="bi bi-chevron-left"></i></button>
+              </li>
+              <li class="page-item" *ngFor="let p1 of [].constructor(totalPagesDecided); let idx1 = index" [class.active]="page1 === (idx1 + 1)">
+                <button type="button" class="page-link rounded-2 px-2.5 py-1 shadow-none border" (click)="onDecidedPageChange(idx1 + 1)">{{ idx1 + 1 }}</button>
+              </li>
+              <li class="page-item" [class.disabled]="page1 >= totalPagesDecided || decidedApprovals.length < pageSize1">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onDecidedPageChange(page1 + 1)"><i class="bi bi-chevron-right"></i></button>
+              </li>
+            </ul>
+          </nav>
         </div>
 
       </div>

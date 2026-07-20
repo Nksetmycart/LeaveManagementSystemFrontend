@@ -24,6 +24,11 @@ export class AssignLeaveBalance implements OnInit {
   employeesList: EmployeeResponseDto[] = [];
   leaveTypesList: any[] = [];
   
+  // Dropdown Internal Pagination States
+  dropdownPage = 1;
+  dropdownPageSize = 5;
+  dropdownSearchQuery = '';
+
   // State Tracking Elements Pointers
   isLoadingMetadata = false;
   isSubmitting = false;
@@ -39,7 +44,6 @@ export class AssignLeaveBalance implements OnInit {
     lastAccruedOn: new Date()
   };
 
-  // Custom Top Center Notification Floating Toast state context configuration
   notification: ToastConfig = {
     show: false,
     message: '',
@@ -55,14 +59,12 @@ export class AssignLeaveBalance implements OnInit {
     this.loadDashboardPrerequisitesLedger();
   }
 
-  /**
-   * Run parallel metadata fetch scripts utilizing rxjs pipelines forks execution maps
-   */
   loadDashboardPrerequisitesLedger(): void {
     this.isLoadingMetadata = true;
     
     forkJoin({
-      employees: this.employeeService.GetEmployees(),
+      // Fetching a comprehensive base index array allows efficient client-side filtering blocks
+      employees: this.employeeService.GetEmployees(1, 1000),
       leaveTypes: this.leaveService.GetLeaveTypes()
     }).subscribe({
       next: (results: { employees: EmployeeListResponse, leaveTypes: GetLeaveTypesList }) => {
@@ -78,6 +80,41 @@ export class AssignLeaveBalance implements OnInit {
     });
   }
 
+  // --- COMPONENT SELECTION INTERNAL DROPDOWN FILTER ENGINE ---
+  get filteredEmployees(): EmployeeResponseDto[] {
+    if (!this.dropdownSearchQuery.trim()) {
+      return this.employeesList;
+    }
+    const query = this.dropdownSearchQuery.toLowerCase().trim();
+    return this.employeesList.filter(emp => 
+      emp.name?.toLowerCase().includes(query) || 
+      emp.department?.toLowerCase().includes(query) ||
+      emp.role?.toLowerCase().includes(query)
+    );
+  }
+
+  get paginatedEmployees(): EmployeeResponseDto[] {
+    const startIndex = (this.dropdownPage - 1) * this.dropdownPageSize;
+    return this.filteredEmployees.slice(startIndex, startIndex + this.dropdownPageSize);
+  }
+
+  get totalDropdownPages(): number {
+    return Math.ceil(this.filteredEmployees.length / this.dropdownPageSize) || 1;
+  }
+
+  changeDropdownPage(event: Event, direction: number): void {
+    event.preventDefault();
+    event.stopPropagation(); // Prevents choice closing side-effects
+    const targetPage = this.dropdownPage + direction;
+    if (targetPage >= 1 && targetPage <= this.totalDropdownPages) {
+      this.dropdownPage = targetPage;
+    }
+  }
+
+  onDropdownSearchChange(): void {
+    this.dropdownPage = 1; // Re-center pointer upon filter modification queries
+  }
+
   submitBalanceAllocation(form: NgForm): void {
     if (form.invalid || !this.selectedEmployeeId) {
       this.triggerNotification("Validation Guard: Form contains invalid field allocations constraints.", false);
@@ -86,7 +123,6 @@ export class AssignLeaveBalance implements OnInit {
 
     this.isSubmitting = true;
 
-    // Deep clones payload details to configure clean transactional timestamps
     const payload: AssignLeaveBalanceDto = {
       ...this.balanceModel,
       lastAccruedOn: new Date(this.balanceModel.lastAccruedOn)
@@ -96,29 +132,22 @@ export class AssignLeaveBalance implements OnInit {
       next: (response) => {
         this.isSubmitting = false;
         if (response.success) {
-          this.triggerNotification(response.message || "Leave balance thresholds successfully assigned to worker record context.", true);
+          this.triggerNotification(response.message || "Leave balance thresholds successfully assigned.", true);
           this.resetFormState(form);
         } else {
-          this.triggerNotification(response.message || "Allocation request rejected by target data servers rules.", false);
+          this.triggerNotification(response.message || "Allocation request rejected by data servers.", false);
         }
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.triggerNotification(err?.error?.message || "A network transaction pipeline error occurred while dispatching allocation parameters.", false);
+        this.triggerNotification(err?.error?.message || "A network transaction pipeline error occurred.", false);
       }
     });
   }
 
   triggerNotification(msg: string, isSuccess: boolean): void {
-    this.notification = {
-      show: true,
-      message: msg,
-      isSuccess: isSuccess
-    };
-    
-    setTimeout(() => {
-      this.dismissNotification();
-    }, 5000);
+    this.notification = { show: true, message: msg, isSuccess: isSuccess };
+    setTimeout(() => { this.dismissNotification(); }, 5000);
   }
 
   dismissNotification(): void {
@@ -127,6 +156,8 @@ export class AssignLeaveBalance implements OnInit {
 
   private resetFormState(form: NgForm): void {
     this.selectedEmployeeId = '';
+    this.dropdownSearchQuery = '';
+    this.dropdownPage = 1;
     form.resetForm({
       year: new Date().getFullYear(),
       earnedLeaves: 0,

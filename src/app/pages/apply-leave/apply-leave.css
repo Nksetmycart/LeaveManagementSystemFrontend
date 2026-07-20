@@ -174,3 +174,17 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Add these layout definitions to your existing apply-leave.css style pool */
+
+.min-w-balance-box {
+  min-width: 110px;
+}
+
+.mb-0\.5 {
+  margin-bottom: 0.15rem !important;
+}
+
+.border-end {
+  border-right: 1px solid #e2e8f0 !important;
+}

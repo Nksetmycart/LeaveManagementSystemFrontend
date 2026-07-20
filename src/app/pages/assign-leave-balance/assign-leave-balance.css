@@ -3,14 +3,49 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.meta-label {
-  font-size: 0.68rem !important;
+.page-container .meta-label {
+  font-size: 0.68rem;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
 }
 
-.fs-7 { font-size: 0.85rem !important; }
-.fs-8 { font-size: 0.75rem !important; }
+.page-container .fs-7 { font-size: 0.85rem; }
+.page-container .fs-8 { font-size: 0.75rem; }
+
+/* Custom Paginated Dropdown Layout Elements styling framework */
+.page-container .dropdown-paginated-container {
+  background-color: #f8fafc;
+}
+
+.dropdown-paginated-container .dropdown-options-box {
+  min-height: 180px;
+}
+
+.dropdown-paginated-container .dropdown-option-row {
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+
+.dropdown-paginated-container .dropdown-option-row.clickable-hover:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.dropdown-paginated-container .dropdown-option-row.active-option {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Custom extra-small operational navigation helper class buttons */
+.dropdown-paginated-container .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.72rem;
+  background-color: #ffffff;
+}
+
+.dropdown-paginated-container .btn-xs:hover:not([disabled]) {
+  background-color: #e2e8f0;
+}
 
 /* Processing Blurred Screen Matrix Overlay */
 .metadata-loading-blur {

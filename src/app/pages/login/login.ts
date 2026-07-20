@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms'; // <-- Added NgForm import here
+import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService, UserResponse } from '../../services/auth-service';
 import { Router } from '@angular/router';
 
@@ -14,13 +14,17 @@ import { Router } from '@angular/router';
 export class Login {
   loginUserModel: any = {};
 
+  // Notification Banner State Properties
+  notification = {
+    show: false,
+    message: ''
+  };
+
   constructor(private service: AuthService, private router: Router){}
 
-  // UPDATED: Now accepts form instance validation profiles parameters
   onSubmit(form: NgForm) {
-    // HARD GUARD: Blocks pipeline execution completely if required fields are missing/invalid
     if (form.invalid) {
-      console.log("Login aborted: Forms constraints are currently invalid.");
+      this.triggerToastNotification("Login aborted: Form fields constraints are currently invalid.");
       return;
     }
 
@@ -37,9 +41,21 @@ export class Login {
         this.router.navigate([`dashboard`]);
       },
       error: (err: any) => {
-        console.log("Error Login User: ", err.message, this.loginUserModel);
-        alert("Failed to login User: " + err.message);
+        console.error("Error Login User: ", err, this.loginUserModel);
+        
+        // Dynamic fallback extracts backend response message or message array property cleanly
+        const backendMessage = err?.error?.message || err?.error || err?.message || "An unexpected error occurred.";
+        this.triggerToastNotification(backendMessage);
       }
     });
+  }
+
+  triggerToastNotification(msg: string): void {
+    this.notification = { show: true, message: msg };
+    setTimeout(() => { this.dismissNotification(); }, 5000);
+  }
+
+  dismissNotification(): void {
+    this.notification.show = false;
   }
 }

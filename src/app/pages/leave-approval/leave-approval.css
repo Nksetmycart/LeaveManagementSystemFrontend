@@ -22,35 +22,35 @@
 }
 
 .clickable-hover:hover {
-  background-color: rgba(248, 249, 250, 0.75) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
+  background-color: rgba(248, 249, 250, 0.75);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 /* Selected Active Focus Setup */
 .active-card {
-  border: 2px solid #0d6efd !important;
-  background-color: rgba(13, 110, 253, 0.03) !important;
+  border: 2px solid #0d6efd;
+  background-color: rgba(13, 110, 253, 0.03);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 /* Meta Param Data Labels */
 .meta-label {
-  font-size: 0.68rem !important;
+  font-size: 0.68rem;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
 }
 
 /* Utility Typographies & Layout Anchors */
-.fs-7 {
-  font-size: 0.85rem !important;
+.page-container .fs-7 {
+  font-size: 0.85rem;
 }
 
-.fs-8 {
-  font-size: 0.75rem !important;
+.page-container .fs-8 {
+  font-size: 0.75rem;
 }
 
-.style-badge-font {
-  font-size: 0.65rem !important;
+.page-container .style-badge-font {
+  font-size: 0.65rem;
   letter-spacing: 0.03em;
 }
 
@@ -67,35 +67,35 @@
 }
 
 /* Spacing Configurations Overrides */
-.py-2\.5 {
-  padding-top: 0.65rem !important;
-  padding-bottom: 0.65rem !important;
+.page-container .py-2\.5 {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
 }
 
-.px-2\.5 {
-  padding-left: 0.65rem !important;
-  padding-right: 0.65rem !important;
+.page-container .px-2\.5 {
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
 }
 
-.py-1\.5 {
-  padding-top: 0.35rem !important;
-  padding-bottom: 0.35rem !important;
+.page-container .py-1\.5 {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
 }
 
 /* Soft Subdued Background Layout */
 .bg-light {
-  background-color: #f4f5f7 !important;
+  background-color: #f4f5f7;
 }
 
 /* Action Processing Buttons Overrides */
 .btn-success-custom {
-  background-color: #198754 !important;
-  color: #ffffff !important;
-  border: none !important;
+  background-color: #198754;
+  color: #ffffff;
+  border: none;
   transition: all 0.2s ease-in-out;
 }
 .btn-success-custom:hover:not([disabled]) {
-  background-color: #157347 !important;
+  background-color: #157347;
   transform: translateY(-1px);
 }
 .btn-success-custom:active:not([disabled]) {
@@ -103,13 +103,13 @@
 }
 
 .btn-danger-custom {
-  background-color: #dc3545 !important;
-  color: #ffffff !important;
-  border: none !important;
+  background-color: #dc3545;
+  color: #ffffff;
+  border: none;
   transition: all 0.2s ease-in-out;
 }
 .btn-danger-custom:hover:not([disabled]) {
-  background-color: #bb2d3b !important;
+  background-color: #bb2d3b;
   transform: translateY(-1px);
 }
 .btn-danger-custom:active:not([disabled]) {
@@ -117,15 +117,15 @@
 }
 
 button[disabled] {
-  opacity: 0.6 !important;
-  cursor: not-allowed !important;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Scroll Boundary Engine Layout Controls */
 .scroll-container {
-  max-height: 390px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  max-height: 390px;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
@@ -147,17 +147,49 @@ button[disabled] {
   background-color: rgba(0, 0, 0, 0.25);
 }
 
+/* Custom Toast Sizing Component Select Options */
+.page-container .select-size-dropdown {
+  width: auto;
+  display: inline-block;
+  padding-right: 1.5rem;
+}
+
+.page-container .pagination .page-item .page-link {
+  color: #4a5568;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  cursor: pointer;
+}
+
+.page-container .pagination .page-item .page-link:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e1;
+}
+
+.page-container .pagination .page-item.active .page-link {
+  color: #ffffff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.page-container .pagination .page-item.disabled .page-link {
+  color: #cbd5e1;
+  pointer-events: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
 /* Custom Center Top Viewport Toast Notification Panel */
 .custom-toast-notification {
-  position: fixed !important;
-  top: 24px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 90% !important;
-  max-width: 480px !important;
-  z-index: 2147483647 !important; /* Forces dominance layout context over background overlays */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
-  animation: slideToastFromTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 480px;
+  z-index: 2147483647; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  animation: slideToastFromTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes slideToastFromTop {

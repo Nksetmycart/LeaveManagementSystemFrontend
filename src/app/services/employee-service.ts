@@ -96,8 +96,8 @@ export class EmployeeService {
     return this.http.get<SingleEmployeeResponse>(`${this.apiUrl}/${targetId}`);
   }
 
-  GetEmployees(): Observable<EmployeeListResponse> {
-    return this.http.get<EmployeeListResponse>(this.apiUrl);
+  GetEmployees(page: number, pageSize: number): Observable<EmployeeListResponse> {
+    return this.http.get<EmployeeListResponse>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`);
   }
 
   UpdateEmployeeById( data: UpdateEmployeeDto, employeeId: string): Observable<SingleEmployeeResponse> {

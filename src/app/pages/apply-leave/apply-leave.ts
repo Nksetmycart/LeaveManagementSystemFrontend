@@ -32,6 +32,9 @@ export class ApplyLeave implements OnInit {
   holidaysCache: any[] = [];
   attendanceCache: any[] = [];
 
+  // Live Selected Leave Type Balance Cache Holder
+  selectedTypeBalance: any = null;
+
   startDate: Date | null = null;
   endDate: Date | null = null;
 
@@ -70,6 +73,32 @@ export class ApplyLeave implements OnInit {
       },
       error: (error) => {
         console.error("Error Fetching Leave Types List:", error);
+      }
+    });
+  }
+
+  // Fires real-time API request to sync data quotas on leave type modification triggers
+  onLeaveTypeChange(): void {
+    const employeeId = this.authService.getEmployeeId();
+    const leaveTypeId = this.leaveRequestModel.leaveTypeId;
+
+    if (!employeeId || !leaveTypeId) {
+      this.selectedTypeBalance = null;
+      return;
+    }
+
+    this.leaveService.GetLeaveBalanceByType(leaveTypeId, employeeId).subscribe({
+      next: (response) => {
+        if (response && response.success) {
+          this.selectedTypeBalance = response.data;
+        } else {
+          this.selectedTypeBalance = null;
+          console.warn("Server processed balance metric request but returned no structural maps.");
+        }
+      },
+      error: (error) => {
+        this.selectedTypeBalance = null;
+        console.error("Downstream pipeline failure retrieving single leaves allocation counters:", error);
       }
     });
   }
@@ -154,7 +183,6 @@ export class ApplyLeave implements OnInit {
   }
 
   onDateSelect(cell: CalendarCell): void {
-    // SELECTION BLOCKS GATEKEEPER: Not disabled visually, but intercepted here on action trigger
     if (cell.isHoliday) {
       this.triggerToastNotification(`Selection Rejected: Cannot select an official corporate holiday [${cell.holidayName}].`, false);
       return;
@@ -201,7 +229,6 @@ export class ApplyLeave implements OnInit {
     return hasHoliday || hasAttendance;
   }
 
-  // Maps clean styling themes based on your exact text definitions rules
   getAttendanceThemeClass(status: string): string {
     if (!status) return '';
     const cleanStr = status.trim().toLowerCase();
@@ -290,9 +317,12 @@ export class ApplyLeave implements OnInit {
       next: (res) => {
         this.isSubmitting = false;
         this.triggerToastNotification("Leave request logged successfully.", true);
+        
+        // Reset local workspace parameters context tracking state parameters following successful dispatch
+        this.selectedTypeBalance = null;
         this.startDate = null;
         this.endDate = null;
-        form.resetForm({ dayType: 'full' });
+        form.resetForm({ dayType: 'full', leaveTypeId: '' });
       },
       error: (err) => {
         this.isSubmitting = false;

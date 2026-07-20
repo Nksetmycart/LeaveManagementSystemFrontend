@@ -6,7 +6,7 @@ import { Employees } from './pages/employees/employees';
 import { Departmens } from './pages/departmens/departmens';
 import { Holidays } from './pages/holidays/holidays';
 import { ApplyLeave } from './pages/apply-leave/apply-leave';
-import { MyLeaves } from './components/my-leaves/my-leaves';
+import { MyLeaves } from './pages/my-leaves/my-leaves';
 import { Roles } from './pages/roles/roles';
 import { LeaveTypes } from './pages/leave-types/leave-types';
 import { AddEmployee } from './pages/add-employee/add-employee';

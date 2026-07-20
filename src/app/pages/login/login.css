@@ -1,3 +1,43 @@
-.is-invalid{
-    background-color: red;
+/* Core Structural Typography Integration */
+.container-fluid {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.py-2\.5 {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.fs-7 { font-size: 0.88rem; }
+.fs-8 { font-size: 0.75rem; }
+
+.text-wrap-pretty {
+  text-wrap: pretty;
+}
+
+/* Floating Top-Center Notification Banner */
+.custom-toast-notification {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 440px;
+  z-index: 2147483647;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  animation: slideToastFromTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideToastFromTop {
+  from { top: -20px; opacity: 0; }
+  to { top: 24px; opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: componentFadeInEffect 0.2s ease-out forwards;
+}
+
+@keyframes componentFadeInEffect {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
