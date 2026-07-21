@@ -132,47 +132,97 @@
     <div class="col-12 col-xl-7">
       
       <!-- CONDITION A: If user is Superadmin, display the Manager/HR Leave Determination metrics table instead -->
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100" *ngIf="role?.toLowerCase() === 'superadmin'">
-        <div class="mb-3">
-          <h3 class="fw-bold text-dark h5 mb-1">Approver Determination Matrix</h3>
-          <span class="text-muted fs-8">Real-time leave application determination counts by administrative roles</span>
-        </div>
-        
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0 text-nowrap">
-            <thead>
-              <tr class="table-light text-secondary font-monospace fs-9 text-uppercase">
-                <th scope="col" class="py-2.5 ps-3 rounded-start">Approver Name</th>
-                <th scope="col" class="py-2.5">System Designation</th>
-                <th scope="col" class="py-2.5 text-center">Approved</th>
-                <th scope="col" class="py-2.5 text-center rounded-end pe-3">Rejected</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let approver of approverMetrics">
-                <td class="py-3 ps-3 fw-bold text-dark fs-7">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="rounded-circle bg-light text-secondary d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.75rem;">
-                      {{ approver.name.charAt(0) }}
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column justify-content-between" *ngIf="role?.toLowerCase() === 'superadmin'">
+        <div>
+          <div class="mb-3">
+            <h3 class="fw-bold text-dark h5 mb-1">Approver Determination Matrix</h3>
+            <span class="text-muted fs-8">Real-time leave application determination counts by administrative roles</span>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+              <thead>
+                <tr class="table-light text-secondary font-monospace fs-9 text-uppercase">
+                  <th scope="col" class="py-2.5 ps-3 rounded-start">Approver Name</th>
+                  <th scope="col" class="py-2.5">System Designation</th>
+                  <th scope="col" class="py-2.5 text-center">Approved</th>
+                  <th scope="col" class="py-2.5 text-center rounded-end pe-3">Rejected</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let approver of approverMetrics">
+                  <td class="py-3 ps-3 fw-bold text-dark fs-7">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle bg-light text-secondary d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                        {{ approver.name.charAt(0) }}
+                      </div>
+                      {{ approver.name }}
                     </div>
-                    {{ approver.name }}
-                  </div>
-                </td>
-                <td class="py-3 text-secondary fs-8 font-monospace">{{ approver.role }}</td>
-                <td class="py-3 text-center">
-                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
-                    {{ approver.approvedCount }}
-                  </span>
-                </td>
-                <td class="py-3 text-center pe-3">
-                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
-                    {{ approver.rejectedCount }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                  <td class="py-3 text-secondary fs-8 font-monospace">{{ approver.role }}</td>
+                  <td class="py-3 text-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
+                      {{ approver.approvedCount }}
+                    </span>
+                  </td>
+                  <td class="py-3 text-center pe-3">
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold font-monospace">
+                      {{ approver.rejectedCount }}
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Approver Matrix Spinner Loader -->
+                <tr *ngIf="isLoadingApprovers">
+                  <td colspan="4" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span class="text-muted fs-8 fw-medium">Syncing live approver ledger...</span>
+                  </td>
+                </tr>
+
+                <!-- Empty State Fallback -->
+                <tr *ngIf="!isLoadingApprovers && approverMetrics.length === 0">
+                  <td colspan="4" class="text-center py-4 text-muted fs-8">
+                    No active approver metrics logged.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <!-- REFACTORED: APPROVER TABLE PAGINATION FOOTER PANEL -->
+        <div *ngIf="!isLoadingApprovers && approverMetrics.length > 0" class="d-flex align-items-center justify-content-between pt-3 border-top flex-wrap gap-2 mt-3">
+          <div class="d-flex align-items-center gap-1.5 text-secondary fs-8">
+            <select class="form-select form-select-sm select-size-dropdown shadow-none py-0.5" name="approverPageSize" [(ngModel)]="pageSize" (ngModelChange)="onApproverPageSizeChange($event)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+            <span>/ page ({{ startApproverIndex }}-{{ endApproverIndex }} of {{ totalApproverItems }})</span>
+          </div>
+
+          <nav aria-label="Approver status catalogue navigation">
+            <ul class="pagination pagination-sm mb-0 gap-1 align-items-center">
+              <li class="page-item" [class.disabled]="page === 1">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onApproverPageChange(page - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+              </li>
+
+              <li class="page-item" *ngFor="let p of [].constructor(totalApproverPages); let idx = index" [class.active]="page === (idx + 1)">
+                <button type="button" class="page-link rounded-2 px-2.5 py-1 shadow-none border" (click)="onApproverPageChange(idx + 1)">
+                  {{ idx + 1 }}
+                </button>
+              </li>
+
+              <li class="page-item" [class.disabled]="page >= totalApproverPages || approverMetrics.length < pageSize">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onApproverPageChange(page + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
       </div>
 
       <!-- CONDITION B: Fallback standard progress bar breakdown view for Employee / standard admin roles -->

@@ -3,10 +3,10 @@
 }
 
 /* Header Columns Presentation Rules */
-.table-header-cell {
-  font-size: 0.68rem !important;
-  letter-spacing: 0.08em;
-  padding: 1rem 1.5rem !important;
+.page-container .table-header-cell {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 0.75rem;
   background-color: #f8fafc;
   border-bottom: 1px solid #edf2f7;
 }
@@ -18,7 +18,7 @@
 }
 
 .custom-table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: rgba(248, 249, 250, 0.5);
 }
 
 .custom-table tbody tr:last-child {
@@ -39,42 +39,47 @@
 
 /* Custom Circle Button Actions */
 .action-btn {
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease-in-out;
 }
 
 .action-btn:hover {
-  background-color: #f1f5f9;
-}
-
-.action-btn.text-muted:hover {
-  color: #dc3545 !important;
-  background-color: #fff5f5;
-}
-
-/* Sizing Utility Tokens */
-.fs-7 { font-size: 0.8rem !important; }
-.fs-8 { font-size: 0.75rem !important; }
-.me-2\.5 { margin-right: 0.65rem !important; }
-
-.action-btn {
-  transition: all 0.15s ease-in-out !important;
-}
-
-.action-btn:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
+  background-color: rgba(0, 0, 0, 0.04);
   transform: scale(1.05);
 }
 
-.table-header-cell {
-  font-size: 0.68rem !important;
-  letter-spacing: 0.05em;
-  padding: 1rem 0.75rem !important;
+/* Sizing Utility Tokens */
+.page-container .fs-7 { font-size: 0.8rem; }
+.page-container .fs-8 { font-size: 0.75rem; }
+.page-container .me-2\.5 { margin-right: 0.65rem; }
+
+/* Pagination Controls Specific Overrides */
+.page-container .select-size-dropdown {
+  width: auto;
+  display: inline-block;
+  padding-right: 1.8rem;
 }
 
-.custom-table tbody tr {
-  transition: background-color 0.15s ease;
+.page-container .pagination .page-item .page-link {
+  color: #4a5568;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  cursor: pointer;
 }
 
-.custom-table tbody tr:hover {
-  background-color: rgba(248, 249, 250, 0.5);
+.page-container .pagination .page-item .page-link:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e1;
+}
+
+.page-container .pagination .page-item.active .page-link {
+  color: #ffffff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.page-container .pagination .page-item.disabled .page-link {
+  color: #cbd5e1;
+  pointer-events: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
 }

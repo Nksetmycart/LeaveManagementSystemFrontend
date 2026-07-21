@@ -196,8 +196,8 @@ export class LeaveService {
     return this.http.get<LeaveResponseList>(`${this.baseUrl}/LeaveRequest?status=Pending&page=${page}&pageSize=${pageSize}`)
   }
 
-  GetAllLeaveBalances(): Observable<LeaveBalancesResponseList> {
-    return this.http.get<LeaveBalancesResponseList>(`${this.baseUrl}/LeaveBalance`)
+  GetAllLeaveBalances(page: number, pageSize: number): Observable<LeaveBalancesResponseList> {
+    return this.http.get<LeaveBalancesResponseList>(`${this.baseUrl}/LeaveBalance?page=${page}&pageSize=${pageSize}`)
   }
 
   GetLeaveBalanceByType(leaveTypeId: string, employeeId: string): Observable<LeaveBalanceResponse> {

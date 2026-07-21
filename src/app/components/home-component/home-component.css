@@ -3,22 +3,22 @@
 }
 
 /* Custom padding definitions alignment overrides */
-.p-3\.5 {
-  padding: 1.15rem !important;
+.page-container .p-3\.5 {
+  padding: 1.15rem;
 }
 
-.py-2\.5 {
-  padding-top: 0.65rem !important;
-  padding-bottom: 0.65rem !important;
+.page-container .py-2\.5 {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
 }
 
-.me-2\.5 {
-  margin-right: 0.65rem !important;
+.page-container .me-2\.5 {
+  margin-right: 0.65rem;
 }
 
 /* Metadata formatting items text tokens weight scales */
 .metrics-label {
-  font-size: 0.72rem !important;
+  font-size: 0.72rem;
   letter-spacing: 0.05em;
   color: #718096;
 }
@@ -32,12 +32,12 @@
 }
 
 .text-purple {
-  color: #8b5cf6 !important;
+  color: #8b5cf6;
 }
 
 .bg-purple-subtle {
-  background-color: #f3ebff !important;
-  color: #8b5cf6 !important;
+  background-color: #f3ebff;
+  color: #8b5cf6;
 }
 
 /* Mini Holiday Icon Badge indicators container styling box */
@@ -51,14 +51,47 @@
 
 /* Base structural progress adjustments layout tokens overrides */
 .bg-light {
-  background-color: #f1f5f9 !important;
+  background-color: #f1f5f9;
 }
 
-.fs-7 { font-size: 0.82rem !important; }
-.fs-8 { font-size: 0.68rem !important; }
+.page-container .fs-7 { font-size: 0.82rem; }
+.page-container .fs-8 { font-size: 0.68rem; }
+.page-container .fs-9 { font-size: 0.65rem; }
 
 .btn-outline-primary:hover {
-    color: #212529 !important;      /* Dark text */
-    background-color: #cfe2ff;      /* Optional light blue background */
-    border-color: #0d6efd;
+  color: #212529;
+  background-color: #cfe2ff;
+  border-color: #0d6efd;
+}
+
+/* Approver Matrix Pagination Styling Override */
+.page-container .select-size-dropdown {
+  width: auto;
+  display: inline-block;
+  padding-right: 1.5rem;
+}
+
+.page-container .pagination .page-item .page-link {
+  color: #4a5568;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  cursor: pointer;
+}
+
+.page-container .pagination .page-item .page-link:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e1;
+}
+
+.page-container .pagination .page-item.active .page-link {
+  color: #ffffff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.page-container .pagination .page-item.disabled .page-link {
+  color: #cbd5e1;
+  pointer-events: none;
+  background-color: #ffffff;
+  border-color: #e2e8f0;
 }

@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
-import { DashboardService } from '../../services/dashboard-service';
+import { DashboardService, ApprovalStatusCount, AdminDashboardDto, EmployeeDashboardDto } from '../../services/dashboard-service';
 
-// Interface defining the tracking structure for HR/Manager leave metrics counters
+// Interface typed precisely against ApprovalStatusCount.data element array item structure
 interface ApproverMetric {
   name: string;
   role: string;
@@ -15,7 +16,7 @@ interface ApproverMetric {
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css',
 })
@@ -27,14 +28,16 @@ export class HomeComponent implements OnInit {
   dashboardData: any = null;
   upcomingHoliday: any = null;
   isLoadingData = false;
+  isLoadingApprovers = false;
 
-  // Static Mock Dataset covering core metrics for HR / Managers determination balances
-  approverMetrics: ApproverMetric[] = [
-    { name: 'Aarav Sharma', role: 'HR Manager', approvedCount: 14, rejectedCount: 2 },
-    { name: 'Ishita Patel', role: 'Project Lead', approvedCount: 9, rejectedCount: 4 },
-    { name: 'Rohan Das', role: 'Department Head', approvedCount: 22, rejectedCount: 1 },
-    { name: 'Meera Reddy', role: 'Operations Manager', approvedCount: 11, rejectedCount: 3 }
-  ];
+  // Active Live Dataset Metrics
+  approverMetrics: ApproverMetric[] = [];
+
+  // Pagination Active Parameter Trackers
+  page = 1;
+  pageSize = 5;
+  totalApproverItems = 0;
+  pageSizeOptions: number[] = [5, 10, 20, 50];
 
   constructor(
     private authService: AuthService,
@@ -43,12 +46,14 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.employeeId = this.authService.getEmployeeId();
-    this.role = this.authService.getRole();
+    this.role = this.authService.getRole() || '';
     this.user = this.authService.getUser();
 
-    if (this.role && this.role.trim().toLowerCase() === 'employee') {
+    const normalizedRole = this.role.trim().toLowerCase();
+
+    if (normalizedRole === 'employee') {
       this.loadEmployeeHomeMetrics();
-    } else if (this.role) {
+    } else if (normalizedRole) {
       this.loadAdminHomeMetrics();
     }
   }
@@ -58,11 +63,9 @@ export class HomeComponent implements OnInit {
 
     this.isLoadingData = true;
     this.dashboardService.GetEmployeeDashboardData(this.employeeId).subscribe({
-      next: (response: any) => {
-        const rawPayload = response?.data ? response.data : response;
-        this.dashboardData = rawPayload;
-        
-        this.extractUpcomingHoliday(rawPayload?.Holidays || rawPayload?.holidays);
+      next: (response: EmployeeDashboardDto) => {
+        this.dashboardData = response?.data;
+        this.extractUpcomingHoliday(response?.data?.Holidays);
         this.isLoadingData = false;
       },
       error: (error) => {
@@ -77,18 +80,98 @@ export class HomeComponent implements OnInit {
 
     this.isLoadingData = true;
     this.dashboardService.GetAdminDashboardData(this.employeeId).subscribe({
-      next: (response: any) => {
-        const rawPayload = response?.data ? response.data : response;
-        this.dashboardData = rawPayload;
-        
-        this.extractUpcomingHoliday(rawPayload?.holidays || rawPayload?.Holidays);
+      next: (response: AdminDashboardDto) => {
+        this.dashboardData = response?.data;
+        this.extractUpcomingHoliday(response?.data?.holidays);
         this.isLoadingData = false;
+
+        // Check if user has SuperAdmin role (handling various casing and space variations)
+        const normalizedRole = (this.role || '').toLowerCase().replace(/\s+/g, '');
+        if (normalizedRole.includes('superadmin')) {
+          this.getApprovalStatus();
+        }
       },
       error: (error) => {
         console.error("Error running admin metrics initialization operations:", error);
         this.isLoadingData = false;
       }
     });
+  }
+
+  // ALIGNED WITH ApprovalStatusCount INTERFACE
+  getApprovalStatus(backupPage: number = this.page, backupSize: number = this.pageSize): void {
+    this.isLoadingApprovers = true;
+
+    this.dashboardService.GetApprovalStatus(this.page, this.pageSize).subscribe({
+      next: (response: ApprovalStatusCount) => {
+        if (response.success && Array.isArray(response.data)) {
+          const rawData = response.data;
+
+          // Safe fallback total estimation if API envelope omits aggregate metadata
+          const rawResponse = response as any;
+          this.totalApproverItems = rawResponse.totalCount ?? rawResponse.totalItems ?? (
+            rawData.length < this.pageSize && this.page === 1 
+              ? rawData.length 
+              : (this.page * this.pageSize) + 1
+          );
+
+          // Precise field mapping matching ApprovalStatusCount interface properties
+          this.approverMetrics = rawData.map((item) => ({
+            name: item.approvarName || 'Authorized Approver',
+            role: item.role || 'Manager',
+            approvedCount: item.approved ?? 0,
+            rejectedCount: item.rejected ?? 0
+          }));
+        } else {
+          this.approverMetrics = [];
+        }
+
+        this.isLoadingApprovers = false;
+      },
+      error: (error) => {
+        this.isLoadingApprovers = false;
+        console.error("Error fetching live approver status records:", error);
+
+        // Intercept 404 & revert pagination states cleanly
+        if (error?.status === 404) {
+          console.warn(`Fetch aborted (404 Not Found). Rolling back page indexes to Page ${backupPage}`);
+          this.page = backupPage;
+          this.pageSize = backupSize;
+        }
+      }
+    });
+  }
+
+  // --- APPROVER PAGINATION CONTROLLERS ---
+  onApproverPageChange(newPage: number): void {
+    if (newPage < 1 || (this.totalApproverItems > 0 && newPage > this.totalApproverPages)) return;
+    const prevPage = this.page;
+    this.page = newPage;
+    this.getApprovalStatus(prevPage, this.pageSize);
+  }
+
+  onApproverPageSizeChange(size: number): void {
+    const prevSize = this.pageSize;
+    const prevPage = this.page;
+    this.pageSize = size;
+    this.page = 1;
+    this.getApprovalStatus(prevPage, prevSize);
+  }
+
+  get totalApproverPages(): number {
+    if (this.totalApproverItems <= this.approverMetrics.length && this.page === 1) return 1;
+    return Math.ceil(this.totalApproverItems / this.pageSize) || 1;
+  }
+
+  get startApproverIndex(): number {
+    if (this.approverMetrics.length === 0) return 0;
+    return (this.page - 1) * this.pageSize + 1;
+  }
+
+  get endApproverIndex(): number {
+    const computedEnd = this.page * this.pageSize;
+    if (this.totalApproverItems <= this.approverMetrics.length && this.page === 1) return this.approverMetrics.length;
+    return computedEnd > this.totalApproverItems ? this.totalApproverItems : computedEnd;
   }
 
   private extractUpcomingHoliday(holidays: any[]): void {

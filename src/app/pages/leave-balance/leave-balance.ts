@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService, Role } from '../../services/auth-service';
 import { LeaveService, LeaveBalancesResponseList } from '../../services/leave-service';
 import { RouterLink } from '@angular/router';
@@ -13,14 +14,13 @@ interface DynamicEmployeeRecord {
   employeeName: string;
   initials: string;
   role: string;
-  // A dynamic key-value dictionary mapping the leave type name to its specific metrics block
   balances: { [leaveType: string]: LeaveMetrics };
 }
 
 @Component({
   selector: 'app-leave-balance',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './leave-balance.html',
   styleUrl: './leave-balance.css',
 })
@@ -28,9 +28,15 @@ export class LeaveBalance implements OnInit {
   Role = Role;
   
   balancesList: DynamicEmployeeRecord[] = [];
-  dynamicColumns: string[] = []; // Stores the master collection of unique leave type column names
+  dynamicColumns: string[] = []; 
   apiResponse!: LeaveBalancesResponseList;
   isLoading = false;
+
+  // Active Pagination Trackers
+  page = 1;
+  pageSize = 10;
+  totalItems = 0;
+  pageSizeOptions: number[] = [5, 10, 20, 50];
 
   constructor(
     public authService: AuthService,
@@ -41,24 +47,77 @@ export class LeaveBalance implements OnInit {
     this.loadAllLeaveBalances();
   }
 
-  loadAllLeaveBalances(): void {
+  loadAllLeaveBalances(backupPage: number = this.page, backupSize: number = this.pageSize): void {
     this.isLoading = true;
-    this.leaveService.GetAllLeaveBalances().subscribe({
-      next: (response) => {
+    
+    this.leaveService.GetAllLeaveBalances(this.page, this.pageSize).subscribe({
+      next: (response: any) => {
         this.apiResponse = response;
-        this.processDynamicData(response.data);
+        const rawData = response.data || [];
+
+        if (response.totalCount !== undefined) {
+          this.totalItems = response.totalCount;
+        } else if (response.totalItems !== undefined) {
+          this.totalItems = response.totalItems;
+        } else {
+          this.totalItems = rawData.length < this.pageSize && this.page === 1 
+            ? rawData.length 
+            : (this.page * this.pageSize) + 1;
+        }
+
+        this.processDynamicData(rawData);
         this.isLoading = false;
         console.log("Dynamically mapped leave balances:", this.balancesList, "Columns:", this.dynamicColumns);
       },
       error: (error) => {
         this.isLoading = false;
         console.error("Error retrieving dynamic leave ledger metrics:", error);
+
+        // Fall back to previous valid page/size if 404 is encountered
+        if (error?.status === 404) {
+          console.warn(`Fetch aborted (404 Not Found). Rolling back pagination indexes to: Page ${backupPage}, Size ${backupSize}`);
+          this.page = backupPage;
+          this.pageSize = backupSize;
+        }
       }
     });
   }
 
+  // Navigation Event Triggers
+  onPageChange(newPage: number): void {
+    if (newPage < 1 || (this.totalItems > 0 && newPage > this.totalPages)) return;
+    const prevPage = this.page;
+    this.page = newPage;
+    this.loadAllLeaveBalances(prevPage, this.pageSize);
+  }
+
+  onPageSizeChange(size: number): void {
+    const prevSize = this.pageSize;
+    const prevPage = this.page;
+    this.pageSize = size;
+    this.page = 1;
+    this.loadAllLeaveBalances(prevPage, prevSize);
+  }
+
+  // Getters for Pagination Layout Math
+  get totalPages(): number {
+    if (this.totalItems <= this.balancesList.length && this.page === 1) return 1;
+    return Math.ceil(this.totalItems / this.pageSize) || 1;
+  }
+
+  get startItemIndex(): number {
+    if (this.balancesList.length === 0) return 0;
+    return (this.page - 1) * this.pageSize + 1;
+  }
+
+  get endItemIndex(): number {
+    const computedEnd = this.page * this.pageSize;
+    if (this.totalItems <= this.balancesList.length && this.page === 1) return this.balancesList.length;
+    return computedEnd > this.totalItems ? this.totalItems : computedEnd;
+  }
+
   /**
-   * Dynamically tracks all unique column variants across all records while parsing data parameters cleanly
+   * Dynamically tracks unique column variants across records
    */
   private processDynamicData(apiData: any[]): void {
     if (!apiData || !Array.isArray(apiData)) {
@@ -69,7 +128,6 @@ export class LeaveBalance implements OnInit {
 
     const uniqueColumnSet = new Set<string>();
 
-    // 1. First Pass: Map individual data sets and gather all possible leave types
     this.balancesList = apiData.map((empRecord) => {
       const nameParts = (empRecord.employeeName || '').trim().split(/\s+/);
       const initials = nameParts.length > 1 
@@ -86,7 +144,6 @@ export class LeaveBalance implements OnInit {
       if (Array.isArray(empRecord.leaveBalances)) {
         empRecord.leaveBalances.forEach((bal: any) => {
           if (bal.leaveType) {
-            // Keep original naming casing for UI display context rules
             const columnName = bal.leaveType.trim();
             uniqueColumnSet.add(columnName);
 
@@ -101,7 +158,6 @@ export class LeaveBalance implements OnInit {
       return record;
     });
 
-    // 2. Second Pass: Convert the unique set to a sorted array to display consistent dynamic columns
     this.dynamicColumns = Array.from(uniqueColumnSet).sort((a, b) => a.localeCompare(b));
   }
 

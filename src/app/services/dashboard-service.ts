@@ -46,6 +46,17 @@ export interface AdminDashboardDto {
   }
 }
 
+export interface ApprovalStatusCount {
+  success: boolean;
+  message: string;
+  data: Array<{
+    approvarName: string;
+    role: string;
+    approved: number;
+    rejected: number;
+  }>
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -58,8 +69,11 @@ export class DashboardService {
     return this.http.get<EmployeeDashboardDto>(`${this.baseUrl}/employee/${employeeId}`);
   }
 
-  // FIXED: Removed literal string bug so it resolves the private baseUrl variable property correctly
   GetAdminDashboardData(employeeId: string): Observable<AdminDashboardDto> {
     return this.http.get<AdminDashboardDto>(`${this.baseUrl}/${employeeId}`);
+  }
+
+  GetApprovalStatus(page: number, pageSize: number): Observable<ApprovalStatusCount> {
+    return this.http.get<ApprovalStatusCount>(`${this.baseUrl}?page=${page}&pageSize=${pageSize}`)
   }
 }

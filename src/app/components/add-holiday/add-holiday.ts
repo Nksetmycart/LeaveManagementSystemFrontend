@@ -53,8 +53,8 @@ export class AddHoliday {
       },
       error: (err) => {
         this.isSubmitting = false;
-        console.error('API execution error:', err);
-        this.showNotification('danger', 'Failed to save the new operational calendar event.');
+        console.log('API execution error:', err);
+        this.showNotification('danger', err.error.message);
       }
     });
   }
