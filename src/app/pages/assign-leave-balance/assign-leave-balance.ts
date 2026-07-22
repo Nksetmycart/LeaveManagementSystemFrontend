@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LeaveService, AssignLeaveBalanceDto, GetLeaveTypesList } from '../../services/leave-service';
@@ -20,20 +20,16 @@ interface ToastConfig {
 })
 export class AssignLeaveBalance implements OnInit {
   
-  // Operational Directory Data Caches
   employeesList: EmployeeResponseDto[] = [];
   leaveTypesList: any[] = [];
   
-  // Dropdown Internal Pagination States
   dropdownPage = 1;
   dropdownPageSize = 5;
   dropdownSearchQuery = '';
 
-  // State Tracking Elements Pointers
   isLoadingMetadata = false;
   isSubmitting = false;
 
-  // Form Controls Model Binding Instance
   selectedEmployeeId = '';
   balanceModel: AssignLeaveBalanceDto = {
     leaveTypeId: '',
@@ -52,7 +48,8 @@ export class AssignLeaveBalance implements OnInit {
 
   constructor(
     private leaveService: LeaveService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +60,6 @@ export class AssignLeaveBalance implements OnInit {
     this.isLoadingMetadata = true;
     
     forkJoin({
-      // Fetching a comprehensive base index array allows efficient client-side filtering blocks
       employees: this.employeeService.GetEmployees(1, 1000),
       leaveTypes: this.leaveService.GetLeaveTypes()
     }).subscribe({
@@ -71,6 +67,7 @@ export class AssignLeaveBalance implements OnInit {
         this.employeesList = results.employees?.data || [];
         this.leaveTypesList = results.leaveTypes?.data || [];
         this.isLoadingMetadata = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoadingMetadata = false;
@@ -80,7 +77,6 @@ export class AssignLeaveBalance implements OnInit {
     });
   }
 
-  // --- COMPONENT SELECTION INTERNAL DROPDOWN FILTER ENGINE ---
   get filteredEmployees(): EmployeeResponseDto[] {
     if (!this.dropdownSearchQuery.trim()) {
       return this.employeesList;
@@ -104,7 +100,7 @@ export class AssignLeaveBalance implements OnInit {
 
   changeDropdownPage(event: Event, direction: number): void {
     event.preventDefault();
-    event.stopPropagation(); // Prevents choice closing side-effects
+    event.stopPropagation();
     const targetPage = this.dropdownPage + direction;
     if (targetPage >= 1 && targetPage <= this.totalDropdownPages) {
       this.dropdownPage = targetPage;
@@ -112,7 +108,7 @@ export class AssignLeaveBalance implements OnInit {
   }
 
   onDropdownSearchChange(): void {
-    this.dropdownPage = 1; // Re-center pointer upon filter modification queries
+    this.dropdownPage = 1;
   }
 
   submitBalanceAllocation(form: NgForm): void {
@@ -122,6 +118,7 @@ export class AssignLeaveBalance implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.cdr.detectChanges(); // Force UI to show loading spinner immediately
 
     const payload: AssignLeaveBalanceDto = {
       ...this.balanceModel,
@@ -129,35 +126,59 @@ export class AssignLeaveBalance implements OnInit {
     };
 
     this.leaveService.AssignLeaveBalance(this.selectedEmployeeId, payload).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.isSubmitting = false;
-        if (response.success) {
-          this.triggerNotification(response.message || "Leave balance thresholds successfully assigned.", true);
+
+        const isSuccessful = response ? (response.success !== false) : true;
+        const responseMsg = response?.message || "Leave balance thresholds successfully assigned.";
+
+        if (isSuccessful) {
+          this.triggerNotification(responseMsg, true);
           this.resetFormState(form);
         } else {
-          this.triggerNotification(response.message || "Allocation request rejected by data servers.", false);
+          this.triggerNotification(responseMsg, false);
         }
+        this.cdr.detectChanges(); // Force UI to dismiss spinner and render toast banner
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.triggerNotification(err?.error?.message || "A network transaction pipeline error occurred.", false);
+        const errorMsg = err?.error?.message || err?.message || "A network transaction pipeline error occurred.";
+        this.triggerNotification(errorMsg, false);
+        this.cdr.detectChanges(); // Force UI to dismiss spinner and render error toast
       }
     });
   }
 
   triggerNotification(msg: string, isSuccess: boolean): void {
     this.notification = { show: true, message: msg, isSuccess: isSuccess };
-    setTimeout(() => { this.dismissNotification(); }, 5000);
+    this.cdr.detectChanges();
+    
+    setTimeout(() => { 
+      if (this.notification.message === msg) {
+        this.dismissNotification(); 
+      }
+    }, 5000);
   }
 
   dismissNotification(): void {
     this.notification.show = false;
+    this.cdr.detectChanges();
   }
 
   private resetFormState(form: NgForm): void {
     this.selectedEmployeeId = '';
     this.dropdownSearchQuery = '';
     this.dropdownPage = 1;
+    
+    this.balanceModel = {
+      leaveTypeId: '',
+      year: new Date().getFullYear(),
+      earnedLeaves: 0,
+      usedLeaves: 0,
+      adjustments: 0,
+      lastAccruedOn: new Date()
+    };
+    
     form.resetForm({
       year: new Date().getFullYear(),
       earnedLeaves: 0,

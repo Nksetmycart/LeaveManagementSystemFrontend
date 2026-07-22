@@ -67,7 +67,7 @@
                       <span class="badge bg-light text-secondary border text-uppercase" style="font-size: 0.6rem; letter-spacing: 0.05em;">Staff</span>
                     </div>
                     <small class="text-secondary d-block text-truncate mt-0.5">
-                      {{ req.leaveType }} • {{ req.startDate | date:'yyyy-MM-dd' }} → {{ req.endDate | date:'yyyy-MM-dd' }} • {{ calculateLeaveDays(req.startDate, req.endDate, req.isHalfDay) }} day(s)
+                      {{ req.leaveType }} • {{ req.startDate | date:'yyyy-MM-dd' }} → {{ req.endDate | date:'yyyy-MM-dd' }} • {{ calculateLeaveDays(req.startDate, req.endDate, req.startSession, req.endSession) }} day(s)
                     </small>
                   </div>
                 </div>
@@ -127,11 +127,7 @@
                   </div>
                 </div>
                 <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font flex-shrink-0 ms-2"
-                      [ngClass]="{
-                        'bg-success-subtle text-success': approval.status?.toLowerCase() === 'approved',
-                        'bg-danger-subtle text-danger': approval.status?.toLowerCase() === 'rejected',
-                        'bg-light text-secondary border': approval.status?.toLowerCase() !== 'approved' && approval.status?.toLowerCase() !== 'rejected'
-                      }">
+                      [ngClass]="getStatusClass(approval.status)">
                   {{ approval.status }}
                 </span>
               </div>
@@ -191,7 +187,7 @@
           </div>
           <div class="col-6">
             <label class="text-muted text-uppercase fw-bold d-block meta-label">Days</label>
-            <span class="fw-semibold text-dark fs-7 d-block mt-0.5">{{ calculateLeaveDays(selectedRequest.startDate, selectedRequest.endDate, selectedRequest.isHalfDay) }}</span>
+            <span class="fw-semibold text-dark fs-7 d-block mt-0.5">{{ calculateLeaveDays(selectedRequest.startDate, selectedRequest.endDate, selectedRequest.startSession, selectedRequest.endSession) }}</span>
           </div>
           <div class="col-6">
             <label class="text-muted text-uppercase fw-bold d-block meta-label">Start</label>
@@ -206,9 +202,9 @@
             <span class="fw-semibold text-dark fs-7 d-block font-monospace mt-0.5">{{ selectedRequest.submittedAt | date:'dd/MM/yyyy' }}</span>
           </div>
           <div class="col-6">
-            <label class="text-muted text-uppercase fw-bold d-block meta-label">Day Type</label>
-            <span class="fw-semibold text-dark fs-7 d-block mt-0.5">
-              {{ selectedRequest.isHalfDay === '0' ? 'Full Day' : (selectedRequest.isHalfDay === '1' ? 'First Half' : 'Second Half') }}
+            <label class="text-muted text-uppercase fw-bold d-block meta-label">Sessions</label>
+            <span class="fw-semibold text-dark fs-8 d-block mt-0.5">
+              {{ selectedRequest.startSession }} → {{ selectedRequest.endSession }}
             </span>
           </div>
         </div>

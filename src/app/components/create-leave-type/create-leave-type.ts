@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { LeaveService, LeaveTypeDto } from '../../services/leave-service';
+import { LeaveService, LeaveTypeDto, RenewalType } from '../../services/leave-service';
 
 @Component({
   selector: 'app-create-leave-type',
@@ -14,18 +14,26 @@ import { LeaveService, LeaveTypeDto } from '../../services/leave-service';
 export class CreateLeaveType {
   isSubmitting = false;
 
-  // Track operational notifications locally rather than triggering native popups
+  // Expose the RenewalType enum for dropdown selection inside the template
+  RenewalType = RenewalType;
+  renewalTypeOptions = Object.values(RenewalType);
+
+  // Track operational notifications locally
   notification: { show: boolean; type: 'success' | 'danger'; message: string } = {
     show: false,
     type: 'success',
     message: ''
   };
 
+  // Expanded payload structure matching your updated DTO
   leaveData: LeaveTypeDto = {
     name: '',
     description: '',
     isPaid: true,
     isActive: true,
+    isCompOff: false,
+    renewal: RenewalType.None,
+    renewalAmount: '0',
     reqiresAttachment: false
   };
 
@@ -48,11 +56,8 @@ export class CreateLeaveType {
     this.leaveService.CreateLeaveType(this.leaveData).subscribe({
       next: (res) => {
         this.isSubmitting = false;
-        
-        // Trigger a successful state notification layout block
         this.showNotification('success', res.message || 'Leave policy created successfully!');
         
-        // Wait briefly so the user can see the green status banner before routing away
         setTimeout(() => {
           this.router.navigate(['/dashboard/leave-types']);
         }, 1500);
@@ -60,8 +65,6 @@ export class CreateLeaveType {
       error: (err) => {
         this.isSubmitting = false;
         console.error('Backend submission failure:', err);
-        
-        // Trigger an error state notification layout block
         this.showNotification('danger', 'Failed to create the leave type. Please verify parameters.');
       }
     });

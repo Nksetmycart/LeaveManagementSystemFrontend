@@ -66,7 +66,11 @@ export class LeaveApproval implements OnInit {
     this.leaveService.GetAllPendingLeaveRequests(this.page, this.pageSize).subscribe({
       next: (response: LeaveResponseList) => {
         if (response.success && response.data) {
-          this.pendingRequests = response.data.filter(req => req.status?.toLowerCase() === 'pending');
+          this.pendingRequests = response.data.filter(req => req.status?.toLowerCase() === 'pending').map((record: any) => ({
+            ...record,
+            startSession: record.startSession ? record.startSession.trim() : 'FullDay',
+            endSession: record.endSession ? record.endSession.trim() : 'FullDay'
+          }));
           
           const rawResponse = response as any;
           if (rawResponse.totalCount !== undefined) {
@@ -106,7 +110,11 @@ export class LeaveApproval implements OnInit {
     this.leaveService.GetLeaveApprovalsByApprovarId(this.approvarId, this.page1, this.pageSize1).subscribe({
       next: (response: LeaveApprovalsResponse) => {
         if (response.success && response.data) {
-          this.decidedApprovals = response.data;
+          this.decidedApprovals = response.data.map((record: any) => ({
+            ...record,
+            startSession: record.startSession ? record.startSession.trim() : 'FullDay',
+            endSession: record.endSession ? record.endSession.trim() : 'FullDay'
+          }));
           
           const rawResponse = response as any;
           if (rawResponse.totalCount !== undefined) {
@@ -213,15 +221,57 @@ export class LeaveApproval implements OnInit {
       : `${parts[0][0]}${parts[0][1] || ''}`.toUpperCase();
   }
 
-  calculateLeaveDays(startDate: any, endDate: any, isHalfDayStr: string): number {
+  /**
+   * Calculates total leave days based on date span and session types
+   */
+  calculateLeaveDays(startDate: any, endDate: any, startSession: string, endSession: string): number {
     if (!startDate || !endDate) return 0;
+    
     const start = new Date(startDate);
     const end = new Date(endDate);
+    
     start.setHours(0,0,0,0);
     end.setHours(0,0,0,0);
+    
     const timeDiff = Math.abs(end.getTime() - start.getTime());
-    const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-    return (isHalfDayStr === '1' || isHalfDayStr === '2') ? totalDays - 0.5 : totalDays;
+    let totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    
+    const sSession = (startSession || '').trim().toLowerCase();
+    const eSession = (endSession || '').trim().toLowerCase();
+
+    if (totalDays === 1) {
+      if (sSession === 'firsthalf' || sSession === 'secondhalf' || eSession === 'firsthalf' || eSession === 'secondhalf') {
+        return 0.5;
+      }
+    } else {
+      if (sSession === 'secondhalf') {
+        totalDays -= 0.5;
+      }
+      if (eSession === 'firsthalf') {
+        totalDays -= 0.5;
+      }
+    }
+    
+    return totalDays;
+  }
+
+  getStatusClass(status: string): string {
+    if (!status) return 'bg-secondary-subtle text-secondary';
+    
+    switch (status.trim().toLowerCase()) {
+      case 'approved': 
+      case 'accepted': 
+        return 'bg-success-subtle text-success';
+      case 'pending': 
+        return 'bg-warning-subtle text-warning-emphasis';
+      case 'rejected': 
+        return 'bg-danger-subtle text-danger';
+      case 'cancelled':
+      case 'canceled':
+        return 'bg-purple-subtle text-purple-emphasis border-purple';
+      default: 
+        return 'bg-secondary-subtle text-secondary';
+    }
   }
 
   triggerNotification(msg: string, isSuccess: boolean): void {

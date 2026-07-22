@@ -58,7 +58,7 @@
   flex-direction: column;
 }
 
-/* Floating Center Top Status Notification Panel overrides custom alerts browser bounds */
+/* Floating Center Top Status Notification Panel overlay */
 .custom-toast-notification {
   position: fixed !important;
   top: 24px !important;
@@ -66,7 +66,7 @@
   transform: translateX(-50%) !important;
   width: 90% !important;
   max-width: 480px !important;
-  z-index: 2147483647 !important; /* Dominates layout foreground display over background contexts layers */
+  z-index: 2147483647 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
   animation: slideToastFromTop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }

@@ -2,12 +2,36 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+export enum RenewalType {
+  None = 'None',
+  Monthly = 'Monthly',
+  Yearly = 'Yearly'
+}
 export interface LeaveTypeDto {
   name: string;
   description: string;
   isPaid: boolean;
   isActive: boolean;
+  isCompOff: boolean;
+  renewal: RenewalType;
+  renewalAmount: string;
   reqiresAttachment: boolean;
+}
+
+export interface GetLeaveTypesList {
+  message: string;
+  success: boolean;
+  data: Array<{
+    id: string;
+    name: string;
+    description: string;
+    isPaid: boolean;
+    isCompOff: boolean;
+    renewal: RenewalType;
+    renewalAmount: number;
+    reqiresAttachment: boolean;
+    isActive: boolean;
+  }>;
 }
 
 export interface LeaveTypeResponse {
@@ -21,6 +45,9 @@ export interface UpdateLeaveTypeDto {
   description: string;
   isPaid: boolean;
   isActive: boolean;
+  isCompOff: boolean;
+  renewal: RenewalType;
+  renewalAmount: number;
   reqiresAttachment: boolean;
 }
 
@@ -34,7 +61,8 @@ export interface ApplyLeaveRequestDto {
   leaveTypeId: string;
   startDate: string;  // Formats correctly to matching "2026-07-18T15:05:30.450Z" string targets
   endDate: string;
-  isHalfDay: number;  // Evaluates to 0 (Full), 1 (First Half), or 2 (Second Half)
+  startSession: number;  // Evaluates to 0 (Full), 1 (First Half), or 2 (Second Half)
+  endSession: number;  // Evaluates to 0 (Full), 1 (First Half), or 2 (Second Half)
   reason: string;
   submittedAt: string;
 }
@@ -56,7 +84,8 @@ export interface LeaveResponseList {
     leaveType: string;
     startDate: Date;
     endDate: Date;
-    isHalfDay: string;
+    startSession: string;
+    endSession: string;
     reason: string;
     status: string;
     submittedAt: string;
@@ -118,7 +147,8 @@ export interface LeaveApprovalsResponse {
     startDate: Date;
     endDate: Date;
     reason: string;
-    isHalfDay: string;
+    startSession: string;
+    endSession: string;
     status: string;
     comment: string;
   }>
@@ -180,6 +210,10 @@ export class LeaveService {
     return this.http.post<ApplyLeaveResponse>(`${this.baseUrl}/LeaveRequest/${employeeId}`, leaveData);
   }
 
+  ApplyCompOffById(compOffData: ApplyLeaveRequestDto, employeeId: string): Observable<ApplyLeaveResponse> {
+    return this.http.post<ApplyLeaveResponse>(`${this.baseUrl}/CompOff/${employeeId}`, compOffData);
+  }
+
   GetLeaveRequestsByEmployee(employeeId: string, page: number, pageSize: number): Observable<LeaveResponseList> {
     return this.http.get<LeaveResponseList>(`${this.baseUrl}/LeaveRequest/${employeeId}?page=${page}&pageSize=${pageSize}`)
   }
@@ -225,15 +259,3 @@ export class LeaveService {
   }
 }
 
-export class GetLeaveTypesList {
-  message!: string;
-  success!: boolean;
-  data!: Array<{
-    id: string;
-    name: string;
-    description: string;
-    isPaid: boolean; // Aligned parameter flags definitions explicitly to boolean
-    reqiresAttachment: boolean;
-    isActive: boolean;
-  }>;
-}

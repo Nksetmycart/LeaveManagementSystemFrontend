@@ -49,7 +49,7 @@
       </div>
 
       <!-- Input: Leave Description -->
-      <div class="mb-4">
+      <div class="mb-3">
         <label for="description" class="form-label fw-semibold text-dark fs-7">Description / Directives</label>
         <textarea 
           id="description" 
@@ -64,6 +64,46 @@
         ></textarea>
         <div *ngIf="descCtrl.touched && descCtrl.errors" class="invalid-feedback">
           <span *ngIf="descCtrl.errors['required']">A short descriptive summary is required.</span>
+        </div>
+      </div>
+
+      <!-- Renewal Options Group Grid -->
+      <div class="row g-3 mb-4">
+        <!-- Input: Renewal Frequency Type -->
+        <div class="col-12 col-md-6">
+          <label for="renewal" class="form-label fw-semibold text-dark fs-7">Renewal Frequency</label>
+          <select 
+            id="renewal"
+            name="renewal"
+            #renewalCtrl="ngModel"
+            [(ngModel)]="leaveData.renewal"
+            required
+            class="form-select rounded-3 shadow-none">
+            <option *ngFor="let type of renewalTypeOptions" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Input: Renewal Amount / Accrual Quantity (Disabled when Renewal is None) -->
+        <div class="col-12 col-md-6">
+          <label for="renewalAmount" class="form-label fw-semibold text-dark fs-7">Renewal Amount</label>
+          <input 
+            type="text" 
+            id="renewalAmount" 
+            name="renewalAmount"
+            #renewalAmountCtrl="ngModel"
+            [(ngModel)]="leaveData.renewalAmount"
+            [required]="leaveData.renewal !== RenewalType.None"
+            [disabled]="leaveData.renewal === RenewalType.None"
+            class="form-control rounded-3 shadow-none" 
+            [ngClass]="{ 'bg-light text-muted': leaveData.renewal === RenewalType.None }"
+            placeholder="e.g., 1.5, 12, etc."
+            [ngClass]="{ 'is-invalid': renewalAmountCtrl.touched && renewalAmountCtrl.errors }"
+          />
+          <div *ngIf="renewalAmountCtrl.touched && renewalAmountCtrl.errors" class="invalid-feedback">
+            <span *ngIf="renewalAmountCtrl.errors['required']">Renewal amount/allocation string is required.</span>
+          </div>
         </div>
       </div>
 
@@ -98,6 +138,21 @@
           >
           <label class="form-check-label fw-medium text-dark ms-2 fs-7" role="button" for="isActive">
             Active System Rule <span class="text-muted fw-normal d-block fs-8">Determines if employees can view and select this option.</span>
+          </label>
+        </div>
+
+        <!-- Checkbox: Compensatory Off (CompOff) -->
+        <div class="form-check form-switch mb-3">
+          <input 
+            class="form-check-input shadow-none" 
+            type="checkbox" 
+            role="switch" 
+            id="isCompOff" 
+            name="isCompOff" 
+            [(ngModel)]="leaveData.isCompOff"
+          >
+          <label class="form-check-label fw-medium text-dark ms-2 fs-7" role="button" for="isCompOff">
+            Compensatory Off (Comp-Off) <span class="text-muted fw-normal d-block fs-8">Enables crediting leave tokens based on overtime records.</span>
           </label>
         </div>
 

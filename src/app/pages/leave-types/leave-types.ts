@@ -2,27 +2,19 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { LeaveService, GetLeaveTypesList } from '../../services/leave-service';
+import { LeaveService, GetLeaveTypesList, RenewalType, UpdateLeaveTypeDto } from '../../services/leave-service';
 import { AuthService, Role } from '../../services/auth-service';
 
 export interface LeaveTypeRecord {
   id: string;
-  companyId: string;
   name: string;
   description: string;
-  isPaid: boolean;              
-  reqiresAttachment: boolean;   
+  isPaid: boolean; 
+  isCompOff: boolean;
+  renewal: RenewalType;      // Corrected spelling to match backend service DTO
+  renewalAmount: number;     // Corrected spelling to match backend service DTO
+  reqiresAttachment: boolean; 
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface UpdateLeaveType {
-  name: string;
-  description: string;
-  isPaid: boolean;
-  isActive: boolean;
-  reqiresAttachment: boolean;
 }
 
 @Component({
@@ -34,7 +26,10 @@ export interface UpdateLeaveType {
 })
 export class LeaveTypes implements OnInit {
   Role = Role;
-  leaveTypesList: any[] = [];
+  RenewalType = RenewalType;
+  renewalTypeOptions = Object.values(RenewalType);
+  
+  leaveTypesList: LeaveTypeRecord[] = [];
   apiResponse!: GetLeaveTypesList;
 
   // Confirmation Modal State Variables
@@ -43,7 +38,7 @@ export class LeaveTypes implements OnInit {
 
   // Update Modal State Variables
   showUpdateModal = false;
-  editLeaveTypeData: (UpdateLeaveType & { id: string }) | null = null;
+  editLeaveTypeData: (UpdateLeaveTypeDto & { id: string; renewal: RenewalType; renewalAmount: number; isCompOff: boolean }) | null = null;
   isSubmitting = false;
 
   // Error Alert State Variables
@@ -60,7 +55,12 @@ export class LeaveTypes implements OnInit {
     this.leaveService.GetLeaveTypes().subscribe({
       next: (response) => {
         this.apiResponse = response;
-        this.leaveTypesList = response.data;
+        // Map response items converting potential backend 'renual' spelling variants if any remain
+        this.leaveTypesList = (response.data || []).map((item: any) => ({
+          ...item,
+          renewal: item.renewal || item.renual,
+          renewalAmount: item.renewalAmount !== undefined ? item.renewalAmount : item.renualAmount
+        }));
         console.log("Leave Types Loaded successfully: ", this.leaveTypesList);
       },
       error: (error) => {
@@ -86,6 +86,9 @@ export class LeaveTypes implements OnInit {
       name: type.name,
       description: type.description,
       isPaid: type.isPaid,
+      isCompOff: type.isCompOff,
+      renewal: type.renewal,
+      renewalAmount: type.renewalAmount,
       isActive: type.isActive,
       reqiresAttachment: type.reqiresAttachment
     };
@@ -114,16 +117,18 @@ export class LeaveTypes implements OnInit {
     this.isSubmitting = true;
     const targetId = this.editLeaveTypeData.id;
 
-    // Creating structured payload strictly matching the targeted updateDto format
-    const payload: UpdateLeaveType = {
+    // Fully populated payload matching UpdateLeaveTypeDto with correct spellings
+    const payload: UpdateLeaveTypeDto = {
       name: this.editLeaveTypeData.name,
       description: this.editLeaveTypeData.description,
       isPaid: this.editLeaveTypeData.isPaid,
       isActive: this.editLeaveTypeData.isActive,
+      isCompOff: this.editLeaveTypeData.isCompOff,
+      renewal: this.editLeaveTypeData.renewal,
+      renewalAmount: Number(this.editLeaveTypeData.renewalAmount),
       reqiresAttachment: this.editLeaveTypeData.reqiresAttachment
     };
 
-    // Assuming endpoint mapping design follows signature pattern: UpdateLeaveType(id, payload)
     this.leaveService.UpdateLeaveTypeById(targetId, payload).subscribe({
       next: (response: any) => {
         this.isSubmitting = false;

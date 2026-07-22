@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Ensure forms module is added for ngModel mappings
+import { FormsModule } from '@angular/forms';
 import { LeaveService, LeaveResponseList } from '../../services/leave-service';
 
 @Component({
@@ -37,7 +37,6 @@ export class AllLeaveRequests implements OnInit {
         this.apiResponse = response;
         const rawData = response.data || [];
         
-        // Dynamic fallback assessment handles scalar integers or count keys cleanly
         if (response.totalCount !== undefined) {
           this.totalItems = response.totalCount;
         } else if (response.totalItems !== undefined) {
@@ -49,22 +48,10 @@ export class AllLeaveRequests implements OnInit {
         }
 
         this.leaveRequests = rawData.map((record: any) => {
-          let normalizedHalfDay = 0;
-          
-          if (record.isHalfDay) {
-            const cleanStr = record.isHalfDay.toString().trim().toLowerCase();
-            if (cleanStr === 'firsthalf' || cleanStr === '1') {
-              normalizedHalfDay = 1;
-            } else if (cleanStr === 'secondhalf' || cleanStr === '2') {
-              normalizedHalfDay = 2;
-            } else if (cleanStr === 'fullday' || cleanStr === '0') {
-              normalizedHalfDay = 0;
-            }
-          }
-          
           return {
             ...record,
-            isHalfDay: normalizedHalfDay
+            startSession: record.startSession ? record.startSession.trim() : 'FullDay',
+            endSession: record.endSession ? record.endSession.trim() : 'FullDay'
           };
         }).sort((a: any, b: any) => {
           return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
@@ -115,7 +102,10 @@ export class AllLeaveRequests implements OnInit {
       : `${parts[0][0]}${parts[0][1] || ''}`.toUpperCase();
   }
 
-  calculateLeaveDays(startDate: any, endDate: any, isHalfDayVal: number): number {
+  /**
+   * Calculates total leave days accurately based on Date range + startSession & endSession deductions
+   */
+  calculateLeaveDays(startDate: any, endDate: any, startSession: string, endSession: string): number {
     if (!startDate || !endDate) return 0;
     
     const start = new Date(startDate);
@@ -125,13 +115,35 @@ export class AllLeaveRequests implements OnInit {
     end.setHours(0,0,0,0);
     
     const timeDiff = Math.abs(end.getTime() - start.getTime());
-    const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    let totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
     
-    if (isHalfDayVal === 1 || isHalfDayVal === 2) {
-      return totalDays - 0.5;
+    const sSession = (startSession || '').trim().toLowerCase();
+    const eSession = (endSession || '').trim().toLowerCase();
+
+    // Deduct 0.5 if it's a single day request taking a half session
+    if (totalDays === 1) {
+      if (sSession === 'firsthalf' || sSession === 'secondhalf' || eSession === 'firsthalf' || eSession === 'secondhalf') {
+        return 0.5;
+      }
+    } else {
+      // Multi-day deduction logic
+      if (sSession === 'secondhalf') {
+        totalDays -= 0.5;
+      }
+      if (eSession === 'firsthalf') {
+        totalDays -= 0.5;
+      }
     }
     
     return totalDays;
+  }
+
+  getSessionBadgeClass(session: string): string {
+    if (!session) return 'bg-light text-secondary border';
+    const clean = session.trim().toLowerCase();
+    if (clean.includes('first')) return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+    if (clean.includes('second')) return 'bg-info-subtle text-info-emphasis border border-info-subtle';
+    return 'bg-light text-secondary border';
   }
 
   getStatusClass(status: string): string {

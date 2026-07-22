@@ -48,20 +48,12 @@ export class AllLeaveApprovals implements OnInit {
             : (this.page * this.pageSize) + 1;
         }
 
-        // FIXED: Explicitly added type definition 'record: any' inside the map block parameter line to satisfy compiler rules
+        // Normalize session properties cleanly from response payload
         this.approvalLogs = rawData.map((record: any) => {
-          let normalizedHalfDay = 'fullday';
-          if (record.isHalfDay) {
-            const cleanStr = record.isHalfDay.toString().trim().toLowerCase();
-            if (cleanStr.includes('first') || cleanStr === '1') {
-              normalizedHalfDay = 'firsthalf';
-            } else if (cleanStr.includes('second') || cleanStr === '2') {
-              normalizedHalfDay = 'secondhalf';
-            }
-          }
           return {
             ...record,
-            isHalfDay: normalizedHalfDay
+            startSession: record.startSession ? record.startSession.trim() : 'FullDay',
+            endSession: record.endSession ? record.endSession.trim() : 'FullDay'
           };
         });
 
@@ -111,7 +103,10 @@ export class AllLeaveApprovals implements OnInit {
       : `${parts[0][0]}${parts[0][1] || ''}`.toUpperCase();
   }
 
-  calculateLeaveDays(startDate: any, endDate: any, isHalfDayStr: string): number {
+  /**
+   * Calculates total leave days based on date range span, startSession, and endSession parameters
+   */
+  calculateLeaveDays(startDate: any, endDate: any, startSession: string, endSession: string): number {
     if (!startDate || !endDate) return 0;
     
     const start = new Date(startDate);
@@ -121,14 +116,33 @@ export class AllLeaveApprovals implements OnInit {
     end.setHours(0,0,0,0);
     
     const timeDiff = Math.abs(end.getTime() - start.getTime());
-    const totalCalendarDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    let totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
     
-    const cleanStr = isHalfDayStr?.toString().trim().toLowerCase();
-    if (cleanStr === 'firsthalf' || cleanStr === 'secondhalf' || cleanStr === '1' || cleanStr === '2') {
-      return totalCalendarDays * 0.5;
+    const sSession = (startSession || '').trim().toLowerCase();
+    const eSession = (endSession || '').trim().toLowerCase();
+
+    if (totalDays === 1) {
+      if (sSession === 'firsthalf' || sSession === 'secondhalf' || eSession === 'firsthalf' || eSession === 'secondhalf') {
+        return 0.5;
+      }
+    } else {
+      if (sSession === 'secondhalf') {
+        totalDays -= 0.5;
+      }
+      if (eSession === 'firsthalf') {
+        totalDays -= 0.5;
+      }
     }
     
-    return totalCalendarDays;
+    return totalDays;
+  }
+
+  getSessionBadgeClass(session: string): string {
+    if (!session) return 'bg-light text-secondary border';
+    const clean = session.trim().toLowerCase();
+    if (clean.includes('first')) return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+    if (clean.includes('second')) return 'bg-info-subtle text-info-emphasis border border-info-subtle';
+    return 'bg-light text-secondary border';
   }
 
   getStatusClass(status: string): string {

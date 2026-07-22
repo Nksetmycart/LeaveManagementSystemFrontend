@@ -52,7 +52,14 @@ export class MyLeaves implements OnInit {
     this.leaveService.GetLeaveRequestsByEmployee(employeeId, this.page, this.pageSize).subscribe({
       next: (response: any) => {
         this.apiResponse = response;
-        this.leaveHistory = response.data || [];
+        const rawData = response.data || [];
+        
+        // Normalize session properties cleanly from response payload
+        this.leaveHistory = rawData.map((record: any) => ({
+          ...record,
+          startSession: record.startSession ? record.startSession.trim() : 'FullDay',
+          endSession: record.endSession ? record.endSession.trim() : 'FullDay'
+        }));
         
         // SAFE FALLBACK DETECTOR: Explicitly processes nested meta variables or handles local array constraints
         if (response.totalCount !== undefined) {
@@ -62,7 +69,6 @@ export class MyLeaves implements OnInit {
         } else if (response.meta?.totalCount !== undefined) {
           this.totalItems = response.meta.totalCount;
         } else {
-          // Fallback logic keeps page navigation interactive when tracking parameters are empty from backend
           this.totalItems = this.leaveHistory.length < this.pageSize && this.page === 1 
             ? this.leaveHistory.length 
             : (this.page * this.pageSize) + 1; 
@@ -91,7 +97,6 @@ export class MyLeaves implements OnInit {
   }
 
   get totalPages(): number {
-    // Prevent locking downstream parameters out if metadata limits evaluate to empty values
     if (this.totalItems <= this.leaveHistory.length && this.page === 1) return 1;
     return Math.ceil(this.totalItems / this.pageSize) || 1;
   }
@@ -159,7 +164,10 @@ export class MyLeaves implements OnInit {
     alert(errorMessage);
   }
 
-  calculateLeaveDays(startDate: any, endDate: any, isHalfDayStr: string): number {
+  /**
+   * Calculates total leave days based on date span, startSession, and endSession parameters
+   */
+  calculateLeaveDays(startDate: any, endDate: any, startSession: string, endSession: string): number {
     if (!startDate || !endDate) return 0;
     
     const start = new Date(startDate);
@@ -169,23 +177,51 @@ export class MyLeaves implements OnInit {
     end.setHours(0,0,0,0);
     
     const timeDiff = Math.abs(end.getTime() - start.getTime());
-    const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    let totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
     
-    if (isHalfDayStr === '1' || isHalfDayStr === '2' || isHalfDayStr?.toLowerCase().includes('half')) {
-      return totalDays - 0.5;
+    const sSession = (startSession || '').trim().toLowerCase();
+    const eSession = (endSession || '').trim().toLowerCase();
+
+    if (totalDays === 1) {
+      if (sSession === 'firsthalf' || sSession === 'secondhalf' || eSession === 'firsthalf' || eSession === 'secondhalf') {
+        return 0.5;
+      }
+    } else {
+      if (sSession === 'secondhalf') {
+        totalDays -= 0.5;
+      }
+      if (eSession === 'firsthalf') {
+        totalDays -= 0.5;
+      }
     }
     
     return totalDays;
+  }
+
+  getSessionBadgeClass(session: string): string {
+    if (!session) return 'bg-light text-secondary border';
+    const clean = session.trim().toLowerCase();
+    if (clean.includes('first')) return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+    if (clean.includes('second')) return 'bg-info-subtle text-info-emphasis border border-info-subtle';
+    return 'bg-light text-secondary border';
   }
 
   getStatusClass(status: string): string {
     if (!status) return 'bg-secondary-subtle text-secondary';
     
     switch (status.trim().toLowerCase()) {
-      case 'approved': return 'bg-success-subtle text-success';
-      case 'pending': return 'bg-warning-subtle text-warning-emphasis';
-      case 'rejected': return 'bg-danger-subtle text-danger';
-      default: return 'bg-secondary-subtle text-secondary';
+      case 'approved': 
+      case 'accepted': 
+        return 'bg-success-subtle text-success';
+      case 'pending': 
+        return 'bg-warning-subtle text-warning-emphasis';
+      case 'rejected': 
+        return 'bg-danger-subtle text-danger';
+      case 'cancelled':
+      case 'canceled':
+        return 'bg-purple-subtle text-purple-emphasis border-purple';
+      default: 
+        return 'bg-secondary-subtle text-secondary';
     }
   }
 }
