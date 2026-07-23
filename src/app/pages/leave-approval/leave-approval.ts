@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LeaveService, LeaveResponseList, LeaveApprovalsResponse, ApprovalDto } from '../../services/leave-service';
+import { LeaveService, LeaveResponseList, ApprovalDto } from '../../services/leave-service';
 import { AuthService } from '../../services/auth-service';
 import { RouterLink } from '@angular/router';
 
@@ -20,13 +20,14 @@ interface ToastConfig {
 })
 export class LeaveApproval implements OnInit {
   approvarId!: string;
-  
+
   pendingRequests: any[] = [];
-  decidedApprovals: any[] = [];
-  
+  compOffRequests: any[] = [];
+
   selectedRequest: any | null = null;
+  selectedRequestType: 'leave' | 'compoff' | null = null; // Tracks origin category
   decisionComment = '';
-  
+
   isLoading = false;
   isProcessingAction = false;
 
@@ -35,10 +36,10 @@ export class LeaveApproval implements OnInit {
   pageSize = 5;
   totalItemsPending = 0;
 
-  // Pagination Trackers — Left Side Base (Recently Decided)
+  // Pagination Trackers — Comp Off Requests
   page1 = 1;
   pageSize1 = 5;
-  totalItemsDecided = 0;
+  totalItemsCompOff = 0;
 
   pageSizeOptions: number[] = [5, 10, 20, 50];
 
@@ -48,7 +49,7 @@ export class LeaveApproval implements OnInit {
     isSuccess: true
   };
 
-  constructor(private leaveService: LeaveService, private authService: AuthService) {}
+  constructor(private leaveService: LeaveService, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.approvarId = this.authService.getEmployeeId();
@@ -58,7 +59,7 @@ export class LeaveApproval implements OnInit {
   loadAllApprovalDashboardMetrics(): void {
     this.isLoading = true;
     this.loadRequestList();
-    this.loadLeaveApprovals();
+    this.loadCompOffRequests();
   }
 
   // --- SAFE API WRAPPER FOR PENDING REQUESTS ---
@@ -71,28 +72,28 @@ export class LeaveApproval implements OnInit {
             startSession: record.startSession ? record.startSession.trim() : 'FullDay',
             endSession: record.endSession ? record.endSession.trim() : 'FullDay'
           }));
-          
+
           const rawResponse = response as any;
           if (rawResponse.totalCount !== undefined) {
             this.totalItemsPending = rawResponse.totalCount;
           } else {
             this.totalItemsPending = this.pendingRequests.length < this.pageSize && this.page === 1
-              ? this.pendingRequests.length 
+              ? this.pendingRequests.length
               : (this.page * this.pageSize) + 1;
           }
 
           if (this.pendingRequests.length > 0 && !this.selectedRequest) {
-            this.selectRequestItem(this.pendingRequests[0]);
-          } else if (this.pendingRequests.length === 0) {
+            this.selectRequestItem(this.pendingRequests[0], 'leave');
+          } else if (this.pendingRequests.length === 0 && this.compOffRequests.length === 0) {
             this.selectedRequest = null;
+            this.selectedRequestType = null;
           }
         }
         this.isLoading = false;
-      }, 
+      },
       error: (error) => {
         this.isLoading = false;
-        
-        // INTERCEPT 404 NOT FOUND: Roll back the active properties instantly
+
         if (error?.status === 404) {
           console.warn(`Fetch aborted (404 Not Found). Reverting pending layout trackers to: Page ${backupPage}, Size ${backupSize}`);
           this.page = backupPage;
@@ -105,33 +106,36 @@ export class LeaveApproval implements OnInit {
     });
   }
 
-  // --- SAFE API WRAPPER FOR DECIDED REQUESTS ---
-  loadLeaveApprovals(backupPage1: number = this.page1, backupSize1: number = this.pageSize1): void {
-    this.leaveService.GetLeaveApprovalsByApprovarId(this.approvarId, this.page1, this.pageSize1).subscribe({
-      next: (response: LeaveApprovalsResponse) => {
+  // --- SAFE API WRAPPER FOR COMP OFF REQUESTS ---
+  loadCompOffRequests(backupPage1: number = this.page1, backupSize1: number = this.pageSize1): void {
+    this.leaveService.GetAllPendingCompOffRequests(this.page1, this.pageSize1).subscribe({
+      next: (response: LeaveResponseList) => {
         if (response.success && response.data) {
-          this.decidedApprovals = response.data.map((record: any) => ({
+          this.compOffRequests = response.data.map((record: any) => ({
             ...record,
             startSession: record.startSession ? record.startSession.trim() : 'FullDay',
             endSession: record.endSession ? record.endSession.trim() : 'FullDay'
           }));
-          
+
           const rawResponse = response as any;
           if (rawResponse.totalCount !== undefined) {
-            this.totalItemsDecided = rawResponse.totalCount;
+            this.totalItemsCompOff = rawResponse.totalCount;
           } else {
-            this.totalItemsDecided = this.decidedApprovals.length < this.pageSize1 && this.page1 === 1
-              ? this.decidedApprovals.length
+            this.totalItemsCompOff = this.compOffRequests.length < this.pageSize1 && this.page1 === 1
+              ? this.compOffRequests.length
               : (this.page1 * this.pageSize1) + 1;
           }
+
+          if (this.compOffRequests.length > 0 && !this.selectedRequest && this.pendingRequests.length === 0) {
+            this.selectRequestItem(this.compOffRequests[0], 'compoff');
+          }
         }
-      }, 
+      },
       error: (error) => {
-        console.error("Failed to sync structural decided leaves audit logs:", error);
-        
-        // INTERCEPT 404 NOT FOUND: Revert history index trackers immediately
+        console.error("Failed to sync structural comp off requests logs:", error);
+
         if (error?.status === 404) {
-          console.warn(`Fetch aborted (404 Not Found). Reverting decided layout trackers to: Page ${backupPage1}, Size ${backupSize1}`);
+          console.warn(`Fetch aborted (404 Not Found). Reverting comp off layout trackers to: Page ${backupPage1}, Size ${backupSize1}`);
           this.page1 = backupPage1;
           this.pageSize1 = backupSize1;
           this.triggerNotification("No records available on the requested page timeline view.", false);
@@ -140,10 +144,9 @@ export class LeaveApproval implements OnInit {
     });
   }
 
-  // --- PAGINATION EVENT TRIGGERS WITH SAFE RESTORATION SNAPSHOTS ---
   onPendingPageChange(newPage: number): void {
     if (newPage < 1 || (this.totalItemsPending > 0 && newPage > this.totalPagesPending)) return;
-    
+
     const prevPage = this.page;
     this.page = newPage;
     this.loadRequestList(prevPage, this.pageSize);
@@ -152,27 +155,27 @@ export class LeaveApproval implements OnInit {
   onPendingPageSizeChange(size: number): void {
     const prevSize = this.pageSize;
     const prevPage = this.page;
-    
+
     this.pageSize = size;
     this.page = 1;
     this.loadRequestList(prevPage, prevSize);
   }
 
-  onDecidedPageChange(newPage: number): void {
-    if (newPage < 1 || (this.totalItemsDecided > 0 && newPage > this.totalPagesDecided)) return;
-    
+  onCompOffPageChange(newPage: number): void {
+    if (newPage < 1 || (this.totalItemsCompOff > 0 && newPage > this.totalPagesCompOff)) return;
+
     const prevPage1 = this.page1;
     this.page1 = newPage;
-    this.loadLeaveApprovals(prevPage1, this.pageSize1);
+    this.loadCompOffRequests(prevPage1, this.pageSize1);
   }
 
-  onDecidedPageSizeChange(size: number): void {
+  onCompOffPageSizeChange(size: number): void {
     const prevSize1 = this.pageSize1;
     const prevPage1 = this.page1;
-    
+
     this.pageSize1 = size;
     this.page1 = 1;
-    this.loadLeaveApprovals(prevPage1, prevSize1);
+    this.loadCompOffRequests(prevPage1, prevSize1);
   }
 
   // --- PAGINATION ARITHMETIC GETTERS ---
@@ -181,9 +184,9 @@ export class LeaveApproval implements OnInit {
     return Math.ceil(this.totalItemsPending / this.pageSize) || 1;
   }
 
-  get totalPagesDecided(): number {
-    if (this.totalItemsDecided <= this.decidedApprovals.length && this.page1 === 1) return 1;
-    return Math.ceil(this.totalItemsDecided / this.pageSize1) || 1;
+  get totalPagesCompOff(): number {
+    if (this.totalItemsCompOff <= this.compOffRequests.length && this.page1 === 1) return 1;
+    return Math.ceil(this.totalItemsCompOff / this.pageSize1) || 1;
   }
 
   get startPendingIndex(): number {
@@ -197,45 +200,43 @@ export class LeaveApproval implements OnInit {
     return computedEnd > this.totalItemsPending ? this.totalItemsPending : computedEnd;
   }
 
-  get startDecidedIndex(): number {
-    if (this.decidedApprovals.length === 0) return 0;
+  get startCompOffIndex(): number {
+    if (this.compOffRequests.length === 0) return 0;
     return (this.page1 - 1) * this.pageSize1 + 1;
   }
 
-  get endDecidedIndex(): number {
+  get endCompOffIndex(): number {
     const computedEnd = this.page1 * this.pageSize1;
-    if (this.totalItemsDecided <= this.decidedApprovals.length && this.page1 === 1) return this.decidedApprovals.length;
-    return computedEnd > this.totalItemsDecided ? this.totalItemsDecided : computedEnd;
+    if (this.totalItemsCompOff <= this.compOffRequests.length && this.page1 === 1) return this.compOffRequests.length;
+    return computedEnd > this.totalItemsCompOff ? this.totalItemsCompOff : computedEnd;
   }
 
-  selectRequestItem(request: any): void {
+  selectRequestItem(request: any, type: 'leave' | 'compoff'): void {
     this.selectedRequest = request;
-    this.decisionComment = ''; 
+    this.selectedRequestType = type;
+    this.decisionComment = '';
   }
 
   getInitials(name: string): string {
     if (!name) return 'EE';
     const parts = name.trim().split(/\s+/);
-    return parts.length > 1 
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase() 
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
       : `${parts[0][0]}${parts[0][1] || ''}`.toUpperCase();
   }
 
-  /**
-   * Calculates total leave days based on date span and session types
-   */
   calculateLeaveDays(startDate: any, endDate: any, startSession: string, endSession: string): number {
     if (!startDate || !endDate) return 0;
-    
+
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
-    start.setHours(0,0,0,0);
-    end.setHours(0,0,0,0);
-    
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
     const timeDiff = Math.abs(end.getTime() - start.getTime());
     let totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-    
+
     const sSession = (startSession || '').trim().toLowerCase();
     const eSession = (endSession || '').trim().toLowerCase();
 
@@ -251,25 +252,25 @@ export class LeaveApproval implements OnInit {
         totalDays -= 0.5;
       }
     }
-    
+
     return totalDays;
   }
 
   getStatusClass(status: string): string {
     if (!status) return 'bg-secondary-subtle text-secondary';
-    
+
     switch (status.trim().toLowerCase()) {
-      case 'approved': 
-      case 'accepted': 
+      case 'approved':
+      case 'accepted':
         return 'bg-success-subtle text-success';
-      case 'pending': 
+      case 'pending':
         return 'bg-warning-subtle text-warning-emphasis';
-      case 'rejected': 
+      case 'rejected':
         return 'bg-danger-subtle text-danger';
       case 'cancelled':
       case 'canceled':
         return 'bg-purple-subtle text-purple-emphasis border-purple';
-      default: 
+      default:
         return 'bg-secondary-subtle text-secondary';
     }
   }
@@ -285,31 +286,55 @@ export class LeaveApproval implements OnInit {
 
   onApprove(): void {
     if (!this.selectedRequest || this.isProcessingAction) return;
+
     this.isProcessingAction = true;
     const dto: ApprovalDto = {
       leaveRequestId: this.selectedRequest.id,
       comment: this.decisionComment
     };
 
-    this.leaveService.ApproveLeave(this.approvarId, dto).subscribe({
-      next: (response) => {
-        this.isProcessingAction = false;
-        if (response.success) {
-          this.triggerNotification("Leave request successfully approved and processed.", true);
-          this.refreshDashboardState();
-        } else {
-          this.triggerNotification(response.message || "Approval execution request aborted.", false);
+    // Temporary interception branch for Comp Off requests
+    if (this.selectedRequestType === 'compoff') {
+      console.log("Comp Off Approve action called temporarily for ID:", this.selectedRequest.id, "Comment:", this.decisionComment);
+      this.leaveService.ApproveCompOff(this.approvarId, dto).subscribe({
+        next: (response) => {
+          this.isProcessingAction = false;
+          if (response.success) {
+            this.triggerNotification("Comp Off approval action logged to console temporarily.", true);
+            this.refreshDashboardState();
+          } else {
+            this.triggerNotification(response.message || "Approval execution request aborted.", false);
+          }
+        },
+        error: (err) => {
+          this.isProcessingAction = false;
+          this.triggerNotification(err?.error?.message || "A pipeline error derailed the approval request.", false);
         }
-      },
-      error: (err) => {
-        this.isProcessingAction = false;
-        this.triggerNotification(err?.error?.message || "A pipeline error derailed the approval request.", false);
-      }
-    });
+      })
+      return;
+    }
+    else {
+      this.leaveService.ApproveLeave(this.approvarId, dto).subscribe({
+        next: (response) => {
+          this.isProcessingAction = false;
+          if (response.success) {
+            this.triggerNotification("Request successfully approved and processed.", true);
+            this.refreshDashboardState();
+          } else {
+            this.triggerNotification(response.message || "Approval execution request aborted.", false);
+          }
+        },
+        error: (err) => {
+          this.isProcessingAction = false;
+          this.triggerNotification(err?.error?.message || "A pipeline error derailed the approval request.", false);
+        }
+      });
+    }
   }
 
   onReject(): void {
     if (!this.selectedRequest || this.isProcessingAction) return;
+
     this.isProcessingAction = true;
     const dto: ApprovalDto = {
       leaveRequestId: this.selectedRequest.id,
@@ -320,7 +345,7 @@ export class LeaveApproval implements OnInit {
       next: (response) => {
         this.isProcessingAction = false;
         if (response.success) {
-          this.triggerNotification("Leave request has been rejected cleanly.", true);
+          this.triggerNotification("Request has been rejected cleanly.", true);
           this.refreshDashboardState();
         } else {
           this.triggerNotification(response.message || "Rejection execution request aborted by data server.", false);
@@ -335,7 +360,8 @@ export class LeaveApproval implements OnInit {
 
   private refreshDashboardState(): void {
     this.selectedRequest = null;
+    this.selectedRequestType = null;
     this.loadRequestList();
-    this.loadLeaveApprovals();
+    this.loadCompOffRequests();
   }
 }

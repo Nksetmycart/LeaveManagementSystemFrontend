@@ -17,7 +17,7 @@
   <div class="mb-4">
     <span class="text-muted text-uppercase fw-bold tracking-wider fs-7 d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Approvals</span>
     <h1 class="fw-bold text-dark h2 mb-1">Leave requests</h1>
-    <p class="text-secondary mb-3 fs-6">Review, approve, or reject leave requests with context.</p>
+    <p class="text-secondary mb-3 fs-6">Review, approve, or reject leave and comp off requests with context.</p>
 
     <div class="d-flex gap-2 flex-wrap mt-3">
       <a [routerLink]="['/dashboard/leave-requests']" class="btn btn-outline-secondary btn-sm rounded-3 px-3 py-2 fw-medium shadow-none bg-white fs-7 d-flex align-items-center gap-2 text-decoration-none text-secondary">
@@ -32,7 +32,7 @@
   <!-- Loading State Indicator Spans Layout -->
   <div *ngIf="isLoading" class="text-center p-5 card border-0 shadow-sm rounded-4 bg-white min-h-card d-flex align-items-center justify-content-center">
     <div class="spinner-border text-primary mb-2" role="status"></div>
-    <span class="text-muted fs-7 fw-medium">Syncing leave workflow parameters...</span>
+    <span class="text-muted fs-7 fw-medium">Syncing workflow parameters...</span>
   </div>
 
   <!-- Two-Column Master-Detail Split Layout -->
@@ -45,15 +45,15 @@
         <div>
           <!-- Pending Section Header -->
           <div class="mb-4">
-            <h3 class="fw-bold text-dark mb-0 fs-5">Pending ({{ totalItemsPending }})</h3>
+            <h3 class="fw-bold text-dark mb-0 fs-5">Pending Leaves ({{ totalItemsPending }})</h3>
             <span class="text-muted fs-7">Awaiting your decision</span>
           </div>
 
-          <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+          <!-- FIXED VIEWPORT HEIGHT CONTAINER FOR LEAVES -->
           <div class="scroll-container mb-2 pe-1">
             <div class="d-flex flex-column gap-2">
               <div *ngFor="let req of pendingRequests" 
-                   (click)="selectRequestItem(req)"
+                   (click)="selectRequestItem(req, 'leave')"
                    class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3 transition-all" 
                    [ngClass]="{ 'active-card shadow-sm border-primary': selectedRequest?.id === req.id, 'bg-white clickable-hover': selectedRequest?.id !== req.id }"
                    role="button">
@@ -108,55 +108,64 @@
         </div>
 
         <div>
-          <!-- Recently Decided Section Header -->
+          <!-- Comp Off Requests Section Header -->
           <div class="mb-3 pt-2">
-            <h4 class="fw-bold text-secondary mb-0 fs-6">Recently decided</h4>
+            <h4 class="fw-bold text-secondary mb-0 fs-6">Comp Off Requests ({{ totalItemsCompOff }})</h4>
           </div>
 
-          <!-- FIXED VIEWPORT HEIGHT CONTAINER -->
+          <!-- FIXED VIEWPORT HEIGHT CONTAINER FOR COMP OFFS -->
           <div class="scroll-container border-top pe-1 mb-2">
-            <div class="d-flex flex-column">
-              <div *ngFor="let approval of decidedApprovals" class="d-flex align-items-center justify-content-between py-3 border-bottom transition-all">
+            <div class="d-flex flex-column gap-2 mt-3">
+              <div *ngFor="let compOff of compOffRequests" 
+                   (click)="selectRequestItem(compOff, 'compoff')"
+                   class="request-row border d-flex align-items-center justify-content-between p-3 rounded-3 transition-all" 
+                   [ngClass]="{ 'active-card shadow-sm border-primary': selectedRequest?.id === compOff.id, 'bg-white clickable-hover': selectedRequest?.id !== compOff.id }"
+                   role="button">
                 <div class="d-flex align-items-center overflow-hidden">
-                  <div class="avatar-circle bg-light border text-muted fw-semibold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; font-size: 0.8rem;">
-                    {{ getInitials(approval.employeeName) }}
+                  <div class="avatar-circle bg-light border text-muted fw-semibold me-3 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 42px; height: 42px; font-size: 0.9rem;">
+                    {{ getInitials(compOff.employeeName) }}
                   </div>
                   <div class="overflow-hidden">
-                    <span class="fw-semibold text-dark d-block text-truncate" style="font-size: 0.92rem;">{{ approval.employeeName }} • {{ approval.leaveType }}</span>
-                    <small class="text-muted d-block font-monospace mt-0.5" style="font-size: 0.78rem;">{{ approval.startDate | date:'yyyy-MM-dd' }} → {{ approval.endDate | date:'yyyy-MM-dd' }}</small>
+                    <span class="fw-semibold text-dark d-block text-truncate" style="font-size: 0.95rem;">{{ compOff.employeeName }} • {{ compOff.leaveType }}</span>
+                    <small class="text-secondary d-block font-monospace mt-0.5" style="font-size: 0.8rem;">
+                      {{ compOff.startDate | date:'yyyy-MM-dd' }} → {{ compOff.endDate | date:'yyyy-MM-dd' }}
+                    </small>
                   </div>
                 </div>
-                <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font flex-shrink-0 ms-2"
-                      [ngClass]="getStatusClass(approval.status)">
-                  {{ approval.status }}
-                </span>
+                <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-2">
+                  <span class="badge px-2.5 py-1.5 rounded-pill fw-semibold text-uppercase style-badge-font"
+                        [ngClass]="getStatusClass(compOff.status)">
+                    {{ compOff.status }}
+                  </span>
+                  <i class="bi bi-chevron-right text-muted fs-7"></i>
+                </div>
               </div>
 
-              <div *ngIf="decidedApprovals.length === 0" class="text-center py-4 text-muted fs-8 font-monospace text-uppercase tracking-wider opacity-50">
-                No decision audits logged yet.
+              <div *ngIf="compOffRequests.length === 0" class="text-center py-4 border border-dashed rounded-3 bg-light text-muted fs-7">
+                <i class="bi bi-award text-secondary d-block fs-4 mb-1"></i> No pending comp off requests logged.
               </div>
             </div>
           </div>
         </div>
 
-        <!-- DECIDED AUDIT HISTORICAL LEDGER PAGINATION FOOTER -->
-        <div *ngIf="decidedApprovals.length > 0" class="d-flex align-items-center justify-content-between py-2 border-top bg-white flex-wrap gap-2">
+        <!-- COMP OFF REQUESTS PAGINATION FOOTER -->
+        <div *ngIf="compOffRequests.length > 0" class="d-flex align-items-center justify-content-between py-2 border-top bg-white flex-wrap gap-2 mt-2">
           <div class="d-flex align-items-center gap-1.5 text-secondary fs-8 shadow-none">
-            <select class="form-select form-select-sm select-size-dropdown shadow-none py-0.5" name="decidedPageSize" [(ngModel)]="pageSize1" (ngModelChange)="onDecidedPageSizeChange($event)">
+            <select class="form-select form-select-sm select-size-dropdown shadow-none py-0.5" name="compOffPageSize" [(ngModel)]="pageSize1" (ngModelChange)="onCompOffPageSizeChange($event)">
               <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
             </select>
-            <span>/ page ({{ startDecidedIndex }}-{{ endDecidedIndex }} of {{ totalItemsDecided }})</span>
+            <span>/ page ({{ startCompOffIndex }}-{{ endCompOffIndex }} of {{ totalItemsCompOff }})</span>
           </div>
-          <nav aria-label="Decided queue catalog navigational control tracker">
+          <nav aria-label="Comp off queue navigational control tracker">
             <ul class="pagination pagination-sm mb-0 gap-1 align-items-center shadow-none">
               <li class="page-item" [class.disabled]="page1 === 1">
-                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onDecidedPageChange(page1 - 1)"><i class="bi bi-chevron-left"></i></button>
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onCompOffPageChange(page1 - 1)"><i class="bi bi-chevron-left"></i></button>
               </li>
-              <li class="page-item" *ngFor="let p1 of [].constructor(totalPagesDecided); let idx1 = index" [class.active]="page1 === (idx1 + 1)">
-                <button type="button" class="page-link rounded-2 px-2.5 py-1 shadow-none border" (click)="onDecidedPageChange(idx1 + 1)">{{ idx1 + 1 }}</button>
+              <li class="page-item" *ngFor="let p1 of [].constructor(totalPagesCompOff); let idx1 = index" [class.active]="page1 === (idx1 + 1)">
+                <button type="button" class="page-link rounded-2 px-2.5 py-1 shadow-none border" (click)="onCompOffPageChange(idx1 + 1)">{{ idx1 + 1 }}</button>
               </li>
-              <li class="page-item" [class.disabled]="page1 >= totalPagesDecided || decidedApprovals.length < pageSize1">
-                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onDecidedPageChange(page1 + 1)"><i class="bi bi-chevron-right"></i></button>
+              <li class="page-item" [class.disabled]="page1 >= totalPagesCompOff || compOffRequests.length < pageSize1">
+                <button type="button" class="page-link rounded-2 px-2 py-1 shadow-none border" (click)="onCompOffPageChange(page1 + 1)"><i class="bi bi-chevron-right"></i></button>
               </li>
             </ul>
           </nav>
@@ -176,7 +185,10 @@
           </div>
           <div>
             <h3 class="fw-bold text-dark fs-5 mb-0">{{ selectedRequest.employeeName }}</h3>
-            <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Authorized Staff</span>
+            <!-- Dynamic Label based on request type -->
+            <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+              {{ selectedRequestType === 'compoff' ? 'Comp Off Request' : 'Leave Request' }}
+            </span>
           </div>
         </div>
 
@@ -255,7 +267,7 @@
       <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center text-muted h-100 d-flex align-items-center justify-content-center" *ngIf="!selectedRequest">
         <i class="bi bi-inboxes display-4 text-secondary opacity-25 mb-2"></i>
         <h5 class="fw-bold text-dark fs-6 mb-1">No Selection Focus</h5>
-        <p class="mb-0 fs-8 text-uppercase tracking-wide font-monospace">Choose an entry row from pending queue to view audit specs profiles.</p>
+        <p class="mb-0 fs-8 text-uppercase tracking-wide font-monospace">Choose an entry row from the queues to view audit specs profiles.</p>
       </div>
 
     </div>

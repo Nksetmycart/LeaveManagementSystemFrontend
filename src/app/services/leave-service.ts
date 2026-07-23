@@ -34,12 +34,6 @@ export interface GetLeaveTypesList {
   }>;
 }
 
-export interface LeaveTypeResponse {
-  message: string;
-  success: boolean;
-  data: string;
-}
-
 export interface UpdateLeaveTypeDto {
   name: string;
   description: string;
@@ -51,26 +45,14 @@ export interface UpdateLeaveTypeDto {
   reqiresAttachment: boolean;
 }
 
-export interface DeleteLeaveTypeResponse {
-  message: string;
-  success: boolean;
-}
-
-// 1. Structural Payload Interface for Apply Leave Dto Setup Parameters
 export interface ApplyLeaveRequestDto {
   leaveTypeId: string;
-  startDate: string;  // Formats correctly to matching "2026-07-18T15:05:30.450Z" string targets
+  startDate: string;  
   endDate: string;
   startSession: number;  // Evaluates to 0 (Full), 1 (First Half), or 2 (Second Half)
   endSession: number;  // Evaluates to 0 (Full), 1 (First Half), or 2 (Second Half)
   reason: string;
   submittedAt: string;
-}
-
-export interface ApplyLeaveResponse {
-  message: string;
-  success: boolean;
-  data?: any;
 }
 
 export interface LeaveResponseList {
@@ -129,11 +111,6 @@ export interface LeaveBalanceResponse {
   }
 }
 
-export interface CancelRequestResponse {
-  success: boolean;
-  message: string;
-}
-
 export interface LeaveApprovalsResponse {
   success: boolean;
   message: string;
@@ -159,12 +136,6 @@ export interface ApprovalDto {
   comment: string;
 }
 
-export interface ApprovalResponse {
-  success: boolean;
-  message: string;
-  data: string;
-}
-
 export interface AssignLeaveBalanceDto {
   leaveTypeId: string;
   year: number;
@@ -174,7 +145,7 @@ export interface AssignLeaveBalanceDto {
   lastAccruedOn: Date;
 }
 
-export interface AssignLeaveBalanceResponse {
+export interface Response {
   success: boolean;
   message: string;
   data: string;
@@ -189,45 +160,53 @@ export class LeaveService {
 
   constructor(private http: HttpClient) { }
 
-  CreateLeaveType(data: LeaveTypeDto): Observable<LeaveTypeResponse> {
+  CreateLeaveType(data: LeaveTypeDto): Observable<Response> {
     console.log("Submitting Leave Type DTO:", data);
-    return this.http.post<LeaveTypeResponse>(`${this.baseUrl}/LeaveType`, data);
+    return this.http.post<Response>(`${this.baseUrl}/LeaveType`, data);
   }
 
   GetLeaveTypes(): Observable<GetLeaveTypesList> {
     return this.http.get<GetLeaveTypesList>(`${this.baseUrl}/LeaveType`);
   }
 
-  UpdateLeaveTypeById(leaveTypeId: string, data: UpdateLeaveTypeDto): Observable<LeaveTypeResponse> {
-    return this.http.put<LeaveTypeResponse>(`${this.baseUrl}/LeaveType/${leaveTypeId}`, data);
+  UpdateLeaveTypeById(leaveTypeId: string, data: UpdateLeaveTypeDto): Observable<Response> {
+    return this.http.put<Response>(`${this.baseUrl}/LeaveType/${leaveTypeId}`, data);
   }
 
-  DeleteLeaveTypeById(leaveTypeId: string): Observable<DeleteLeaveTypeResponse> {
-    return this.http.delete<DeleteLeaveTypeResponse>(`${this.baseUrl}/LeaveType/${leaveTypeId}`);
+  DeleteLeaveTypeById(leaveTypeId: string): Observable<Response> {
+    return this.http.delete<Response>(`${this.baseUrl}/LeaveType/${leaveTypeId}`);
   }
 
-  ApplyLeaveById(leaveData: ApplyLeaveRequestDto, employeeId: string): Observable<ApplyLeaveResponse> {
-    return this.http.post<ApplyLeaveResponse>(`${this.baseUrl}/LeaveRequest/${employeeId}`, leaveData);
+  ApplyLeaveById(leaveData: ApplyLeaveRequestDto, employeeId: string): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/LeaveRequest/${employeeId}`, leaveData);
   }
 
-  ApplyCompOffById(compOffData: ApplyLeaveRequestDto, employeeId: string): Observable<ApplyLeaveResponse> {
-    return this.http.post<ApplyLeaveResponse>(`${this.baseUrl}/CompOff/${employeeId}`, compOffData);
+  ApplyCompOffById(compOffData: ApplyLeaveRequestDto, employeeId: string): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/CompOff/${employeeId}`, compOffData);
   }
 
   GetLeaveRequestsByEmployee(employeeId: string, page: number, pageSize: number): Observable<LeaveResponseList> {
     return this.http.get<LeaveResponseList>(`${this.baseUrl}/LeaveRequest/${employeeId}?page=${page}&pageSize=${pageSize}`)
   }
 
-  CancelLeaveRequest(employeeId: string, leaveRequestId: string): Observable<CancelRequestResponse> {
-    return this.http.put<CancelRequestResponse>(`${this.baseUrl}/LeaveRequest/${employeeId}/${leaveRequestId}`, null)
+  CancelLeaveRequest(employeeId: string, leaveRequestId: string): Observable<Response> {
+    return this.http.put<Response>(`${this.baseUrl}/LeaveRequest/${employeeId}/${leaveRequestId}`, null)
   }
 
   GetAllLeaveRequests(page: number, pageSize: number): Observable<LeaveResponseList> {
     return this.http.get<LeaveResponseList>(`${this.baseUrl}/LeaveRequest?page=${page}&pageSize=${pageSize}`)
   }
 
+  GetAllCompOffRequests(page: number, pageSize: number): Observable<LeaveResponseList> {
+    return this.http.get<LeaveResponseList>(`${this.baseUrl}/CompOff?page=${page}&pageSize=${pageSize}`)
+  }
+
   GetAllPendingLeaveRequests(page: number, pageSize: number): Observable<LeaveResponseList> {
     return this.http.get<LeaveResponseList>(`${this.baseUrl}/LeaveRequest?status=Pending&page=${page}&pageSize=${pageSize}`)
+  }
+
+  GetAllPendingCompOffRequests(page: number, pageSize: number): Observable<LeaveResponseList> {
+    return this.http.get<LeaveResponseList>(`${this.baseUrl}/CompOff?status=Pending&page=${page}&pageSize=${pageSize}`)
   }
 
   GetAllLeaveBalances(page: number, pageSize: number): Observable<LeaveBalancesResponseList> {
@@ -246,16 +225,24 @@ export class LeaveService {
     return this.http.get<LeaveApprovalsResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}?page=${page}&pageSize=${pageSize}`)
   }
 
-  ApproveLeave(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
-    return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/approve`, data)
+  ApproveLeave(approvarId: string, data: ApprovalDto): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/LeaveApproval/${approvarId}/approve`, data)
   }
 
-  RejectLeave(approvarId: string, data: ApprovalDto): Observable<ApprovalResponse> {
-    return this.http.post<ApprovalResponse>(`${this.baseUrl}/LeaveApproval/${approvarId}/reject`, data)
+  ApproveCompOff(approvarId: string, data: ApprovalDto): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/CompOff/${approvarId}/approve`, data)
   }
 
-  AssignLeaveBalance(employeeId: string, data: AssignLeaveBalanceDto): Observable<AssignLeaveBalanceResponse> {
-    return this.http.post<AssignLeaveBalanceResponse>(`${this.baseUrl}/LeaveBalance/${employeeId}`, data)
+  RejectLeave(approvarId: string, data: ApprovalDto): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/LeaveApproval/${approvarId}/reject`, data)
+  }
+
+  AssignLeaveBalance(employeeId: string, data: AssignLeaveBalanceDto): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/LeaveBalance/${employeeId}`, data)
+  }
+
+  RenewLeaveBalances(): Observable<Response> {
+    return this.http.post<Response>(`${this.baseUrl}/LeaveBalance/renew-monthly-balance`, null)
   }
 }
 
